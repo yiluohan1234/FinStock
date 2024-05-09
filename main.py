@@ -20,16 +20,17 @@ def main():
     #运营能力['存货周转天数', '应收账款周转天数']
     print(df)
 def line():
-    k=KLineChart("000977")
+    k=KLineChart("000612")
     #k=KLineChart("000960")
     #k=KLineChart("000612")
     #k=KLineChart("600595")
     #k=KLineChart("001872")
 
     k.plot(area=['V','KL'], width=1200,height=600,
-           klines=['ma5','ma10','ma20','ma60', 'ma120', 'ma250'],
-           jxPoints=[[("2024-02-21",18.2), ("2024-04-12",18.2)]],
-           jxLines=[18.2, 16.5, "2024-04-12", "2024-04-30"]
+           # klines=['ma5','ma10','ma20','ma60', 'ma120', 'ma250'],
+           klines=['ma5', 'ma20', 'ene', 'upper', 'lower'],
+           # jxPoints=[[("2024-02-21",18.2), ("2024-04-12",18.2)]],
+           # jxLines=[18.2, 16.5, "2024-04-12", "2024-04-30"]
            )
     k.web()
 def AI():
@@ -50,10 +51,10 @@ def fund():
     # print(ak.stock_hsgt_fund_flow_summary_em())
     # print(ak.stock_hsgt_hist_em("北向资金").dtypes)
 if __name__ == "__main__":
-    main()
+    # main()
     # AI()
-    b = Basic()
-    b.plot_page()
-    # line()
+    # b = Basic()
+    # b.plot_page()
+    line()
     # import akshare as ak
 
