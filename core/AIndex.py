@@ -147,6 +147,14 @@ class AIndex:
         df['up'] = df['boll'] + 2 * df['beta']
         df['down'] = df['boll'] - 2 * df['beta']
 
+        # 计算包络线ENE(10,9,9)
+        # ENE代表中轨。MA(CLOSE,N)代表N日均价
+        # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
+        # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
+        df['ene'] = df.close.rolling(10).mean()
+        df['upper'] = (1 + 9.0 / 100) * df['ene']
+        df['lower'] = (1 - 9.0 / 100) * df['ene']
+
         # 计算MACD
         # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
         df['DIF'], df['DEA'], df['MACD'] = self.cal_macd(df)
@@ -634,7 +642,7 @@ class AIndex:
                 ),
                 markline_opts=opts.MarkLineOpts(
                     data=[
-                        opts.MarkLineItem(name='0值', y=0, symbol='none', ), 
+                        opts.MarkLineItem(name='0值', y=0, symbol='none', ),
                         opts.MarkLineItem(name='最大值', y=20, symbol='none', ),
                         opts.MarkLineItem(name='最小值', y=-20, symbol='none', )
                     ],
@@ -732,7 +740,7 @@ class AIndex:
                                 [Field1,Field2,...] Dataframe中的字段名列表，将显示在一个区域
           width: int            #图表宽度 px
           height: int            #图表高度 px
-          klines: list           #K线区域显示的数据，Dataframe中的字段名，如['ma5','ma10','ma20','ma60', 'ma120', 'ma250', 'boll', 'up', 'down', 'stop']
+          klines: list           #K线区域显示的数据，Dataframe中的字段名，如['ma5','ma10','ma20','ma60', 'ma120', 'ma250', 'boll', 'up', 'down', 'stop', 'ene', 'upper', 'lower']
           vline: list           #Volume区域显示的数据，Dataframe中的字段名，如MA...
           dmalines: list        #线误差的两个均线选择，如['ma5', 'ma10']
           jxPoints: list        #绘制多个颈线的坐标，如jxPoints=[[("2024-03-01",38.80), ("2024-04-09",38.80)], [("2024-01-11",18.80), ("2024-01-31",28.80)]])
