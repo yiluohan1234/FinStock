@@ -15,7 +15,7 @@ import pandas as pd
 from matplotlib import ticker
 from matplotlib.font_manager import FontProperties
 from pyecharts import options as opts
-from pyecharts.charts import Bar, Line, Tab, Pie, Page
+from pyecharts.charts import Bar, Line, Tab, Pie, Page, Table
 # 内置主题类型可查看 pyecharts.globals.ThemeType
 from pyecharts.globals import ThemeType
 import webbrowser
@@ -723,6 +723,14 @@ class Basic:
                 )
         # line = plot_multi_line('报告日', '营业总收入', [df, df1], ['612', '977'])
         return _line
+    def plot_table(self, data, headers, title):
+        table = Table()
+
+        rows = data[headers].values().tolist()
+        table.add(headers, rows).set_global_opts(
+            title_opts=opts.ComponentTitleOpts(title=title)
+        )
+        return table
 
     def plot_page(self):
         from core.FundFlow import FundFlow
@@ -750,9 +758,19 @@ class Basic:
             #self.plot_pie(df_zygc, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
             self.title("盈利能力"),
             self.bar_over_line(df_import, '报告期', '营业总收入', '营业总收入同比增长率'),
-            # self.bar_over_line(df_import, '报告期', '净利润', '净利润同比增长率'),
-            # self.bar_over_line(df_import, '报告期', '扣非净利润', '扣非净利润同比增长率'),
+            self.bar_over_line(df_import, '报告期', '净利润', '净利润同比增长率'),
+            self.bar_over_line(df_import, '报告期', '扣非净利润', '扣非净利润同比增长率'),
+            self.plot_line(df_import, '报告期', '净资产收益率', '净资产收益率'),
+            self.plot_line(df_import, '报告期', '净资产收益率-摊薄', '净资产收益率-摊薄'),
+            self.plot_line(df_import, '报告期', '销售净利率', '销售净利率'),
+            self.plot_line(df_import, '报告期', '销售毛利率', '销售毛利率'),
+            self.plot_line(df_import, '报告期', '基本每股收益', '基本每股收益'),
+            self.plot_line(df_import, '报告期', '每股净资产', '每股净资产'),
+            self.plot_line(df_import, '报告期', '每股资本公积金', '每股资本公积金'),
             # self.title("财务风险"),
+            self.plot_line(df_import, '报告期', '资产负债率', '资产负债率'),
+            self.plot_line(df_import, '报告期', '流动比率', '流动比率'),
+            self.plot_line(df_import, '报告期', '速动比率', '速动比率'),
             # self.title("运营能力"),
 
         )
