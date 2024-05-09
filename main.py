@@ -34,10 +34,10 @@ def line():
     k.web()
 def AI():
     a = AIndex()
-    a.plot(area=['V','KL'], width=1200,height=600,
+    a.plot(n=60, area=['V', 'BIAS'], width=1200,height=600,
            klines=['ma5','ma10','ma20','ma60', 'ma120', 'ma250'],
-           jxPoints=[[("2024-02-21",1800.2), ("2024-04-12",1800.2)]],
-           jxLines=[1800.2, 1700.5, "2024-04-12", "2024-04-30"]
+        #    jxPoints=[[("2024-02-21",1800.2), ("2024-04-12",1800.2)]],
+        #    jxLines=[1800.2, 1700.5, "2024-04-12", "2024-04-30"]
            )
     a.web()
 
@@ -50,8 +50,8 @@ def fund():
     # print(ak.stock_hsgt_fund_flow_summary_em())
     # print(ak.stock_hsgt_hist_em("北向资金").dtypes)
 if __name__ == "__main__":
-    main()
-    # AI()
+    # main()
+    AI()
     # b = Basic()
     # b.plot_page()
     # line()

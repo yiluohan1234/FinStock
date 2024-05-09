@@ -633,7 +633,11 @@ class AIndex:
                     color='#ef232a'  # '#14b143'
                 ),
                 markline_opts=opts.MarkLineOpts(
-                    data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
+                    data=[
+                        opts.MarkLineItem(name='0值', y=0, symbol='none', ), 
+                        opts.MarkLineItem(name='最大值', y=20, symbol='none', ),
+                        opts.MarkLineItem(name='最小值', y=-20, symbol='none', )
+                    ],
                     linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
                 )
             )
