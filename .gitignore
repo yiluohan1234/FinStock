@@ -1,7 +1,4 @@
 .ipynb_checkpoints/*
-!.mvn/wrapper/maven-wrapper.jar
-!**/core/**/__pycache__/
-!**/core/**/.ipynb_checkpoints/
 
 ### IntelliJ IDEA ###
 .idea
