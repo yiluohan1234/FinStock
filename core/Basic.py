@@ -15,7 +15,8 @@ import pandas as pd
 from matplotlib import ticker
 from matplotlib.font_manager import FontProperties
 from pyecharts import options as opts
-from pyecharts.charts import Bar, Line, Tab, Pie, Page, Table
+from pyecharts.charts import Bar, Line, Tab, Pie, Page
+from pyecharts.components import Table
 # 内置主题类型可查看 pyecharts.globals.ThemeType
 from pyecharts.globals import ThemeType
 import webbrowser
