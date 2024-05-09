@@ -10,6 +10,5 @@
 .vscode/
 
 *.html
-core/__pycache__/*
+*/__pycache__
 
-*.html
