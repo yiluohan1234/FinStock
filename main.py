@@ -50,10 +50,10 @@ def fund():
     # print(ak.stock_hsgt_fund_flow_summary_em())
     # print(ak.stock_hsgt_hist_em("北向资金").dtypes)
 if __name__ == "__main__":
-    # main()
-    AI()
-    # b = Basic()
-    # b.plot_page()
+    main()
+    # AI()
+    b = Basic()
+    b.plot_page()
     # line()
-    import akshare as ak
+    # import akshare as ak
 
