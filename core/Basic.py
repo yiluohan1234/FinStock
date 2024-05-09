@@ -93,6 +93,8 @@ class Basic:
         df = df.head(n)
         for col in df.columns.tolist()[1:]:
             df[col] = df[col].apply(self.str2value)
+        # https://blog.csdn.net/a6661314/article/details/133634976
+        df['报告期'] = df['报告期'].astype("str")
 
         df_display = self.get_display_data(df)
         return df, df_display
@@ -506,6 +508,8 @@ class Basic:
         return bar
 
     def plot_line(self, data, x, y, title):
+        print(data[x].tolist())
+        print(data[y].tolist())
         line = (Line(init_opts=opts.InitOpts(width="600px", height="400px"))
                 .add_xaxis(xaxis_data=data[x].tolist())
                 .add_yaxis(
@@ -729,7 +733,10 @@ class Basic:
 
         #df_zygc = self.get_basic_info("000977")
 
-        df, df_display= b.get_basic_import_key("000977", 5)
+        b = Basic()
+        df_import, df_import_display= b.get_basic_import_key("000977", 5)
+        for col in ['营业总收入', '净利润', '扣非净利润']:
+            df_import[col] = round(df_import[col]/100000000, 2)
 
 
 
@@ -738,10 +745,13 @@ class Basic:
         page.add(
             self.title("test"),
             #self.bar_over_line(df_lrb, '报告日', '营业总收入', '营业总收入同比'),
-            self.plot_line(df_fund, '日期', '主力净流入-净额', '资金流量'),
+            # self.plot_line(df_fund, '日期', '主力净流入-净额', '资金流量'),
             # self.plot_multi_bar('报告日', '营业总收入', [df_lrb, df_lrb1], ['612', '977'])
             #self.plot_pie(df_zygc, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
-            # self.title("盈利能力"),
+            self.title("盈利能力"),
+            self.bar_over_line(df_import, '报告期', '营业总收入', '营业总收入同比增长率'),
+            # self.bar_over_line(df_import, '报告期', '净利润', '净利润同比增长率'),
+            # self.bar_over_line(df_import, '报告期', '扣非净利润', '扣非净利润同比增长率'),
             # self.title("财务风险"),
             # self.title("运营能力"),
 
