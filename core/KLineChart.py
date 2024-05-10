@@ -44,10 +44,16 @@ class KLineChart:
         if end_date == '20240202':
             now = datetime.datetime.now()
             if now.hour >= 15:
-                end_date = now.strftime('%Y%m%d')
+                if freq == 'D':
+                    end_date = now.strftime('%Y%m%d')
+                else:
+                    end_date = now.strftime('%Y-%m-%d')
             else:
                 yesterday = now - datetime.timedelta(days=1)
-                end_date = yesterday.strftime('%Y%m%d')
+                if freq == 'D':
+                    end_date = yesterday.strftime('%Y%m%d')
+                else:
+                    end_date = yesterday.strftime('%Y-%m-%d')
 
         if freq == 'D':
             df = self.get_data(code, start_date, end_date)
@@ -185,9 +191,9 @@ class KLineChart:
 
         # 标记买入和卖出信号
         # for i in range(len(df)):
-        #     if df.loc[i, 'close'] > df.loc[i, 'up']:
+        #     if df.loc[i, 'close'] > df.loc[i, 'upper'] and df['k20'] > 0:
         #         df.loc[i, 'SELL'] = True
-        #     if df.loc[i, 'close'] < df.loc[i, 'boll']:
+        #     if df.loc[i, 'close'] < df.loc[i, 'ene'] and df['k20'] > 0:
         #         df.loc[i, 'BUY'] = True
 
         start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
@@ -350,15 +356,15 @@ class KLineChart:
                         is_show=False,
                         type_="inside",      # 内部缩放
                         xaxis_index=[0, 1],  # 可缩放的x轴坐标编号
-                        range_start=80,      # 初始显示范围
+                        range_start=0,      # 初始显示范围
                         range_end=100,       # 初始显示范围
                     ),
                     opts.DataZoomOpts(
-                        is_show=True,
+                        is_show=False,
                         xaxis_index=[0, 1],
                         type_="slider",       # 外部滑动缩放
                         pos_top="90%",        # 放置位置
-                        range_start=80,       # 初始显示范围
+                        range_start=0,       # 初始显示范围
                         range_end=100,        # 初始显示范围
                     ),
                 ],
