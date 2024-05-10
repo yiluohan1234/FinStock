@@ -45,7 +45,7 @@ def AI():
 def fund():
     import akshare as ak
     f = FundFlow()
-    df, df_display = f.get_individual_fund_flow("000977", 5)
+    df, df_display = f.get_individual_fund_flow_rank("000612")
     print(df_display)
     # print(ak.stock_hsgt_fund_min_em("北向资金"))
     # print(ak.stock_hsgt_fund_flow_summary_em())
