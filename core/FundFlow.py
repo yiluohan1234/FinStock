@@ -77,23 +77,20 @@ class FundFlow:
 
         return df, df_display
 
-    def get_individual_fund_flow_rank(self, n, indicator="今日"):
+    def get_individual_fund_flow_rank(self, code, indicator="今日"):
         '''获取个股资金排名
         @params:
         - n: int              #排名
         - indicator: str      #indicator="今日"; choice {"今日", "3日", "5日", "10日"}
         '''
         df = ak.stock_individual_fund_flow_rank(indicator=indicator)
-        #         df['最新价'] = round(df['最新价'].astype('float'), 2)
-        #         df['{}主力净流入-净额'.format(indicator)] = df['{}主力净流入-净额'.format(indicator)]
-        #         df['{}主力净流入-净额'.format(indicator)] = round(df['{}主力净流入-净额'.format(indicator)].astype('float')/10000, 2)
-        #         df['{}超大单净流入-净额'.format(indicator)] = round(df['{}超大单净流入-净额'.format(indicator)].astype('float')/10000, 2)
-        #         df['{}大单净流入-净额'.format(indicator)] = round(df['{}大单净流入-净额'.format(indicator)].astype('float')/10000, 2)
-        #         df['{}中单净流入-净额'.format(indicator)] = round(df['{}中单净流入-净额'.format(indicator)].astype('float')/10000, 2)
-        #         df['{}小单净流入-净额'.format(indicator)] = round(df['{}小单净流入-净额'.format(indicator)].astype('float')/10000, 2)
-        #         ret_df = self.get_display_data(df.tail(n))
+        df = df[df['代码'] == code]
+        for col in ['今日主力净流入-净额', '今日超大单净流入-净额', '今日大单净流入-净额', '今日中单净流入-净额', '今日小单净流入-净额']:
+            df[col] = df[col].astype('float64')
+        df_display = self.get_num2str_df(df.copy())
+        df_display = self.get_display_data(df_display)
 
-        return df[df.columns.tolist()[2:]].head(n)
+        return df, df_display
 
     def get_market_fund_flow(self, n):
         '''获取市场资金流向
