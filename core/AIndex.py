@@ -574,7 +574,13 @@ class AIndex:
                         axistick_opts=opts.AxisTickOpts(is_show=False),
                         splitline_opts=opts.SplitLineOpts(is_show=False),
                         axislabel_opts=opts.LabelOpts(is_show=False),
-                    )
+                    ),
+                    yaxis_opts=opts.AxisOpts(
+                        axislabel_opts=opts.LabelOpts(is_show=False),
+                        axisline_opts=opts.AxisLineOpts(is_show=True),
+                        axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+                        # splitline_opts=opts.SplitLineOpts(is_show=False),
+                    ),
             )
         )
         dea = round(self.data.DEA, self.precision).values.tolist()
