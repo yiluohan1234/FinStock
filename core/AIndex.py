@@ -185,7 +185,7 @@ class AIndex:
         else:
             symbol = "sz" + str(code)
 
-        df = ak.stock_zh_a_minute(symbol=symbol, period="1", adjust="qfq")
+        df = ak.stock_zh_a_minute(symbol=symbol, period="30", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
         df['volume'] = round(df['volume'].astype('float') / 10000, 2)
         df = df[pd.to_datetime(df['date']).dt.date.astype('str') == current_date]
@@ -228,6 +228,14 @@ class AIndex:
         df['beta'] = df.delta.rolling(20).std()
         df['up'] = df['boll'] + 2 * df['beta']
         df['down'] = df['boll'] - 2 * df['beta']
+
+        # 计算包络线ENE(10,9,9)
+        # ENE代表中轨。MA(CLOSE,N)代表N日均价
+        # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
+        # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
+        df['ene'] = df.close.rolling(10).mean()
+        df['upper'] = (1 + 9.0 / 100) * df['ene']
+        df['lower'] = (1 - 9.0 / 100) * df['ene']
 
         # 计算MACD
         # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
@@ -492,7 +500,7 @@ class AIndex:
                     is_scale=True,
                     split_number=2,
                     axislabel_opts=opts.LabelOpts(is_show=False),
-                    axisline_opts=opts.AxisLineOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
                     axistick_opts=opts.AxisTickOpts(is_show=False),
                     splitline_opts=opts.SplitLineOpts(is_show=False),
                 ),
@@ -618,8 +626,15 @@ class AIndex:
                     type_="category",  # 坐标轴类型-离散数据
                     grid_index=1,
                     axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
                 ),
                 legend_opts=opts.LegendOpts(is_show=False),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+                    # splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
             )
         )
         return c
@@ -654,8 +669,15 @@ class AIndex:
                     type_="category",  # 坐标轴类型-离散数据
                     grid_index=1,
                     axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
                 ),
                 legend_opts=opts.LegendOpts(is_show=False),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+                    # splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
             )
         )
         return c
@@ -687,8 +709,15 @@ class AIndex:
                     type_="category",  # 坐标轴类型-离散数据
                     grid_index=1,
                     axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
                 ),
                 legend_opts=opts.LegendOpts(is_show=False),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+                    # splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
             )
         )
         return c
@@ -719,8 +748,15 @@ class AIndex:
                     type_="category",  # 坐标轴类型-离散数据
                     grid_index=1,
                     axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
                 ),
                 legend_opts=opts.LegendOpts(is_show=False),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+                    # splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
             )
         )
         return c
