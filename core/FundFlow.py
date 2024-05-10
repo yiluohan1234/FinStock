@@ -10,6 +10,7 @@
 
 import akshare as ak
 import pandas as pd
+from datetime import datetime
 
 
 class FundFlow:
@@ -180,3 +181,14 @@ class FundFlow:
         df = ak.stock_cyq_em(symbol=symbol, adjust="qfq")
 
         return df.tail(n)
+
+    def get_north_data(self, start_date, end_date, symbol="北向资金"):
+        '''北向资金历史流入情况
+        @params:
+        - start_date: int               #开始日期，'20240428'
+        - end_date: int                 #结束日期， '20240508'
+        - symbol: str            #symbol: choice of {"北向资金", "沪股通", "深股通", "南向资金", "港股通沪", "港股通深"}
+        '''
+        df = ak.stock_hsgt_hist_em(symbol)
+        df = df.loc[(df['日期'].astype(str) >= datetime.strptime(start_date, '%Y%m%d').strftime("%Y-%m-%d")) & (df['日期'].astype(str) <= datetime.strptime(end_date, '%Y%m%d').strftime("%Y-%m-%d"))]
+        return df

@@ -517,11 +517,11 @@ class Basic:
                     series_name=y,
                     y_axis=data[y].values.tolist(),
                     label_opts=opts.LabelOpts(is_show=False),
-                    symbol="triangle",
-                    symbol_size=20,
+                    # symbol="triangle",
+                    # symbol_size=20,
                 )
                 .set_series_opts(
-                    linestyle_opts=opts.LineStyleOpts(width= 2)
+                    linestyle_opts=opts.LineStyleOpts(width=1)
                 )   # 设置线条宽度为4
                 .set_global_opts(
                     title_opts=opts.TitleOpts(title=title),
@@ -748,6 +748,9 @@ class Basic:
             df_import[col] = round(df_import[col]/100000000, 2)
 
 
+        # df_north = f.get_north_data(start_date='20240202', end_date='20240511')
+        # df_sh = f.get_north_data(start_date='20240202', end_date='20240511', "沪股通")
+        # df_sz = f.get_north_data(start_date='20240202', end_date='20240511', "深股通")
 
         page = Page(layout=Page.DraggablePageLayout, page_title="")
 
@@ -773,6 +776,8 @@ class Basic:
             self.plot_line(df_import, '报告期', '流动比率', '流动比率'),
             self.plot_line(df_import, '报告期', '速动比率', '速动比率'),
             # self.title("运营能力"),
+            # self.plot_multi_line('日期', '当日资金流入', [df_north, df_sh, df_sz], ['北向资金', "沪股通", "深股通"])
+
 
         )
         page.render('visual.html')
