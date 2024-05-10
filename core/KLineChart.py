@@ -54,10 +54,7 @@ class KLineChart:
             self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
         else:
-            now = datetime.datetime.now()
-            yesterday = now - datetime.timedelta(days=1)
-            current_date = yesterday.strftime('%Y%m%d')
-            df = self.get_data_min(code, current_date)
+            df = self.get_data_min(code, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime('%H:%M').tolist()
 
@@ -212,10 +209,10 @@ class KLineChart:
         else:
             symbol = "sz" + str(code)
 
-        df = ak.stock_zh_a_minute(symbol=symbol, period="1", adjust="qfq")
+        df = ak.stock_zh_a_minute(symbol=symbol, period="30", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
         df['volume'] = round(df['volume'].astype('float') / 10000, 2)
-        df = df[pd.to_datetime(df['date']).dt.date.astype('str') == current_date]
+        df = df[df['date'].str.contains(current_date)]
 
        # 计算均线
         for i in self.ema_list:

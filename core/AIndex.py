@@ -56,6 +56,10 @@ class AIndex:
             df = self.get_data(code, start_date, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
+        else:
+            df = self.get_data_min(code, end_date)
+            self.data = df.copy()
+            self.dateindex = df.index.strftime('%H:%M').tolist()
 
         # 获取volume的标识符
         self.data['f'] = self.data.apply(lambda x: self.frb(x.open, x.close), axis=1)
@@ -188,7 +192,7 @@ class AIndex:
         df = ak.stock_zh_a_minute(symbol=symbol, period="30", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
         df['volume'] = round(df['volume'].astype('float') / 10000, 2)
-        df = df[pd.to_datetime(df['date']).dt.date.astype('str') == current_date]
+        df = df[df['date'].str.contains(current_date)]
 
        # 计算均线
         for i in self.ema_list:
