@@ -634,7 +634,7 @@ class AIndex:
                 ),
                 markline_opts=opts.MarkLineOpts(
                     data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
-                    linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
                 )
             )
             .set_global_opts(
@@ -677,7 +677,7 @@ class AIndex:
                         opts.MarkLineItem(name='最大值', y=20, symbol='none', ),
                         opts.MarkLineItem(name='最小值', y=-20, symbol='none', )
                     ],
-                    linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
                 )
             )
             .set_global_opts(
@@ -717,7 +717,7 @@ class AIndex:
                 ),
                 markline_opts=opts.MarkLineOpts(
                     data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
-                    linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
                 )
             )
             .set_global_opts(

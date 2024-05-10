@@ -654,7 +654,7 @@ class KLineChart:
                 ),
                 markline_opts=opts.MarkLineOpts(
                     data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
-                    linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
                 )
             )
             .set_global_opts(
@@ -693,7 +693,7 @@ class KLineChart:
                 ),
                 markline_opts=opts.MarkLineOpts(
                     data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
-                    linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
                 )
             )
             .set_global_opts(
@@ -733,7 +733,7 @@ class KLineChart:
                 ),
                 markline_opts=opts.MarkLineOpts(
                     data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
-                    linestyle_opts=opts.LineStyleOpts(width=0.1, color='#301934', ),
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
                 )
             )
             .set_global_opts(
