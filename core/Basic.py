@@ -282,7 +282,7 @@ class Basic:
         df_zcfz_display = self.get_display_data(df_zcfz)
         return df_zcfz, df_zcfz_display
 
-    def get_xjll_data(self, n, data_type=0):
+    def get_xjll_data(self, code, n, data_type=0):
         '''获取现金流量表数据
         @params:
         - n: int           #返回数据个数
@@ -290,8 +290,9 @@ class Basic:
         '''
         ret_columns = ['报告日', '总资产', '总负债',
                        '资产负债率']
-
-        df_xjll = ak.stock_financial_report_sina(stock=self.code, symbol='现金流量表')
+        # 人力投入回报率=企业净利润/员工薪酬福利总额×100%，这是衡量人力资本有效性的核心指标，表明公司在人力资源上的投入和净利润的比值，回报率越高，说明人力资源的效率和效能越高。
+        df_xjll = ak.stock_cash_flow_sheet_by_report_em(symbol=self.get_szsh_code(code))
+        df_xjll['员工薪酬福利总额'] = round(df_xjll['PAY_STAFF_CASH']/100000000, 2)
         df_xjll = df_xjll.fillna(0)
 
         if data_type == 1:
@@ -585,7 +586,7 @@ class Basic:
 
     def plot_page(self):
         from core.FundFlow import FundFlow
-        # df_lrb, df_lrb_display = self.get_lrb_data("000977", 5, 4)
+        df_lrb, df_lrb_display = self.get_lrb_data("000977", 5, 4)
         # df_lrb1, df_lrb_display1 = self.get_lrb_data("000612", 5, 4)
         f = FundFlow()
         df_fund, df_fund_display = f.get_individual_fund_flow("000977", 5)
@@ -593,7 +594,8 @@ class Basic:
         #df_zygc = self.get_basic_info("000977")
 
         b = Basic()
-        df_import, df_import_display = b.get_main_indicators_sina("000977", 5)
+        df_import, df_import_display = b.get_main_indicators_ths("000977", 5)
+        df_main, df_main_display = b.get_main_indicators_sina("000977", 5)
 
 
 
@@ -609,31 +611,40 @@ class Basic:
             # self.plot_line(df_fund, '日期', '主力净流入-净额', '资金流量'),
             # self.plot_multi_bar('报告日', '营业总收入', [df_lrb, df_lrb1], ['612', '977'])
             #self.plot_pie(df_zygc, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
-            # self.title("主要指标"),
+            # self.title("关键指标"),
             # self.plot_bar_line(df_import, '报告期', '营业总收入', '营业总收入同比增长率'),
-            # self.plot_bar_line(df_import, '报告期', '归母净利润', '归母净利润同比增长率'),
+            # self.plot_bar_line(df_lrb, '报告日', '净利润', '净利润'),
             # self.plot_bar_line(df_import, '报告期', '扣非净利润', '扣非净利润同比增长率'),
-            # self.title("盈利能力"),
-            # self.plot_line(df_import, '报告期', '净资产收益率', '净资产收益率'),
-            # self.plot_line(df_import, '报告期', '净资产收益率-摊薄', '净资产收益率-摊薄'),
-            # self.plot_line(df_import, '报告期', '销售净利率', '销售净利率'),
-            # self.plot_line(df_import, '报告期', '销售毛利率', '销售毛利率'),
             # self.title("每股指标"),
             # self.plot_line(df_import, '报告期', '基本每股收益', '基本每股收益'),
             # self.plot_line(df_import, '报告期', '每股净资产', '每股净资产'),
             # self.plot_line(df_import, '报告期', '每股资本公积金', '每股资本公积金'),
             # self.plot_line(df_import, '报告期', '每股未分配利润', '每股未分配利润'),
             # self.plot_line(df_import, '报告期', '每股经营现金流', '每股经营现金流'),
+            # self.title("盈利能力"),
+            # self.plot_line(df_import, '报告期', '净资产收益率', '净资产收益率'),
+            # self.plot_line(df_import, '报告期', '净资产收益率-摊薄', '净资产收益率-摊薄'),
+            # self.plot_line(df_main, '报告期', '总资产报酬率', '总资产报酬率'),
+            # self.plot_line(df_import, '报告期', '销售净利率', '销售净利率'),
+            # self.plot_line(df_import, '报告期', '销售毛利率', '销售毛利率'),
             # self.title("财务风险"),
             # self.plot_line(df_import, '报告期', '资产负债率', '资产负债率'),
             # self.plot_line(df_import, '报告期', '流动比率', '流动比率'),
             # self.plot_line(df_import, '报告期', '速动比率', '速动比率'),
+            # self.plot_line(df_main, '报告期', '权益乘数', '权益乘数'),
+            # self.plot_line(df_import, '报告期', '产权比率', '产权比率'),
+            # self.plot_line(df_main, '报告期', '现金比率', '现金比率'),
             # self.plot_line(df_import, '报告期', '产权比率', '产权比率'),
             # self.title("运营能力"),
-            # self.plot_line(df_import, '报告期', '营业周期', '营业周期'),
             # self.plot_line(df_import, '报告期', '存货周转天数', '存货周转天数'),
             # self.plot_line(df_import, '报告期', '应收账款周转天数', '应收账款周转天数'),
-            # self.plot_line(df_import, '报告期', '存货周转率', '存货周转率'),
+            # self.plot_line(df_import, '报告期', '应收账款周转天数', '应收账款周转天数'),
+            # self.plot_line(df_import, '报告期', '营业周期', '营业周期'),
+            # self.plot_line(df_main, '报告期', '总资产周转率', '总资产周转率'),
+            # self.plot_line(df_main, '报告期', '存货周转率', '存货周转率'),
+            # self.plot_line(df_main, '报告期', '应收账款周转率', '应收账款周转率'),
+            # self.plot_line(df_main, '报告期', '应付账款周转率', '应付账款周转率'),
+            # self.plot_line(df_main, '报告期', '流动资产周转率', '流动资产周转率'),
             # self.plot_multi_line('日期', '当日资金流入', [df_north, df_sh, df_sz], ['北向资金', "沪股通", "深股通"])
 
 
