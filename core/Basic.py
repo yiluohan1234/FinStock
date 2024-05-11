@@ -281,89 +281,6 @@ class Basic:
 
         return df[df.columns.tolist()[2:]]
 
-    def plot_amount_ratio(self, df, label, amount, ratio):
-        '''绘制一个柱状图和一个折线图
-        @params:
-        - df: dataframe      #数据
-        - label: str         #绘图x轴列名
-        - amount: str        #绘图柱状图列名
-        - ratio : str        #绘图折线图列名
-        '''
-        # https://blog.csdn.net/weixin_43364551/article/details/129590524
-        # https://baijiahao.baidu.com/s?id=1762978115865709758&wfr=spider&for=pc
-        # x坐标相同
-        labels = [date[0:4] for date in df[label].values.tolist()]
-        x = np.arange(len(labels))
-        y1 = df[amount].tolist()
-        y2 = df[ratio].tolist()
-        # 引入系统中的字体（黑体）
-        font = FontProperties(fname=r"C:\Windows\Fonts\simhei.ttf", size=10)
-
-        # 解决导出图为空图层的问题
-        # matplotlib.use('TkAgg')
-        # 解决中文乱码问题，并设置字体
-        plt.rcParams['axes.unicode_minus'] = False
-        plt.rcParams['font.family'] = ['SimHei']
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rc('font', family='SimHei', size=10)
-        fontsize = 12
-
-        # 调整画布大小 宽8高5
-        plt.rcParams['figure.figsize'] = (8, 5)
-
-        # 柱状图柱子宽度
-        bar_width = 0.4
-
-        # x轴刻度位置 | 折线图x位置
-        x_ticks = range(len(x))
-        # 柱状图 - x位置
-        bar_x = [ii for ii in x_ticks]
-
-        # 绘制双Y轴
-        fig, ax1 = plt.subplots()
-        # 设置x轴和y轴刻度字体
-        labels1 = ax1.get_xticklabels() + ax1.get_yticklabels()
-        [label.set_fontname('SimHei') for label in labels1]
-
-        # 绘制柱状图1
-        ax1.bar(bar_x, y1, lw=0.4, color="#1296db", edgecolor="k", label=amount, width=bar_width)
-        for a, b in zip(bar_x, y1):
-            ax1.text(a, b, '%.2f' % b, ha='center', va='bottom', fontsize=fontsize, font=font)
-        # 设置y轴的刻度范围
-        bar_ylim_min = 0 if min(df[amount].values.tolist()) >= 0 else min(df[amount].values.tolist()) * 0.8
-        bar_ylim_max = max(df[amount].values.tolist()) * 1.2
-        ax1.set_ylim(bar_ylim_min, bar_ylim_max)
-        # 设置y轴label
-        ax1.set_ylabel(amount, fontsize=fontsize, font=font)
-        # 设置图表 loc/bbox_to_anchor-位置参数, borderaxespad-间隙, prop-设置字体
-        ax1.legend(loc=3, bbox_to_anchor=(0, 1), borderaxespad=0.2, prop=font)
-
-        # 绘制双Y轴
-        ax2 = ax1.twinx()
-        # 设置x轴和y轴刻度字体
-        labels2 = ax2.get_xticklabels() + ax2.get_yticklabels()
-        [label.set_fontname('SimHei') for label in labels2]
-
-        # 绘制折线图
-        ax2.plot(x, y2, 'o-', color="#d81e06", label=ratio)
-        for a, b in zip(x, y2):
-            ax2.text(a + bar_width / 2, b, '{:.1f}%'.format(b), ha='center', va='bottom', fontsize=fontsize, font=font)
-        # 设置y轴显示的数值区间
-        line_ylim_min = 0 if min(df[ratio].values.tolist()) >= 0 else min(df[ratio].values.tolist()) * 0.8
-        line_ylim_max = max(df[ratio].values.tolist()) * 1.2
-        ax2.set_ylim(line_ylim_min, line_ylim_max)
-        # y轴为百分比形式
-        fmt = '%.0f%%'
-        yticks = ticker.FormatStrFormatter(fmt)
-        # ax2.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=1))
-        ax2.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.0f%%'))
-        ax2.set_ylabel(ratio, fontsize=fontsize)
-        ax2.legend(loc=3, bbox_to_anchor=(0.6, 1), borderaxespad=0.2, prop=font)
-
-        plt.xticks(x_ticks, labels=labels)
-        plt.tight_layout()
-        plt.show()
-
     def get_df_markdown_table(self, df):
         '''获取dataframe数据类型并生成markdown表格
         @params:
@@ -374,109 +291,6 @@ class Basic:
         print("| ---------------------------- | ---- |")
         for column, data_type in column_types.items():
             print(f"|{column}|{data_type}|")
-
-    def plot_bar_line(self, df, label, amount_1, amount_2, ratio):
-        '''绘制两个柱状图和一个折线图
-        @params:
-        - df: dataframe      #数据
-        - label: str         #绘图x轴列名
-        - amount_1: str      #绘图柱状图列名1
-        - amount_2: str      #绘图柱状图列名2
-        - ratio : str        #绘图折线图列名
-        '''
-        # https://blog.csdn.net/weixin_43364551/article/details/129590524
-        # x坐标相同
-        labels = [date[0:4] for date in df[label].values.tolist()]
-        x = np.arange(len(labels))
-        y1 = df[amount_1].tolist()
-        y2 = df[amount_2].tolist()
-        y3 = df[ratio].tolist()
-        labels = [date[0:4] for date in df[label].values.tolist()]
-        # 引入系统中的字体（黑体）
-        font = FontProperties(fname=r"C:\Windows\Fonts\simhei.ttf", size=10)
-
-        # 解决导出图为空图层的问题
-        # matplotlib.use('TkAgg') # 在一个新窗口打开图形
-        # 解决中文乱码问题，并设置字体
-        plt.rcParams['axes.unicode_minus'] = False
-        plt.rcParams['font.family'] = ['SimHei']
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rc('font', family='SimHei', size=10)
-        fontsize = 12
-
-        # 调整画布大小 宽4.5 高2.2
-        plt.rcParams['figure.figsize'] = (8, 5)
-
-        # 柱状图柱子宽度
-        bar_width = 0.3
-
-        # x轴刻度位置 | 折线图x位置
-        x_ticks = range(len(x))
-        # 柱状图1 - x位置
-        bar_1_x = [ii for ii in x_ticks]
-        # 柱状图1 - x位置
-        bar_2_x = [ww + bar_width for ww in x_ticks]
-
-        # 绘制双Y轴
-        fig, ax1 = plt.subplots()
-        # 设置x轴和y轴刻度字体
-        labels1 = ax1.get_xticklabels() + ax1.get_yticklabels()
-        [label.set_fontname('SimHei') for label in labels1]
-
-        # 绘制柱状图1
-        ax1.bar(bar_1_x, y1, lw=0.4, color="#1296db", edgecolor="k", label=amount_1, width=bar_width)
-        for a, b in zip(bar_1_x, y1):
-            ax1.text(a - 0.05, b + 0.05, '%.2f' % b, ha='center', va='bottom', fontsize=fontsize, font=font)
-
-        # 绘制柱状图2
-        # hatch设置填充内容，*3用于设置密度
-        # ax1.bar(bar_2_x, y2, lw=0.4, color="#d81e06", edgecolor="k", label=amount_2, width=bar_width, hatch='/'*3)
-        ax1.bar(bar_2_x, y2, lw=0.4, color="#d81e06", edgecolor="k", label=amount_2, width=bar_width)
-        for a, b in zip(bar_2_x, y2):
-            ax1.text(a + 0.05, b + 0.05, '%.2f' % b, ha='center', va='bottom', fontsize=fontsize, font=font)
-        # 设置y轴的刻度范围
-        min_amount = min(df[amount_2].values.tolist()) if min(df[amount_1].values.tolist()) >= min(
-            df[amount_2].values.tolist()) else min(df[amount_1].values.tolist())
-        max_amount = max(df[amount_1].values.tolist()) if max(df[amount_1].values.tolist()) >= max(
-            df[amount_2].values.tolist()) else max(df[amount_2].values.tolist())
-        bar_ylim_min = 0 if min_amount >= 0 else min_amount * 0.8
-        bar_ylim_max = max_amount * 1.2
-        ax1.set_ylim(bar_ylim_min, bar_ylim_max)
-        # 设置y轴label
-        ax1.set_ylabel(amount_1 + "和" + amount_2, fontsize=fontsize, font=font)
-        # 设置图表 loc/bbox_to_anchor-位置参数, borderaxespad-间隙, prop-设置字体
-        ax1.legend(loc=3, bbox_to_anchor=(0, 1), borderaxespad=0.2, prop=font)
-
-        # 绘制双Y轴
-        ax2 = ax1.twinx()
-        # 设置x轴和y轴刻度字体
-        labels2 = ax2.get_xticklabels() + ax2.get_yticklabels()
-        [label.set_fontname('SimHei') for label in labels2]
-
-        # 绘制折线图
-        ax2.plot(x, y3, 'o-', color="#d4237a", label=ratio)
-        for a, b in zip(x, y3):
-            ax2.text(a, b - 0.004, '{:.1f}%'.format(b), ha='center', va='bottom', fontsize=fontsize, font=font)
-        # 设置y轴显示的数值区间
-        line_ylim_min = 0 if min(df[ratio].values.tolist()) >= 0 else min(df[ratio].values.tolist()) * 0.8
-        line_ylim_max = max(df[ratio].values.tolist()) * 1.2
-        ax2.set_ylim(line_ylim_min, line_ylim_max)
-        # y轴为百分比形式
-        fmt = '%.0f%%'
-        yticks = ticker.FormatStrFormatter(fmt)
-        # ax2.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=1))
-        ax2.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.0f%%'))
-        ax2.set_ylabel(ratio, fontsize=fontsize)
-        ax2.legend(loc=3, bbox_to_anchor=(0.6, 1), borderaxespad=0.2, prop=font)
-
-        plt.xticks(x_ticks, labels=labels)
-        plt.tight_layout()
-        plt.show()
-        # stock_profile_cninfo_df = ak.stock_profile_cninfo(symbol="600030")
-        # b = Basic("600519")
-        # data, data_display = b.get_lrb_data(4)
-        # b.plot_bar_line(data, '报告日', '营业总收入', '营业总成本', '营业总收入同比')
-        # b.plot_amount_ratio(data.tail(5), '报告日', '净利润', '净利润同比')
 
     def plot_bar(self, data, x, y, title):
         bar = (Bar(init_opts=opts.InitOpts(width="600px", height="400px",theme=ThemeType.DARK))
@@ -509,8 +323,6 @@ class Basic:
         return bar
 
     def plot_line(self, data, x, y, title):
-        print(data[x].tolist())
-        print(data[y].tolist())
         line = (Line(init_opts=opts.InitOpts(width="600px", height="400px"))
                 .add_xaxis(xaxis_data=data[x].tolist())
                 .add_yaxis(
@@ -536,7 +348,7 @@ class Basic:
         )
         return line
 
-    def bar_over_line(self, df, x, y_bar, y_line):
+    def plot_bar_line(self, df, x, y_bar, y_line):
         x_data = df[x].tolist()
         y_bar_data = df[y_bar].values.tolist()
         y_line_data = df[y_line].values.tolist()
@@ -617,8 +429,6 @@ class Basic:
         )
         return tab
 
-
-
     def title(self, title):
         from datetime import datetime
         now_time = datetime.now().strftime('%Y-%m-%d') # 获取当前时间
@@ -628,7 +438,7 @@ class Basic:
                 .set_global_opts(
                     title_opts=opts.TitleOpts(
                         title=title,
-                        subtitle = f'截至：{now_time}',
+                        # subtitle = f'截至：{now_time}',
                         title_textstyle_opts=opts.TextStyleOpts(
                             font_size=30,
                             #color='#FFFFFF',
@@ -645,7 +455,7 @@ class Basic:
         #https://blog.csdn.net/Student_201/article/details/131189638
     def plot_pie(self, data, x, y, title, classify_type):
         # bar = plot_pie(data, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
-        data = data[data['分类类型']==classify_type]
+        data = data[data['分类类型'] == classify_type]
         data = data[[x, y]]
         pie = (
             Pie(init_opts=opts.InitOpts(width="600px", height="400px")) # 设置背景的大小
@@ -670,11 +480,9 @@ class Basic:
         '''
         x_data = df_list[0][x].tolist()
 
-
         if len(df_list) != 0:
             _bar = Bar(init_opts=opts.InitOpts(width='600px',height='400px')).add_xaxis(x_data)
             for i, df in enumerate(df_list):
-
                 _bar.add_yaxis(series_name=names_list[i],
                                y_axis=df[y].values.tolist(),
                                label_opts=opts.LabelOpts(is_show=False),
@@ -703,11 +511,9 @@ class Basic:
         '''
         x_data = df_list[0][x].tolist()
 
-
         if len(df_list) != 0:
             _line = Line(init_opts=opts.InitOpts(width='600px',height='400px')).add_xaxis(x_data)
             for i, df in enumerate(df_list):
-
                 _line.add_yaxis(series_name=names_list[i],
                                y_axis=df[y].values.tolist(),
                                label_opts=opts.LabelOpts(is_show=False),
@@ -724,6 +530,7 @@ class Basic:
                 )
         # line = plot_multi_line('报告日', '营业总收入', [df, df1], ['612', '977'])
         return _line
+
     def plot_table(self, data, headers, title):
         table = Table()
 
@@ -743,39 +550,48 @@ class Basic:
         #df_zygc = self.get_basic_info("000977")
 
         b = Basic()
-        df_import, df_import_display= b.get_basic_import_key("000977", 5)
-        for col in ['营业总收入', '净利润', '扣非净利润']:
+        df_import, df_import_display = b.get_basic_import_key("000977", 5)
+        for col in ['营业总收入', '归母净利润', '扣非净利润']:
             df_import[col] = round(df_import[col]/100000000, 2)
 
 
         # df_north = f.get_north_data(start_date='20240202', end_date='20240511')
-        # df_sh = f.get_north_data(start_date='20240202', end_date='20240511', "沪股通")
-        # df_sz = f.get_north_data(start_date='20240202', end_date='20240511', "深股通")
+        # df_sh = f.get_north_data(start_date='20240202', end_date='20240511', symbol="沪股通")
+        # df_sz = f.get_north_data(start_date='20240202', end_date='20240511', symbol="深股通")
 
         page = Page(layout=Page.DraggablePageLayout, page_title="")
 
         page.add(
             self.title("test"),
-            #self.bar_over_line(df_lrb, '报告日', '营业总收入', '营业总收入同比'),
+            #self.plot_bar_line(df_lrb, '报告日', '营业总收入', '营业总收入同比'),
             # self.plot_line(df_fund, '日期', '主力净流入-净额', '资金流量'),
             # self.plot_multi_bar('报告日', '营业总收入', [df_lrb, df_lrb1], ['612', '977'])
             #self.plot_pie(df_zygc, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
-            self.title("盈利能力"),
-            self.bar_over_line(df_import, '报告期', '营业总收入', '营业总收入同比增长率'),
-            self.bar_over_line(df_import, '报告期', '净利润', '净利润同比增长率'),
-            self.bar_over_line(df_import, '报告期', '扣非净利润', '扣非净利润同比增长率'),
-            self.plot_line(df_import, '报告期', '净资产收益率', '净资产收益率'),
-            self.plot_line(df_import, '报告期', '净资产收益率-摊薄', '净资产收益率-摊薄'),
-            self.plot_line(df_import, '报告期', '销售净利率', '销售净利率'),
-            self.plot_line(df_import, '报告期', '销售毛利率', '销售毛利率'),
-            self.plot_line(df_import, '报告期', '基本每股收益', '基本每股收益'),
-            self.plot_line(df_import, '报告期', '每股净资产', '每股净资产'),
-            self.plot_line(df_import, '报告期', '每股资本公积金', '每股资本公积金'),
+            # self.title("主要指标"),
+            # self.plot_bar_line(df_import, '报告期', '营业总收入', '营业总收入同比增长率'),
+            # self.plot_bar_line(df_import, '报告期', '归母净利润', '归母净利润同比增长率'),
+            # self.plot_bar_line(df_import, '报告期', '扣非净利润', '扣非净利润同比增长率'),
+            # self.title("盈利能力"),
+            # self.plot_line(df_import, '报告期', '净资产收益率', '净资产收益率'),
+            # self.plot_line(df_import, '报告期', '净资产收益率-摊薄', '净资产收益率-摊薄'),
+            # self.plot_line(df_import, '报告期', '销售净利率', '销售净利率'),
+            # self.plot_line(df_import, '报告期', '销售毛利率', '销售毛利率'),
+            # self.title("每股指标"),
+            # self.plot_line(df_import, '报告期', '基本每股收益', '基本每股收益'),
+            # self.plot_line(df_import, '报告期', '每股净资产', '每股净资产'),
+            # self.plot_line(df_import, '报告期', '每股资本公积金', '每股资本公积金'),
+            # self.plot_line(df_import, '报告期', '每股未分配利润', '每股未分配利润'),
+            # self.plot_line(df_import, '报告期', '每股经营现金流', '每股经营现金流'),
             # self.title("财务风险"),
-            self.plot_line(df_import, '报告期', '资产负债率', '资产负债率'),
-            self.plot_line(df_import, '报告期', '流动比率', '流动比率'),
-            self.plot_line(df_import, '报告期', '速动比率', '速动比率'),
+            # self.plot_line(df_import, '报告期', '资产负债率', '资产负债率'),
+            # self.plot_line(df_import, '报告期', '流动比率', '流动比率'),
+            # self.plot_line(df_import, '报告期', '速动比率', '速动比率'),
+            # self.plot_line(df_import, '报告期', '产权比率', '产权比率'),
             # self.title("运营能力"),
+            # self.plot_line(df_import, '报告期', '营业周期', '营业周期'),
+            # self.plot_line(df_import, '报告期', '存货周转天数', '存货周转天数'),
+            # self.plot_line(df_import, '报告期', '应收账款周转天数', '应收账款周转天数'),
+            # self.plot_line(df_import, '报告期', '存货周转率', '存货周转率'),
             # self.plot_multi_line('日期', '当日资金流入', [df_north, df_sh, df_sz], ['北向资金', "沪股通", "深股通"])
 
 
