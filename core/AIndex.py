@@ -90,6 +90,12 @@ class AIndex:
             return -1
 
     def get_szsh_code(self, code):
+        '''获取上证指数的字母前缀
+        @params:
+        - code: str                      #股票代码
+        '''
+        # https://blog.csdn.net/viki_2/article/details/123775244
+        gp_type = ''
         if code.find('60', 0, 3) == 0:
             gp_type = 'sh'
         elif code.find('688', 0, 4) == 0:

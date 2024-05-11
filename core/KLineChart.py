@@ -91,18 +91,20 @@ class KLineChart:
         @params:
         - code: str                      #股票代码
         '''
-        if code.find('60',0,3)==0:
-            gp_type='SH'+code
-        elif code.find('688',0,4)==0:
-            gp_type='BJ'+code
-        elif code.find('900',0,4)==0:
-            gp_type='SH'+code
-        elif code.find('00',0,3)==0:
-            gp_type='SZ'+code
-        elif code.find('300',0,4)==0:
-            gp_type='SZ'+code
-        elif code.find('200',0,4)==0:
-            gp_type='SZ'+code
+        # https://blog.csdn.net/viki_2/article/details/123775244
+        gp_type = ''
+        if code.find('60', 0, 3) == 0:
+            gp_type = 'SH'+code
+        elif code.find('688', 0, 4) == 0:
+            gp_type = 'BJ'+code
+        elif code.find('900', 0, 4) == 0:
+            gp_type = 'SH'+code
+        elif code.find('00', 0, 3) == 0:
+            gp_type = 'SZ'+code
+        elif code.find('300', 0, 4) == 0:
+            gp_type = 'SZ'+code
+        elif code.find('200', 0, 4) == 0:
+            gp_type = 'SZ'+code
         return gp_type
 
     def transfer_price_freq(self, df, freq):
