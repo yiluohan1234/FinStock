@@ -94,16 +94,17 @@ class FundFlow:
         return df, df_display
 
     def get_market_fund_flow(self, n):
-        '''获取市场资金流向
+        '''获取上证和深证市场资金流向
         @params:
         - n: int         #最近天数
         '''
         df = ak.stock_market_fund_flow()
         df = self.get_num2str_df(df)
         df = df.sort_values(by='日期', ascending=False)
-        ret_df = self.get_display_data(df.head(n))
+        df = df.head(n)
+        df_display = self.get_display_data(df.head(n))
 
-        return ret_df
+        return df, df_display
 
     def get_main_fund_flow(self, symbol="全部股票"):
         '''主力净流入排名
