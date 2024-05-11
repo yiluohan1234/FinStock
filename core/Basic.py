@@ -82,7 +82,7 @@ class Basic:
         elif idxOfYi == -1 and idxOfWan == -1 and idxOfPercentage != -1:
             return float(valueStr[:idxOfPercentage])
 
-    def get_basic_import_key(self, code, n, indicator="按年度"):
+    def get_main_indicators_ths(self, code, n, indicator="按年度"):
         '''获取股票代码带字母的
         @params:
         - code: str      # 股票代码
@@ -94,9 +94,52 @@ class Basic:
         df = df.head(n)
         for col in df.columns.tolist()[1:]:
             df[col] = df[col].apply(self.str2value)
+        for col in ['营业总收入', '归母净利润', '扣非净利润']:
+            df[col] = round(df[col]/100000000, 2)
         # https://blog.csdn.net/a6661314/article/details/133634976
         df['报告期'] = df['报告期'].astype("str")
 
+        df_display = self.get_display_data(df)
+        return df, df_display
+
+    def get_report_type(self, date_str):
+        '''根据日期获取报告类别
+        @params:
+        - date_str: str      # 报告日期，'20241231'
+        '''
+        if "1231" in date_str:
+            return "年报"
+        elif "0630" in date_str:
+            return "中报"
+        elif "0930" in date_str:
+            return "三季度报"
+        elif "0331" in date_str:
+            return "一季度报"
+
+    def get_main_indicators_sina(self, code, n, indicator="按年度"):
+        '''获取股票代码带字母的
+        @params:
+        - code: str      # 股票代码
+        - n: str         # 返回数据个数
+        - indicator: str # 数据类型，indicator="按报告期"; choice of {"按报告期", "按年度", "按单季度"}
+        '''
+        df = ak.stock_financial_abstract(code)
+        df.drop(['选项'] ,axis=1, inplace=True)
+        dT = self.get_display_data(df)
+        dT.index.name = '报告期'
+        df = dT.reset_index()
+        df['报告类型'] = df['报告期'].apply(self.get_report_type)
+
+        for col in ['归母净利润', '营业总收入', '营业成本', '净利润', '扣非净利润', '股东权益合计(净资产)', '经营现金流量净额']:
+            df[col] = df[col]/100000000
+
+        for col in df.columns.tolist()[1:]:
+            df[col] = round(df[col], 2)
+
+        if indicator == "按年度":
+            df = df[df['报告类型'] == '年报']
+            df['报告期'] = df['报告期'].apply(lambda x: str(x)[0:4])
+        df = df.head(n)
         df_display = self.get_display_data(df)
         return df, df_display
 
@@ -550,9 +593,8 @@ class Basic:
         #df_zygc = self.get_basic_info("000977")
 
         b = Basic()
-        df_import, df_import_display = b.get_basic_import_key("000977", 5)
-        for col in ['营业总收入', '归母净利润', '扣非净利润']:
-            df_import[col] = round(df_import[col]/100000000, 2)
+        df_import, df_import_display = b.get_main_indicators_sina("000977", 5)
+
 
 
         # df_north = f.get_north_data(start_date='20240202', end_date='20240511')
