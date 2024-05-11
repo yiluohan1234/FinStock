@@ -16,8 +16,6 @@ from pyecharts.globals import CurrentConfig, NotebookType
 CurrentConfig.NOTEBOOK_TYPE = NotebookType.JUPYTER_NOTEBOOK
 CurrentConfig.ONLINE_HOST = 'https://assets.pyecharts.org/assets/'
 
-from snapshot_pyppeteer import snapshot
-from pyecharts.render import make_snapshot
 import webbrowser
 import os
 import akshare as ak
@@ -935,14 +933,6 @@ class KLineChart:
             grid.render("./kline.html")
             # return grid.render_notebook()
             return grid
-
-    def save_png(self, charts, filename):
-        '''保存pyecharts图片
-        @params:
-        - charts:int            #pyecharts对象
-        - filename:str         #保存文件名称
-        '''
-        make_snapshot(snapshot, charts.render(), filename)
 
     def web(self):
         '''通过浏览器打开pyecharts的html文件
