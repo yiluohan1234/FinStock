@@ -838,11 +838,11 @@ class KLineChart:
             grid.add(c, grid_opts=opts.GridOpts(pos_top="8%", pos_bottom="10%"))
         elif iWindows > 1:
             grid.add(c, grid_opts=opts.GridOpts(pos_top="8%", pos_bottom="50%"))
-            iStep = int(30 / iWindows)
+            iStep = int(40 / iWindows)
             iButton = 50
         else:
             grid.add(c, grid_opts=opts.GridOpts(pos_top="8%", pos_bottom="30%"))
-            iStep = 15
+            iStep = 20
             iButton = 70
         icount = 0
 
