@@ -952,37 +952,38 @@ class KLineChart:
         data_n = self.data[self.data['date'].astype(str) > current_date][['close', 'k10', 'k20', 'k60']]
         return data_n
 
-    def get_three_stage(self, jx, max_y, is_print=False):
+    def get_three_stage(self, jx, max_y, min_y, is_up=True, is_print=False):
         '''获取三个涨跌幅满足位
         @params:
         - jx: float        #颈线数据
         - max_y: float     #颈线下最低值或颈线上最高值
+        - min_y: float     #颈线下最低值或颈线上最高值
         - is_print: bool   #是否打印结果
         '''
-        if max_y > jx:
+        if not is_up:
             stop_line = round(jx * 1.03, 2)
-            jx_to_stop = round(max_y - jx, 2)
-            one_stage = round(jx - (max_y - jx), 2)
-            two_stage = round(jx - 2 * (max_y - jx), 2)
-            three_stage = round(jx - 3 * (max_y - jx), 2)
+            h = round(max_y - min_y, 2)
+            one_stage = round(jx - h, 2)
+            two_stage = round(jx - 2 * h, 2)
+            three_stage = round(jx - 3 * h, 2)
             if is_print:
                 print("止损位：{}x( 1 + 3% )={}".format(jx, stop_line))
-                print("顶点到颈线的距离：{} - {} = {} 元".format(max_y, jx, jx_to_stop))
-                print("第一跌幅满足位：{} - {} = {} 元".format(jx, jx_to_stop, one_stage))
-                print("第二跌幅满足位：{} - {} = {} 元".format(one_stage, jx_to_stop, two_stage))
-                print("第三跌幅满足位：{} - {} = {} 元".format(two_stage, jx_to_stop, three_stage))
+                print("顶点到颈线的距离：{} - {} = {} 元".format(max_y, min_y, h))
+                print("第一跌幅满足位：{} - {} = {} 元".format(jx, h, one_stage))
+                print("第二跌幅满足位：{} - {} = {} 元".format(one_stage, h, two_stage))
+                print("第三跌幅满足位：{} - {} = {} 元".format(two_stage, h, three_stage))
         else:
             stop_line = round(jx * 0.97, 2)
-            jx_to_stop = round(jx - max_y, 2)
-            one_stage = round(jx + (jx - max_y), 2)
-            two_stage = round(jx + 2 * (jx - max_y), 2)
-            three_stage = round(jx + 3 * (jx - max_y), 2)
+            h = round(max_y - min_y, 2)
+            one_stage = round(jx + h, 2)
+            two_stage = round(jx + 2 * h, 2)
+            three_stage = round(jx + 3 * h, 2)
             if is_print:
                 print("止损位：{}x( 1 - 3% )={}".format(jx, stop_line))
-                print("顶点到颈线的距离：{} - {} = {} 元".format(jx, max_y, jx_to_stop))
-                print("第一涨幅满足位：{} + {} = {} 元".format(jx, jx_to_stop, one_stage))
-                print("第二涨幅满足位：{} + {} = {} 元".format(one_stage, jx_to_stop, two_stage))
-                print("第三涨幅满足位：{} + {} = {} 元".format(two_stage, jx_to_stop, three_stage))
+                print("顶点到颈线的距离：{} - {} = {} 元".format(jx, max_y, h))
+                print("第一涨幅满足位：{} + {} = {} 元".format(jx, h, one_stage))
+                print("第二涨幅满足位：{} + {} = {} 元".format(one_stage, h, two_stage))
+                print("第三涨幅满足位：{} + {} = {} 元".format(two_stage, h, three_stage))
         return [stop_line, one_stage, two_stage, three_stage]
 
     def plot_jx(self, points_list):
@@ -1064,14 +1065,16 @@ class KLineChart:
     def plot_three_stage(self, jxLines):
         '''绘制多个颈线，每个颈线由一个list组成
         @params:
-        - jxLines : list   #jxLines, [jx, max_y, start_date, end_date]
+        - jxLines : list   #jxLines, [jx, max_y, min_y, is_up, start_date, end_date]
         '''
         jx = jxLines[0]
         max_y = jxLines[1]
-        start_date = jxLines[2]
-        end_date = jxLines[3]
+        min_y = jxLines[2]
+        is_up = jxLines[3]
+        start_date = jxLines[4]
+        end_date = jxLines[5]
         lines_list = []
-        ret_list = self.get_three_stage(jx, max_y)
+        ret_list = self.get_three_stage(jx, max_y, min_y, is_up)
         for re in ret_list:
             lines_list.append([(start_date, re), (end_date, re)])
 
