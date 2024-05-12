@@ -30,17 +30,17 @@ class Basic:
         self.start_date = start_date
         self.end_date = end_date
 
-    def get_basic_info(self, code):
+    def get_basic_info(self, code, indicator='2023-12-31'):
         '''同花顺-主营介绍
         @params:
         - code: str      # 股票代码
         '''
-#         cninfo_df = ak.stock_profile_cninfo(symbol=code)
-#         print("----------------------------- 简介 -----------------------------")
-#         print("公司名称:", cninfo_df.iloc[0][0])
-#         print("A股简称:", cninfo_df.iloc[0][4])
-#         print("成立时间:", cninfo_df.iloc[0][14])
-#         print("上市时间:", cninfo_df.iloc[0][15])
+        cninfo_df = ak.stock_profile_cninfo(symbol=code)
+        print("----------------------------- 简介 -----------------------------")
+        print("公司名称:", cninfo_df.iloc[0][0])
+        print("A股简称:", cninfo_df.iloc[0][4])
+        print("成立时间:", cninfo_df.iloc[0][14])
+        print("上市时间:", cninfo_df.iloc[0][15])
         zyjs_ths_df = ak.stock_zyjs_ths(symbol=code)
         print("主营业务:", zyjs_ths_df.iloc[0][1])  # '主营业务'
         print("产品类型:", zyjs_ths_df.iloc[0][2])  # '产品类型'
@@ -59,11 +59,11 @@ class Basic:
         zygc_em_df['利润比例'] = round(zygc_em_df['利润比例'] * 100, 2)
         zygc_em_df['毛利率'] = round(zygc_em_df['毛利率'] * 100, 2)
         zygc_em_df['毛利率'] = round(zygc_em_df['毛利率'] * 100, 2)
-        df = zygc_em_df[zygc_em_df['报告日期'].astype(str) == '2022-12-31']
+        df = zygc_em_df[zygc_em_df['报告日期'].astype(str) == indicator]
 
         df = df.sort_values(by=['分类类型', '收入比例'], ascending=[False, False])
         # df[df.columns.tolist()[2:]]
-        print(df[df.columns.tolist()[2:]].to_string(index=False))
+        # print(df[df.columns.tolist()[2:]].to_string(index=False))
         return df
 
     def str2value(self, valueStr):
@@ -116,7 +116,7 @@ class Basic:
         elif "0331" in date_str:
             return "一季度报"
 
-    def get_main_indicators_sina(self, code, n, indicator="按年度"):
+    def get_main_indicators_sina(self, code, n, indicator="按年度", ret_columns=[]):
         '''获取股票代码带字母的
         @params:
         - code: str      # 股票代码
@@ -139,7 +139,11 @@ class Basic:
         if indicator == "按年度":
             df = df[df['报告类型'] == '年报']
             df['报告期'] = df['报告期'].apply(lambda x: str(x)[0:4])
+
         df = df.head(n)
+        if len(ret_columns) != 0:
+            df = df[ret_columns]
+
         df_display = self.get_display_data(df)
         return df, df_display
 
@@ -334,7 +338,7 @@ class Basic:
         print("| 列名 | 数据类型 |")
         print("| ---------------------------- | ---- |")
         for column, data_type in column_types.items():
-            print(f"|{column}|{data_type}|")
+            print("|{}|{}|".format(column, data_type))
 
     def plot_bar(self, data, x, y, title):
         bar = (Bar(init_opts=opts.InitOpts(width="600px", height="400px",theme=ThemeType.DARK))
@@ -525,7 +529,7 @@ class Basic:
         x_data = df_list[0][x].tolist()
 
         if len(df_list) != 0:
-            _bar = Bar(init_opts=opts.InitOpts(width='600px',height='400px')).add_xaxis(x_data)
+            _bar = Bar().add_xaxis(x_data) #init_opts=opts.InitOpts(width='600px',height='400px')
             for i, df in enumerate(df_list):
                 _bar.add_yaxis(series_name=names_list[i],
                                y_axis=df[y].values.tolist(),
