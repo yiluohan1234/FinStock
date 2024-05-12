@@ -1,5 +1,4 @@
 .ipynb_checkpoints/*
-MAScience/.ipynb_checkpoints/*
 
 ### IntelliJ IDEA ###
 .idea
@@ -13,3 +12,4 @@ MAScience/.ipynb_checkpoints/*
 *.html
 **/__pycache__
 
+!/MAScience/.ipynb_checkpoints/
