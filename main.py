@@ -63,6 +63,6 @@ if __name__ == "__main__":
     # AI()
     # b = Basic()
     # b.plot_page()
-    fund()
+    line()
     # import akshare as ak
 
