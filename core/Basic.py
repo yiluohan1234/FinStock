@@ -36,7 +36,7 @@ class Basic:
         - code: str      # 股票代码
         '''
         cninfo_df = ak.stock_profile_cninfo(symbol=code)
-        print("----------------------------- 简介 -----------------------------")
+        print("----------------------------- 简介 -----------------------------\n")
         print("公司名称:", cninfo_df.iloc[0][0])
         print("A股简称:", cninfo_df.iloc[0][4])
         print("成立时间:", cninfo_df.iloc[0][14])
@@ -48,7 +48,8 @@ class Basic:
         print("经营范围:", zyjs_ths_df.iloc[0][4])  # '经营范围'
 
         # 主营构成-东财
-        print("----------------------------- 主营构成 -----------------------------")
+        print("\n----------------------------- 主营构成 -----------------------------\n")
+        ret_columns = ['报告日期', '分类类型', '主营构成', '主营收入', '收入比例', '主营成本', '成本比例', '主营利润', '利润比例', '毛利率']
         zygc_em_df = ak.stock_zygc_em(symbol=self.get_szsh_code(code))
         zygc_em_df['分类类型'] = zygc_em_df['分类类型'].astype(str).apply(lambda x: x.replace('nan', '其他'))
         zygc_em_df['主营收入'] = round(zygc_em_df['主营收入'] / 100000000, 2)
@@ -64,9 +65,13 @@ class Basic:
         df = df.sort_values(by=['分类类型', '收入比例'], ascending=[False, False])
         # df[df.columns.tolist()[2:]]
         # print(df[df.columns.tolist()[2:]].to_string(index=False))
-        return df
+        return df[ret_columns]
 
     def str2value(self, valueStr):
+        '''将带有亿、万和%的字符串转为数字
+        @params:
+        - valueStr: str      # 数字字符串
+        '''
         valueStr = str(valueStr)
         idxOfYi = valueStr.find('亿')
         idxOfWan = valueStr.find('万')
@@ -145,6 +150,7 @@ class Basic:
             df = df[ret_columns]
 
         df_display = self.get_display_data(df)
+        df_display.drop_duplicates(subset=df_display.columns.tolist(), keep='first', inplace=True)
         return df, df_display
 
     def get_szsh_code(self, code):
@@ -315,6 +321,7 @@ class Basic:
         '''获取主营构成数据
         @params:
         '''
+        ret_columns = ['报告日期', '分类类型', '主营构成', '主营收入', '收入比例', '主营成本', '成本比例', '主营利润', '利润比例', '毛利率']
         # 主营构成-东财
         zygc_em_df = ak.stock_zygc_em(symbol=self.get_szsh_code(self.code))
         zygc_em_df['主营收入'] = round(zygc_em_df['主营收入'] / 100000000, 2)
@@ -327,7 +334,7 @@ class Basic:
         df = zygc_em_df[zygc_em_df['报告日期'].astype(str) == '2023-12-31']
         df = df.sort_values(by=['分类类型', '收入比例'], ascending=[True, False])
 
-        return df[df.columns.tolist()[2:]]
+        return df[ret_columns]
 
     def get_df_markdown_table(self, df):
         '''获取dataframe数据类型并生成markdown表格
@@ -371,7 +378,7 @@ class Basic:
         return bar
 
     def plot_line(self, data, x, y, title):
-        line = (Line(init_opts=opts.InitOpts(width="600px", height="400px"))
+        line = (Line()
                 .add_xaxis(xaxis_data=data[x].tolist())
                 .add_yaxis(
                     series_name=y,
@@ -400,7 +407,7 @@ class Basic:
         x_data = df[x].tolist()
         y_bar_data = df[y_bar].values.tolist()
         y_line_data = df[y_line].values.tolist()
-        bar = (Bar(init_opts=opts.InitOpts(width="600px", height="400px"))
+        bar = (Bar()
                 .add_xaxis(xaxis_data=x_data)
                 .add_yaxis(
                     series_name=y_bar,    # 此处为设置图例配置项的名称
@@ -506,7 +513,7 @@ class Basic:
         data = data[data['分类类型'] == classify_type]
         data = data[[x, y]]
         pie = (
-            Pie(init_opts=opts.InitOpts(width="600px", height="400px")) # 设置背景的大小
+            Pie() # 设置背景的大小
             .add(
                 series_name = "按产品分类", # 必须项
                 data_pair = data.values.tolist(),
@@ -529,7 +536,7 @@ class Basic:
         x_data = df_list[0][x].tolist()
 
         if len(df_list) != 0:
-            _bar = Bar().add_xaxis(x_data) #init_opts=opts.InitOpts(width='600px',height='400px')
+            _bar = Bar().add_xaxis(x_data)
             for i, df in enumerate(df_list):
                 _bar.add_yaxis(series_name=names_list[i],
                                y_axis=df[y].values.tolist(),
@@ -560,7 +567,7 @@ class Basic:
         x_data = df_list[0][x].tolist()
 
         if len(df_list) != 0:
-            _line = Line(init_opts=opts.InitOpts(width='600px',height='400px')).add_xaxis(x_data)
+            _line = Line().add_xaxis(x_data)
             for i, df in enumerate(df_list):
                 _line.add_yaxis(series_name=names_list[i],
                                y_axis=df[y].values.tolist(),
@@ -601,8 +608,6 @@ class Basic:
         df_import, df_import_display = b.get_main_indicators_ths("000977", 5)
         df_main, df_main_display = b.get_main_indicators_sina("000977", 5)
 
-
-
         # df_north = f.get_north_data(start_date='20240202', end_date='20240511')
         # df_sh = f.get_north_data(start_date='20240202', end_date='20240511', symbol="沪股通")
         # df_sz = f.get_north_data(start_date='20240202', end_date='20240511', symbol="深股通")
@@ -611,10 +616,10 @@ class Basic:
 
         page.add(
             self.title("test"),
-            #self.plot_bar_line(df_lrb, '报告日', '营业总收入', '营业总收入同比'),
+            # self.plot_bar_line(df_lrb, '报告日', '营业总收入', '营业总收入同比'),
             # self.plot_line(df_fund, '日期', '主力净流入-净额', '资金流量'),
             # self.plot_multi_bar('报告日', '营业总收入', [df_lrb, df_lrb1], ['612', '977'])
-            #self.plot_pie(df_zygc, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
+            # self.plot_pie(df_zygc, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
             # self.title("关键指标"),
             # self.plot_bar_line(df_import, '报告期', '营业总收入', '营业总收入同比增长率'),
             # self.plot_bar_line(df_lrb, '报告日', '净利润', '净利润'),
