@@ -793,7 +793,7 @@ class KLineChart:
         )
         return c
 
-    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[], jxLines=[], is_notebook=False):
+    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[], jxLines=[], is_notebook=True):
         '''
         @params:
         - n:int                 #抵扣差、乖离率、斜率的计算天数
