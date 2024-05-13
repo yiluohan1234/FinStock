@@ -929,7 +929,7 @@ class AIndex:
         '''
         webbrowser.open_new_tab('file://' + os.path.realpath('./kline.html'))
 
-    def get_date_k(self, n=10):
+    def get_data_k(self, n=10):
         '''返回最近n个交易日的斜率数据
         @params:
         - n: int         #最近n天
@@ -937,7 +937,7 @@ class AIndex:
         now = datetime.datetime.now()
         yesterday = now - datetime.timedelta(days=n)
         current_date = yesterday.strftime('%Y-%m-%d')
-        data_n = self.data[self.data['date'].astype(str) > current_date][['close', 'k10', 'k20', 'k60']]
+        data_n = self.data[self.data['date'].astype(str) > current_date][['close', 'k5', 'k10', 'k20', 'k60', 'k120']]
         return data_n
 
     def get_three_stage(self, jx, max_y, is_print=False):
