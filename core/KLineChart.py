@@ -293,6 +293,35 @@ class KLineChart:
         fit_K = np.polyfit(x_arr, y_arr, deg=1)
         return round(fit_K[0], precision)
 
+    def cal_K1(self, df, precision=2):
+        '''获取斜率
+        @params:
+        - df: dataframe               #数据
+        - precision: int              #保留小数位
+        '''
+        from sklearn.linear_model import LinearRegression
+        y = np.array(df).ravel()
+        x = np.array(range(1, len(y) + 1)).reshape(-1, 1) # 需要将x转换为二维数组
+        model = LinearRegression()
+        model.fit(x, y)
+        return round(model.coef_[0], precision)
+
+    def cal_K2(self, df, precision=2):
+        '''获取斜率
+        @params:
+        - df: dataframe               #数据
+        - precision: int              #保留小数位
+        '''
+        from scipy.stats import linregress
+
+        y = np.array(df).ravel()
+        x = np.array(range(1, len(y) + 1))
+
+
+        slope, intercept, r_value, p_value, std_err = linregress(x, y) #斜率，截距，相关系数，拟合优度，拟合的均方根误差
+
+        return round(slope, 2)
+
     def ema(self, df_close, window):
         """计算指数移动平均值
         @params:
