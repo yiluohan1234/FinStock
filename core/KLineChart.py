@@ -120,6 +120,7 @@ class KLineChart:
         df_trans['close'] = df['close'].resample(freq).last()
         df_trans['high'] = df['high'].resample(freq).max()
         df_trans['low'] = df['low'].resample(freq).min()
+        df_trans['volume'] = df['volume'].resample(freq).sum()
         return df_trans
 
     def get_data(self, code, start_date, end_date):

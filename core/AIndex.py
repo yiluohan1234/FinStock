@@ -45,25 +45,29 @@ class AIndex:
         if end_date == '20240202':
             now = datetime.datetime.now()
             if now.hour >= 15:
-                if freq == 'D':
-                    end_date = now.strftime('%Y%m%d')
-                else:
+                if freq == 'M':
                     end_date = now.strftime('%Y-%m-%d')
+                else:
+                    end_date = now.strftime('%Y%m%d')
             else:
                 yesterday = now - datetime.timedelta(days=1)
-                if freq == 'D':
-                    end_date = yesterday.strftime('%Y%m%d')
-                else:
+                if freq == 'M':
                     end_date = yesterday.strftime('%Y-%m-%d')
+                else:
+                    end_date = yesterday.strftime('%Y%m%d')
 
         if freq == 'D':
             df = self.get_data(code, start_date, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
-        else:
+        elif freq == 'M':
             df = self.get_data_min(code, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime('%H:%M').tolist()
+        else:
+            df = self.get_data_type(code, start_date, end_date, freq)
+            self.data = df.copy()
+            self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
         # 获取volume的标识符
         self.data['f'] = self.data.apply(lambda x: self.frb(x.open, x.close), axis=1)
@@ -109,6 +113,22 @@ class AIndex:
         elif code.find('200', 0, 4) == 0:
             gp_type = 'sz'
         return gp_type + code
+
+    def transfer_price_freq(self, df, freq):
+        """将数据转化为指定周期：开盘价(周期第一天)、收盘价(周期最后一天)、最高价(周期)、最低价(周期)
+        @params:
+        - df: dataframe        #日数据，包含每天开盘价、收盘价、最高价、最低价
+        - freq: str            #转换周期，周：'W'，月:'M'，季度:'Q'，五分钟:'5min'，12天:'12D'
+        """
+        df_trans = pd.DataFrame()
+        # 将日期列设为索引
+        df.index = pd.to_datetime(df.date)
+        df_trans['open'] = df['open'].resample(freq).first()
+        df_trans['close'] = df['close'].resample(freq).last()
+        df_trans['high'] = df['high'].resample(freq).max()
+        df_trans['low'] = df['low'].resample(freq).min()
+        df_trans['volume'] = df['volume'].resample(freq).sum()
+        return df_trans
 
     def get_data(self, code, start_date, end_date):
         '''获取股票的综合数据
@@ -265,6 +285,87 @@ class AIndex:
         # 把date作为日期索引
         df.index = pd.to_datetime(df.date)
         return df
+
+    def get_data_type(self, code, start_date, end_date, freq):
+        '''获取股票的综合数据
+        @params:
+        - code: str                      #股票代码
+        - start_date: str                #开始时间
+        - end_date: str                  #结束时间
+        '''
+        df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
+
+        df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+        df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+        df = self.transfer_price_freq(df, freq)
+        # print(df_trans)
+        df_trans = df.reset_index()
+        print(df_trans.dtypes)
+
+        # 计算均线
+        for i in self.ema_list:
+            df_trans['ma{}'.format(i)] = round(df_trans.close.rolling(i).mean(), self.precision)
+
+        # 计算抵扣差
+        for i in self.ema_list:
+            df_trans['dkc{}'.format(i)] = round(df_trans["close"] - df_trans["close"].shift(i - 1), self.precision)
+
+        # 计算乖离率
+        for i in self.ema_list:
+            df_trans['bias{}'.format(i)] = round(
+                (df_trans["close"] - df_trans["ma{}".format(i)]) * 100 / df_trans["ma{}".format(i)],
+                self.precision)
+
+        # 计算k率
+        for i in self.ema_list:
+            df_trans['k{}'.format(i)] = df_trans.close.rolling(i).apply(self.cal_K)
+
+
+        df_trans.index = range(len(df_trans))  # 修改索引为数字序号
+        df_trans['ATR1'] = df_trans['high'] - df_trans['low']  # 当日最高价-最低价
+        df_trans['ATR2'] = abs(df_trans['close'].shift(1) - df_trans['high'])  # 上一日收盘价-当日最高价
+        df_trans['ATR3'] = abs(df_trans['close'].shift(1) - df_trans['low'])  # 上一日收盘价-当日最低价
+        df_trans['ATR4'] = df_trans['ATR1']
+        for i in range(len(df_trans)):  # 取价格波动的最大值
+            if df_trans.loc[i, 'ATR4'] < df_trans.loc[i, 'ATR2']:
+                df_trans.loc[i, 'ATR4'] = df_trans.loc[i, 'ATR2']
+            if df_trans.loc[i, 'ATR4'] < df_trans.loc[i, 'ATR3']:
+                df_trans.loc[i, 'ATR4'] = df_trans.loc[i, 'ATR3']
+        df_trans['ATR'] = df_trans.ATR4.rolling(14).mean()  # N=14的ATR值
+        df_trans['stop'] = df_trans['close'].shift(1) - df_trans['ATR'] * 3  # 止损价=(上一日收盘价-3*ATR)
+
+        # BOLL计算 取N=20，M=2
+        df_trans['boll'] = df_trans.close.rolling(20).mean()
+        df_trans['delta'] = df_trans.close - df_trans.boll
+        df_trans['beta'] = df_trans.delta.rolling(20).std()
+        df_trans['up'] = df_trans['boll'] + 2 * df_trans['beta']
+        df_trans['down'] = df_trans['boll'] - 2 * df_trans['beta']
+
+        # 计算包络线ENE(10,9,9)
+        # ENE代表中轨。MA(CLOSE,N)代表N日均价
+        # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
+        # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
+        df_trans['ene'] = df_trans.close.rolling(10).mean()
+        df_trans['upper'] = (1 + 9.0 / 100) * df_trans['ene']
+        df_trans['lower'] = (1 - 9.0 / 100) * df_trans['ene']
+
+        # 计算MACD
+        # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
+        df_trans['DIF'], df_trans['DEA'], df_trans['MACD'] = self.cal_macd(df_trans)
+
+        # 标记买入和卖出信号
+        # for i in range(len(df)):
+        #     if df.loc[i, 'close'] > df.loc[i, 'up']:
+        #         df.loc[i, 'SELL'] = True
+        #     if df.loc[i, 'close'] < df.loc[i, 'boll']:
+        #         df.loc[i, 'BUY'] = True
+        # start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
+        # end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
+        df_trans = df_trans.loc[(df_trans['date'] >= start_date) & (df_trans['date'] <= end_date)]
+
+        # 把date作为日期索引
+        df_trans.index = pd.to_datetime(df_trans.date)
+        return df_trans
 
     def cal_K(self, df, precision=2):
         '''获取股票斜率
@@ -1099,3 +1200,7 @@ class AIndex:
                     ),
                 )
         return _line
+
+if __name__ == "__main__":
+    a = AIndex(freq='W')
+    print(a.data)
