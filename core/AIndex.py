@@ -45,13 +45,13 @@ class AIndex:
         if end_date == '20240202':
             now = datetime.datetime.now()
             if now.hour >= 15:
-                if freq == 'M':
+                if freq == 'min':
                     end_date = now.strftime('%Y-%m-%d')
                 else:
                     end_date = now.strftime('%Y%m%d')
             else:
                 yesterday = now - datetime.timedelta(days=1)
-                if freq == 'M':
+                if freq == 'min':
                     end_date = yesterday.strftime('%Y-%m-%d')
                 else:
                     end_date = yesterday.strftime('%Y%m%d')
@@ -60,7 +60,7 @@ class AIndex:
             df = self.get_data(code, start_date, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
-        elif freq == 'M':
+        elif freq == 'min':
             df = self.get_data_min(code, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime('%H:%M').tolist()
@@ -880,7 +880,7 @@ class AIndex:
         )
         return c
 
-    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[], jxLines=[], is_notebook=False):
+    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[], jxLines=[], is_notebook=True):
         '''
         @params:
         - n:int                 #抵扣差、乖离率、斜率的计算天数
