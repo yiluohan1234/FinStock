@@ -298,9 +298,7 @@ class AIndex:
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
         df['volume'] = round(df['volume'].astype('float') / 10000, 2)
         df = self.transfer_price_freq(df, freq)
-        # print(df_trans)
         df_trans = df.reset_index()
-        print(df_trans.dtypes)
 
         # 计算均线
         for i in self.ema_list:

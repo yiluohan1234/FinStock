@@ -1144,3 +1144,7 @@ class KLineChart:
                     ),
                 )
         return _line
+
+if __name__ == "__main__":
+    k = KLineChart("000612")
+    print(k.data)
