@@ -120,15 +120,22 @@ class AIndex:
         - df: dataframe        #日数据，包含每天开盘价、收盘价、最高价、最低价
         - freq: str            #转换周期，周：'W'，月:'M'，季度:'Q'，五分钟:'5min'，12天:'12D'
         """
-        df_trans = pd.DataFrame()
-        # 将日期列设为索引
-        df.index = pd.to_datetime(df.date)
-        df_trans['open'] = df['open'].resample(freq).first()
-        df_trans['close'] = df['close'].resample(freq).last()
-        df_trans['high'] = df['high'].resample(freq).max()
-        df_trans['low'] = df['low'].resample(freq).min()
-        df_trans['volume'] = df['volume'].resample(freq).sum()
-        return df_trans
+        df["date"] = pd.to_datetime(df["date"])
+        df.set_index('date',inplace=True)
+
+        period_stock_data = df.resample(freq).last()
+        period_stock_data['open'] = df['open'].resample(freq).first()
+        period_stock_data['high'] = df['high'].resample(freq).max()
+        period_stock_data['low'] = df['low'].resample(freq).min()
+        period_stock_data['volume'] = df['volume'].resample(freq).sum()
+
+        #去除没有交易
+        # period_stock_data = df[df['volume'].notnull()]
+        period_stock_data.dropna(subset=['volume'], how='any', inplace=True)
+        period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
+        period_stock_data.reset_index(inplace=True)
+
+        return period_stock_data
 
     def get_data(self, code, start_date, end_date):
         '''获取股票的综合数据
@@ -1200,5 +1207,45 @@ class AIndex:
         return _line
 
 if __name__ == "__main__":
+    import pandas as pd
+    pd.set_option('expand_frame_repr', False)  # 当列太多时不换行
     a = AIndex(freq='W')
-    print(a.data)
+    a.plot(area=['V','KL'], width=1200, height=600,
+           klines=['ma5', 'ma20', 'ma60', 'ma120', 'ma250'],
+           )
+    a.web()
+    print(a.data[['date', 'open', 'close', 'high', 'low']])
+    def transferToWeekLine(df, period_type = 'W'):
+
+        #设定转换周期period_type  转换为周是'W',月'M',季度线'Q',五分钟'5min',12天'12D'
+        df["date"] = pd.to_datetime(df["date"])
+        df.set_index('date',inplace=True)
+
+        #进行转换，周线的每个变量都等于那一周中最后一个交易日的变量值
+        period_stock_data = df.resample(period_type).last()
+
+        # 周线的open等于那一周中第一个交易日的open
+        period_stock_data['open'] = df['open'].resample(period_type).first()
+
+        #周线的high等于那一周中的high的最大值
+        period_stock_data['high'] = df['high'].resample(period_type).max()
+
+        #周线的low等于那一周中的low的
+        period_stock_data['low'] = df['low'].resample(period_type).min()
+
+        #周线的volume和money等于那一周中volume和money各自的和
+        period_stock_data['volume'] = df['volume'].resample(period_type).sum()
+
+        #股票在有些周一天都没有交易，将这些周去除
+        # period_stock_data = df[df['volume'].notnull()]
+        period_stock_data.dropna(subset=['volume'], how='any', inplace=True)
+        period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
+        period_stock_data.reset_index(inplace=True)
+
+        return period_stock_data
+    df = ak.stock_zh_index_daily(symbol="sh000001").iloc[:, :6]
+
+    df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+    df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+    df_trz = transferToWeekLine(df, 'W')
+    print(df_trz)
