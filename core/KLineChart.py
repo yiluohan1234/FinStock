@@ -42,25 +42,29 @@ class KLineChart:
         if end_date == '20240202':
             now = datetime.datetime.now()
             if now.hour >= 15:
-                if freq == 'D':
-                    end_date = now.strftime('%Y%m%d')
-                else:
+                if freq == 'min':
                     end_date = now.strftime('%Y-%m-%d')
+                else:
+                    end_date = now.strftime('%Y%m%d')
             else:
                 yesterday = now - datetime.timedelta(days=1)
-                if freq == 'D':
-                    end_date = yesterday.strftime('%Y%m%d')
-                else:
+                if freq == 'min':
                     end_date = yesterday.strftime('%Y-%m-%d')
+                else:
+                    end_date = yesterday.strftime('%Y%m%d')
 
         if freq == 'D':
             df = self.get_data(code, start_date, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
-        else:
+        elif freq == 'min':
             df = self.get_data_min(code, end_date)
             self.data = df.copy()
             self.dateindex = df.index.strftime('%H:%M').tolist()
+        else:
+            df = self.get_data_type(code, start_date, end_date, freq)
+            self.data = df.copy()
+            self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
         # 获取volume的标识符
         self.data['f'] = self.data.apply(lambda x: self.frb(x.open, x.close), axis=1)
@@ -113,15 +117,27 @@ class KLineChart:
         - df: dataframe        #日数据，包含每天开盘价、收盘价、最高价、最低价
         - freq: str            #转换周期，周：'W'，月:'M'，季度:'Q'，五分钟:'5min'，12天:'12D'
         """
-        df_trans = pd.DataFrame()
-        # 将日期列设为索引
-        df.index = pd.to_datetime(df.date)
-        df_trans['open'] = df['open'].resample(freq).first()
-        df_trans['close'] = df['close'].resample(freq).last()
-        df_trans['high'] = df['high'].resample(freq).max()
-        df_trans['low'] = df['low'].resample(freq).min()
-        df_trans['volume'] = df['volume'].resample(freq).sum()
-        return df_trans
+        if freq == 'M':
+            freq = 'ME'
+
+        df["date"] = pd.to_datetime(df["date"])
+        df.set_index('date',inplace=True)
+
+        period_stock_data = round(df.resample(freq).last(), self.precision)
+        period_stock_data['open'] = round(df['open'].resample(freq).first(), self.precision)
+        period_stock_data['high'] = round(df['high'].resample(freq).max(), self.precision)
+        period_stock_data['low'] = round(df['low'].resample(freq).min(), self.precision)
+        period_stock_data['volume'] = round(df['volume'].resample(freq).sum(), self.precision)
+
+        #去除没有交易
+        # period_stock_data = df[df['volume'].notnull()]
+        period_stock_data.dropna(subset=['volume'], how='any', inplace=True)
+        if freq == 'W':
+            # 周采样默认为周日，改为周五
+            period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
+        period_stock_data.reset_index(inplace=True)
+
+        return period_stock_data
 
     def get_data(self, code, start_date, end_date):
         '''获取股票的综合数据
@@ -278,6 +294,89 @@ class KLineChart:
                 df.loc[i, 'SELL'] = True
             if df.loc[i, 'close'] < df.loc[i, 'down']:
                 df.loc[i, 'BUY'] = True
+
+        # 把date作为日期索引
+        df.index = pd.to_datetime(df.date)
+        return df
+
+    def get_data_type(self, code, start_date, end_date, freq):
+        '''获取股票的综合数据
+        @params:
+        - code: str                      #股票代码
+        - start_date: str                #开始时间
+        - end_date: str                  #结束时间
+        '''
+        date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
+        start = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
+
+        df = ak.stock_zh_a_hist(symbol=code, start_date=start, end_date=end_date, adjust="qfq").iloc[:, :6]
+        # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
+
+        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
+        df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+        df = self.transfer_price_freq(df, freq)
+
+        # 计算均线
+        for i in self.ema_list:
+            df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), self.precision)
+
+        # 计算抵扣差
+        for i in self.ema_list:
+            df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), self.precision)
+
+        # 计算乖离率
+        for i in self.ema_list:
+            df['bias{}'.format(i)] = round(
+                (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+                self.precision)
+
+        # 计算k率
+        for i in self.ema_list:
+            df['k{}'.format(i)] = df.close.rolling(i).apply(self.cal_K)
+
+
+        df.index = range(len(df))  # 修改索引为数字序号
+        df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
+        df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
+        df['ATR3'] = abs(df['close'].shift(1) - df['low'])  # 上一日收盘价-当日最低价
+        df['ATR4'] = df['ATR1']
+        for i in range(len(df)):  # 取价格波动的最大值
+            if df.loc[i, 'ATR4'] < df.loc[i, 'ATR2']:
+                df.loc[i, 'ATR4'] = df.loc[i, 'ATR2']
+            if df.loc[i, 'ATR4'] < df.loc[i, 'ATR3']:
+                df.loc[i, 'ATR4'] = df.loc[i, 'ATR3']
+        df['ATR'] = df.ATR4.rolling(14).mean()  # N=14的ATR值
+        df['stop'] = df['close'].shift(1) - df['ATR'] * 3  # 止损价=(上一日收盘价-3*ATR)
+
+        # BOLL计算 取N=20，M=2
+        df['boll'] = df.close.rolling(20).mean()
+        df['delta'] = df.close - df.boll
+        df['beta'] = df.delta.rolling(20).std()
+        df['up'] = df['boll'] + 2 * df['beta']
+        df['down'] = df['boll'] - 2 * df['beta']
+
+        # 计算包络线ENE(10,9,9)
+        # ENE代表中轨。MA(CLOSE,N)代表N日均价
+        # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
+        # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
+        df['ene'] = df.close.rolling(10).mean()
+        df['upper'] = (1 + 9.0 / 100) * df['ene']
+        df['lower'] = (1 - 9.0 / 100) * df['ene']
+
+        # 计算MACD
+        # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
+        df['DIF'], df['DEA'], df['MACD'] = self.cal_macd(df)
+
+        # 标记买入和卖出信号
+        # for i in range(len(df)):
+        #     if df.loc[i, 'close'] > df.loc[i, 'upper'] and df['k20'] > 0:
+        #         df.loc[i, 'SELL'] = True
+        #     if df.loc[i, 'close'] < df.loc[i, 'ene'] and df['k20'] > 0:
+        #         df.loc[i, 'BUY'] = True
+
+        # start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
+        # end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
+        df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
         # 把date作为日期索引
         df.index = pd.to_datetime(df.date)
