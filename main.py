@@ -28,7 +28,17 @@ def main():
     df, df_display = f.get_individual_fund_flow_rank("000612")
     print(df_display)
 
+def AI():
+    a = AIndex(start_date="20200101", end_date="20211231", freq='M')
+    a.plot(n=60, area=['V', 'BIAS'], width=1200,height=600,
+           klines=['ma5','ma10','ma20','ma60', 'ma120', 'ma250'],
+        #    jxPoints=[[("2024-02-21",1800.2), ("2024-04-12",1800.2)]],
+        #    jxLines=[1800.2, 1700.5, "2024-04-12", "2024-04-30"],
+            is_notebook=False
+           )
+    a.web()
+
 
 if __name__ == "__main__":
-    main()
+    AI()
 

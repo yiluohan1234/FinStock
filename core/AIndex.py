@@ -28,7 +28,7 @@ import datetime
 
 class AIndex:
 
-    def __init__(self, code='sh000001', start_date='20200101', end_date='20240202', freq='D', precision=2):
+    def __init__(self, code='sh000001', start_date='20200101', end_date='20240202', freq='D', precision=1):
         '''
         @params:
         - code: str                      #股票代码
@@ -120,19 +120,24 @@ class AIndex:
         - df: dataframe        #日数据，包含每天开盘价、收盘价、最高价、最低价
         - freq: str            #转换周期，周：'W'，月:'M'，季度:'Q'，五分钟:'5min'，12天:'12D'
         """
+        if freq == 'M':
+            freq = 'ME'
+
         df["date"] = pd.to_datetime(df["date"])
         df.set_index('date',inplace=True)
 
-        period_stock_data = df.resample(freq).last()
-        period_stock_data['open'] = df['open'].resample(freq).first()
-        period_stock_data['high'] = df['high'].resample(freq).max()
-        period_stock_data['low'] = df['low'].resample(freq).min()
-        period_stock_data['volume'] = df['volume'].resample(freq).sum()
+        period_stock_data = round(df.resample(freq).last(), self.precision)
+        period_stock_data['open'] = round(df['open'].resample(freq).first(), self.precision)
+        period_stock_data['high'] = round(df['high'].resample(freq).max(), self.precision)
+        period_stock_data['low'] = round(df['low'].resample(freq).min(), self.precision)
+        period_stock_data['volume'] = round(df['volume'].resample(freq).sum(), self.precision)
 
         #去除没有交易
         # period_stock_data = df[df['volume'].notnull()]
         period_stock_data.dropna(subset=['volume'], how='any', inplace=True)
-        period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
+        if freq == 'W':
+            # 周采样默认为周日，改为周五
+            period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
         period_stock_data.reset_index(inplace=True)
 
         return period_stock_data
@@ -147,7 +152,7 @@ class AIndex:
         df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
 
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-        df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+        df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
 
         # 计算均线
         for i in self.ema_list:
@@ -228,7 +233,7 @@ class AIndex:
 
         df = ak.stock_zh_a_minute(symbol=symbol, period="30", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-        df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+        df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
         df = df[df['date'].str.contains(current_date)]
 
        # 计算均线
@@ -303,60 +308,60 @@ class AIndex:
         df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
 
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-        df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+        df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
         df = self.transfer_price_freq(df, freq)
-        df_trans = df.reset_index()
+        #df = df.reset_index()
 
         # 计算均线
         for i in self.ema_list:
-            df_trans['ma{}'.format(i)] = round(df_trans.close.rolling(i).mean(), self.precision)
+            df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), self.precision)
 
         # 计算抵扣差
         for i in self.ema_list:
-            df_trans['dkc{}'.format(i)] = round(df_trans["close"] - df_trans["close"].shift(i - 1), self.precision)
+            df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), self.precision)
 
         # 计算乖离率
         for i in self.ema_list:
-            df_trans['bias{}'.format(i)] = round(
-                (df_trans["close"] - df_trans["ma{}".format(i)]) * 100 / df_trans["ma{}".format(i)],
+            df['bias{}'.format(i)] = round(
+                (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
                 self.precision)
 
         # 计算k率
         for i in self.ema_list:
-            df_trans['k{}'.format(i)] = df_trans.close.rolling(i).apply(self.cal_K)
+            df['k{}'.format(i)] = df.close.rolling(i).apply(self.cal_K)
 
 
-        df_trans.index = range(len(df_trans))  # 修改索引为数字序号
-        df_trans['ATR1'] = df_trans['high'] - df_trans['low']  # 当日最高价-最低价
-        df_trans['ATR2'] = abs(df_trans['close'].shift(1) - df_trans['high'])  # 上一日收盘价-当日最高价
-        df_trans['ATR3'] = abs(df_trans['close'].shift(1) - df_trans['low'])  # 上一日收盘价-当日最低价
-        df_trans['ATR4'] = df_trans['ATR1']
-        for i in range(len(df_trans)):  # 取价格波动的最大值
-            if df_trans.loc[i, 'ATR4'] < df_trans.loc[i, 'ATR2']:
-                df_trans.loc[i, 'ATR4'] = df_trans.loc[i, 'ATR2']
-            if df_trans.loc[i, 'ATR4'] < df_trans.loc[i, 'ATR3']:
-                df_trans.loc[i, 'ATR4'] = df_trans.loc[i, 'ATR3']
-        df_trans['ATR'] = df_trans.ATR4.rolling(14).mean()  # N=14的ATR值
-        df_trans['stop'] = df_trans['close'].shift(1) - df_trans['ATR'] * 3  # 止损价=(上一日收盘价-3*ATR)
+        df.index = range(len(df))  # 修改索引为数字序号
+        df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
+        df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
+        df['ATR3'] = abs(df['close'].shift(1) - df['low'])  # 上一日收盘价-当日最低价
+        df['ATR4'] = df['ATR1']
+        for i in range(len(df)):  # 取价格波动的最大值
+            if df.loc[i, 'ATR4'] < df.loc[i, 'ATR2']:
+                df.loc[i, 'ATR4'] = df.loc[i, 'ATR2']
+            if df.loc[i, 'ATR4'] < df.loc[i, 'ATR3']:
+                df.loc[i, 'ATR4'] = df.loc[i, 'ATR3']
+        df['ATR'] = df.ATR4.rolling(14).mean()  # N=14的ATR值
+        df['stop'] = df['close'].shift(1) - df['ATR'] * 3  # 止损价=(上一日收盘价-3*ATR)
 
         # BOLL计算 取N=20，M=2
-        df_trans['boll'] = df_trans.close.rolling(20).mean()
-        df_trans['delta'] = df_trans.close - df_trans.boll
-        df_trans['beta'] = df_trans.delta.rolling(20).std()
-        df_trans['up'] = df_trans['boll'] + 2 * df_trans['beta']
-        df_trans['down'] = df_trans['boll'] - 2 * df_trans['beta']
+        df['boll'] = df.close.rolling(20).mean()
+        df['delta'] = df.close - df.boll
+        df['beta'] = df.delta.rolling(20).std()
+        df['up'] = df['boll'] + 2 * df['beta']
+        df['down'] = df['boll'] - 2 * df['beta']
 
         # 计算包络线ENE(10,9,9)
         # ENE代表中轨。MA(CLOSE,N)代表N日均价
         # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
         # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
-        df_trans['ene'] = df_trans.close.rolling(10).mean()
-        df_trans['upper'] = (1 + 9.0 / 100) * df_trans['ene']
-        df_trans['lower'] = (1 - 9.0 / 100) * df_trans['ene']
+        df['ene'] = df.close.rolling(10).mean()
+        df['upper'] = (1 + 9.0 / 100) * df['ene']
+        df['lower'] = (1 - 9.0 / 100) * df['ene']
 
         # 计算MACD
         # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
-        df_trans['DIF'], df_trans['DEA'], df_trans['MACD'] = self.cal_macd(df_trans)
+        df['DIF'], df['DEA'], df['MACD'] = self.cal_macd(df)
 
         # 标记买入和卖出信号
         # for i in range(len(df)):
@@ -366,11 +371,11 @@ class AIndex:
         #         df.loc[i, 'BUY'] = True
         # start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
         # end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
-        df_trans = df_trans.loc[(df_trans['date'] >= start_date) & (df_trans['date'] <= end_date)]
+        df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
         # 把date作为日期索引
-        df_trans.index = pd.to_datetime(df_trans.date)
-        return df_trans
+        df.index = pd.to_datetime(df.date)
+        return df
 
     def cal_K(self, df, precision=2):
         '''获取股票斜率
@@ -1215,37 +1220,3 @@ if __name__ == "__main__":
            )
     a.web()
     print(a.data[['date', 'open', 'close', 'high', 'low']])
-    def transferToWeekLine(df, period_type = 'W'):
-
-        #设定转换周期period_type  转换为周是'W',月'M',季度线'Q',五分钟'5min',12天'12D'
-        df["date"] = pd.to_datetime(df["date"])
-        df.set_index('date',inplace=True)
-
-        #进行转换，周线的每个变量都等于那一周中最后一个交易日的变量值
-        period_stock_data = df.resample(period_type).last()
-
-        # 周线的open等于那一周中第一个交易日的open
-        period_stock_data['open'] = df['open'].resample(period_type).first()
-
-        #周线的high等于那一周中的high的最大值
-        period_stock_data['high'] = df['high'].resample(period_type).max()
-
-        #周线的low等于那一周中的low的
-        period_stock_data['low'] = df['low'].resample(period_type).min()
-
-        #周线的volume和money等于那一周中volume和money各自的和
-        period_stock_data['volume'] = df['volume'].resample(period_type).sum()
-
-        #股票在有些周一天都没有交易，将这些周去除
-        # period_stock_data = df[df['volume'].notnull()]
-        period_stock_data.dropna(subset=['volume'], how='any', inplace=True)
-        period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
-        period_stock_data.reset_index(inplace=True)
-
-        return period_stock_data
-    df = ak.stock_zh_index_daily(symbol="sh000001").iloc[:, :6]
-
-    df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-    df['volume'] = round(df['volume'].astype('float') / 10000, 2)
-    df_trz = transferToWeekLine(df, 'W')
-    print(df_trz)
