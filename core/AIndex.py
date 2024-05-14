@@ -128,13 +128,14 @@ class AIndex:
 
         period_stock_data = round(df.resample(freq).last(), self.precision)
         period_stock_data['open'] = round(df['open'].resample(freq).first(), self.precision)
+        period_stock_data['close'] = round(df['close'].resample(freq).last(), self.precision)
         period_stock_data['high'] = round(df['high'].resample(freq).max(), self.precision)
         period_stock_data['low'] = round(df['low'].resample(freq).min(), self.precision)
         period_stock_data['volume'] = round(df['volume'].resample(freq).sum(), self.precision)
 
         #去除没有交易
         # period_stock_data = df[df['volume'].notnull()]
-        period_stock_data.dropna(subset=['volume'], how='any', inplace=True)
+        period_stock_data.dropna(subset=['close'], how='any', inplace=True)
         if freq == 'W':
             # 周采样默认为周日，改为周五
             period_stock_data.index=period_stock_data.index+datetime.timedelta(days=-2)
