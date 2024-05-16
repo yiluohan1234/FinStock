@@ -160,6 +160,10 @@ class KLineChart:
         for i in self.ema_list:
             df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), self.precision)
 
+        # 计算volume均线
+        for i in self.ema_list:
+            df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), self.precision)
+
         # 计算抵扣差
         for i in self.ema_list:
             df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), self.precision)
@@ -242,6 +246,10 @@ class KLineChart:
         for i in self.ema_list:
             df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), self.precision)
 
+        # 计算volume均线
+        for i in self.ema_list:
+            df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), self.precision)
+
         # 计算抵扣差
         for i in self.ema_list:
             df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), self.precision)
@@ -320,6 +328,10 @@ class KLineChart:
         # 计算均线
         for i in self.ema_list:
             df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), self.precision)
+
+        # 计算volume均线
+        for i in self.ema_list:
+            df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), self.precision)
 
         # 计算抵扣差
         for i in self.ema_list:
@@ -954,7 +966,7 @@ class KLineChart:
           width: int            #图表宽度 px
           height: int            #图表高度 px
           klines: list           #K线区域显示的数据，Dataframe中的字段名，如['ma5','ma10','ma20','ma60', 'ma120', 'ma250', 'boll', 'up', 'down', 'stop', 'ene', 'upper', 'lower']
-          vline: list           #Volume区域显示的数据，Dataframe中的字段名，如MA...
+          vline: list           #Volume区域显示的数据，Dataframe中的字段名，如['vma5','vma10','vma20','vma60', 'vma120', 'vma250']
           dmalines: list        #线误差的两个均线选择，如['ma5', 'ma10']
           jxPoints: list        #绘制多个颈线的坐标，如jxPoints=[[("2024-03-01",38.80), ("2024-04-09",38.80)], [("2024-01-11",18.80), ("2024-01-31",28.80)]])
           jxLines: list        #绘制多个颈线的坐标，如[jx, max_y, start_date, end_date]
