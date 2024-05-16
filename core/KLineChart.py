@@ -882,6 +882,21 @@ class KLineChart:
                 ),
             )
         )
+        # 叠加多个k线
+        if len(self.KLlines) != 0:
+            klLine = Line().add_xaxis(self.dateindex)
+            for i in self.KLlines:
+                klLine.add_yaxis(
+                    series_name=i,
+                    y_axis=round(self.data[i], self.precision).values.tolist(),
+                    is_smooth=True,
+                    is_symbol_show=False,
+                    is_hover_animation=False,
+                    label_opts=opts.LabelOpts(is_show=False),
+                    linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
+                )
+            klLine.set_global_opts(xaxis_opts=opts.AxisOpts(type_="category", is_show=False))
+            c.overlap(klLine)
         return c
 
     def DMA(self):
@@ -923,7 +938,7 @@ class KLineChart:
         )
         return c
 
-    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[], jxLines=[], is_notebook=True):
+    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[], jxLines=[], KLlines=[], is_notebook=True):
         '''
         @params:
         - n:int                 #抵扣差、乖离率、斜率的计算天数
@@ -943,6 +958,7 @@ class KLineChart:
           dmalines: list        #线误差的两个均线选择，如['ma5', 'ma10']
           jxPoints: list        #绘制多个颈线的坐标，如jxPoints=[[("2024-03-01",38.80), ("2024-04-09",38.80)], [("2024-01-11",18.80), ("2024-01-31",28.80)]])
           jxLines: list        #绘制多个颈线的坐标，如[jx, max_y, start_date, end_date]
+          KLlines: list        #绘制多个K线，如['k60', 'k120']
           is_notebook: bool    #是否在notebook绘制
         - sample:
            chart=data.plot(area=[['V','DKC'],'V'],vlines=['vMA5','vMA10'],klines=['ma5','ma10'])
@@ -953,6 +969,7 @@ class KLineChart:
         self.dmalines = dmalines
         self.jxPoints = jxPoints
         self.jxLines = jxLines
+        self.KLlines = KLlines
         grid = (Grid(init_opts=opts.InitOpts(
                 width=str(width) + "px",
                 height=str(height) + "px",
