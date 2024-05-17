@@ -212,11 +212,13 @@ class KLineChart:
         df['DIF'], df['DEA'], df['MACD'] = self.cal_macd(df)
 
         # 标记买入和卖出信号
-        # for i in range(len(df)):
-        #     if df.loc[i, 'close'] > df.loc[i, 'upper'] and df['k20'] > 0:
-        #         df.loc[i, 'SELL'] = True
-        #     if df.loc[i, 'close'] < df.loc[i, 'ene'] and df['k20'] > 0:
-        #         df.loc[i, 'BUY'] = True
+        for i in range(len(df)):
+            if i == 0:
+                continue
+            if (df.loc[i, 'k5'] >= df.loc[i, 'k10']) and (df.loc[i-1, 'k5'] < df.loc[i-1, 'k10']) and df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0:
+                df.loc[i, 'BUY'] = True
+            # if df.loc[i, 'close'] < df.loc[i, 'ene'] and df.loc[i, 'k20'] > 0:
+            #     df.loc[i, 'SELL'] = True
 
         start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
         end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
@@ -472,7 +474,7 @@ class KLineChart:
         MACD = MACD * 2
         return DIF, DEA, MACD
 
-    def K(self):
+    def K(self) -> Kline:
         '''绘制k线图
         '''
         data = self.data[self.prices_cols].values.tolist()
@@ -624,7 +626,7 @@ class KLineChart:
 
         return c
 
-    def V(self):
+    def V(self) -> Bar:
         '''绘制成交量图
         '''
         db = self.data[['volume', 'f']].reset_index()
@@ -865,7 +867,7 @@ class KLineChart:
         c = (Line()
             .add_xaxis(self.dateindex)  # X轴数据
             .add_yaxis(
-                series_name="k率{}".format(self.n),
+                series_name="k{}".format(self.n),
                 y_axis=self.data[k_name].values.tolist(),  # Y轴数据
                 xaxis_index=1,
                 yaxis_index=1,

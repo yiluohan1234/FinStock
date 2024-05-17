@@ -590,7 +590,7 @@ class AIndex:
 
         return c
 
-    def V(self):
+    def V(self) -> Bar:
         '''绘制成交量图
         '''
         db = self.data[['volume', 'f']].reset_index()
@@ -835,7 +835,7 @@ class AIndex:
         c = (Line()
             .add_xaxis(self.dateindex)  # X轴数据
             .add_yaxis(
-                series_name="k率{}".format(self.n),
+                series_name="k{}".format(self.n),
                 y_axis=self.data[k_name].values.tolist(),  # Y轴数据
                 xaxis_index=1,
                 yaxis_index=1,
