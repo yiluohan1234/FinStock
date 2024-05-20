@@ -349,16 +349,17 @@ class Basic:
             print("|{}|{}|".format(column, data_type))
 
     def plot_bar(self, data, x, y, title):
-        bar = (Bar(init_opts=opts.InitOpts(width="600px", height="400px",theme=ThemeType.DARK))
+        bar = (Bar()
                 .add_xaxis(xaxis_data=data[x].tolist())
                 .add_yaxis(
                     series_name=y,
-                    y_axis=data[y].values.tolist()
+                    y_axis=data[y].values.tolist(),
+                    label_opts=opts.LabelOpts(is_show=True),
                 )
                 #.reversal_axis() # 旋转柱形图方向
-                .set_series_opts(label_opts=opts.LabelOpts(position="right")) # 设置数字标签位置
+                .set_series_opts(label_opts=opts.LabelOpts(position="top")) # 设置数字标签位置
                 .set_global_opts(
-                    title_opts=opts.TitleOpts(is_show=True, title=title, pos_left="center"),
+                    title_opts=opts.TitleOpts(is_show=True, title=title, pos_left="left"),
                     yaxis_opts=opts.AxisOpts(
                         name="{}".format(y),
                         type_="value",
@@ -366,14 +367,14 @@ class Basic:
                         axistick_opts=opts.AxisTickOpts(is_show=True),           # 显示坐标轴刻度
                         splitline_opts=opts.SplitLineOpts(is_show=True),         # 显示分割线
                     ),
-                    visualmap_opts=opts.VisualMapOpts(
-                         max_= max(data[y].values.tolist()),
-                          min_= min(data[y].values.tolist()),
-                          range_color = ['#ffe100','#e82727'],
-                          pos_right='10%',
-                          pos_top='60%',
-                          is_show=False
-                    ),
+                    # visualmap_opts=opts.VisualMapOpts(
+                    #      max_= max(data[y].values.tolist()),
+                    #       min_= min(data[y].values.tolist()),
+                    #       range_color = ['#ffe100','#e82727'],
+                    #       pos_right='10%',
+                    #       pos_top='60%',
+                    #       is_show=False
+                    # ),
                 )
         )
         return bar
@@ -384,7 +385,7 @@ class Basic:
                 .add_yaxis(
                     series_name=y,
                     y_axis=data[y].values.tolist(),
-                    label_opts=opts.LabelOpts(is_show=False),
+                    label_opts=opts.LabelOpts(is_show=True),
                     # symbol="triangle",
                     # symbol_size=20,
                 )
