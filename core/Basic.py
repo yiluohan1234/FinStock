@@ -259,15 +259,15 @@ class Basic:
 
         return df_lrb, df_lrb_display
 
-    def get_zcfz_data(self, n, data_type=0):
+    def get_zcfz_data(self, code, n, data_type=0):
         '''获取资产负债表数据
         @params:
         - n: int           #返回数据个数
         - data_type: int   #返回数据的形式，0为自然，1为季报，2为中报，4为年报
         '''
         ret_columns = ['报告日', '总资产', '总负债',
-                       '资产负债率']
-        df_zcfz = ak.stock_balance_sheet_by_report_em(symbol=self.get_szsh_code(self.code))
+                       '资产负债率', '存货']
+        df_zcfz = ak.stock_balance_sheet_by_report_em(symbol=self.get_szsh_code(code))
         df_zcfz = df_zcfz.fillna(0)
         # https://blog.csdn.net/a389085918/article/details/80284812
 
@@ -277,6 +277,7 @@ class Basic:
         df_zcfz['总资产'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
         df_zcfz['总负债'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
         df_zcfz['资产负债率'] = round(df_zcfz['TOTAL_LIABILITIES'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
+        df_zcfz['存货'] = round(df_zcfz['INVENTORY'] / 100000000, 2)
         # 应收账款周转率=营业收入/（（期初应收账款+期末应收账款）/2）
         # 应收账款周转天数=365/应收账款周转率
 
