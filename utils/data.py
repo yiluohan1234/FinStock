@@ -10,7 +10,7 @@
 import akshare as ak
 import datetime
 import pandas as pd
-from utils.func import cal_K, cal_macd, frb, transfer_price_freq
+from utils.func import cal_K, cal_macd, frb, transfer_price_freq, get_szsh_code, cal_K_predict
 from utils.cons import ema_list, precision
 
 
@@ -34,13 +34,12 @@ def get_data(code, start_date, end_date, freq):
         df = ak.stock_zh_a_hist(symbol=code, start_date=start, end_date=end_date, adjust="qfq").iloc[:, :6]
         # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
+        df["date"] = pd.to_datetime(df["date"])
     elif freq == 'min':
-        if int(code) > 600000:
-            symbol = "sh" + str(code)
-        else:
-            symbol = "sz" + str(code)
-        df = ak.stock_zh_a_minute(symbol=symbol, period="60", adjust="qfq")
+        df = ak.stock_zh_a_minute(symbol=get_szsh_code(code), period="60", adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
+        df["date"] = pd.to_datetime(df["date"])
+        df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
     else:
         date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
         start = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
@@ -50,30 +49,18 @@ def get_data(code, start_date, end_date, freq):
 
     df['volume'] = round(df['volume'].astype('float') / 10000, 2)
 
-    # 计算均线
+    # 计算均线、volume均线、抵扣差、乖离率、k率
     for i in ema_list:
         df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-
-    # 计算volume均线
-    for i in ema_list:
         df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-
-    # 计算抵扣差
-    for i in ema_list:
         df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-
-    # 计算乖离率
-    for i in ema_list:
         df['bias{}'.format(i)] = round(
             (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
             precision)
-
-    # 计算k率
-    for i in ema_list:
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
 
 
-    df.index = range(len(df))  # 修改索引为数字序号
     df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
     df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
     df['ATR3'] = abs(df['close'].shift(1) - df['low'])  # 上一日收盘价-当日最低价
@@ -113,22 +100,14 @@ def get_data(code, start_date, end_date, freq):
     #         df.loc[i, 'BUY'] = True
     #     if df.loc[i, 'close'] < df.loc[i, 'ene'] and df.loc[i, 'k20'] > 0:
     #         df.loc[i, 'SELL'] = True
-    if freq == 'D':
-        start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
-        end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
-        df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
-    elif freq == 'min':
-        start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
-        end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
-        df = df.loc[(pd.to_datetime(df['date'], format='%Y-%m-%d %H:%M:%S').dt.date >= start_date) & (pd.to_datetime(df['date'], format='%Y-%m-%d %H:%M:%S').dt.date <= end_date)]
-    else:
-        df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+    # 过滤日期
+    df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
     # 计算volume的标识
     df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
 
     # 把date作为日期索引
-    df.index = pd.to_datetime(df.date)
+    df.index = df.date
     return df
 
 
@@ -149,9 +128,11 @@ def get_index_data(code, start_date, end_date, freq):
     if freq == 'D':
         df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+        df["date"] = pd.to_datetime(df["date"])
     elif freq == 'min':
         df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+        df["date"] = pd.to_datetime(df["date"])
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
     else:
         df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
@@ -160,30 +141,17 @@ def get_index_data(code, start_date, end_date, freq):
 
     df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
 
-    # 计算均线
+    # 计算均线、volume均线、抵扣差、乖离率、k率
     for i in ema_list:
         df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-
-    # 计算volume均线
-    for i in ema_list:
         df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-
-    # 计算抵扣差
-    for i in ema_list:
         df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-
-    # 计算乖离率
-    for i in ema_list:
         df['bias{}'.format(i)] = round(
             (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
             precision)
-
-    # 计算k率
-    for i in ema_list:
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
 
-
-    df.index = range(len(df))  # 修改索引为数字序号
     df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
     df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
     df['ATR3'] = abs(df['close'].shift(1) - df['low'])  # 上一日收盘价-当日最低价
@@ -221,26 +189,18 @@ def get_index_data(code, start_date, end_date, freq):
     #         df.loc[i, 'SELL'] = True
     #     if df.loc[i, 'close'] < df.loc[i, 'boll']:
     #         df.loc[i, 'BUY'] = True
-    if freq == 'D':
-        start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
-        end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
-        df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
-    elif freq == 'min':
-        start_date = datetime.datetime.strptime(start_date, '%Y%m%d').date()
-        end_date = datetime.datetime.strptime(end_date, '%Y%m%d').date()
-        df = df.loc[(pd.to_datetime(df['date'], format='%Y-%m-%d %H:%M:%S').dt.date >= start_date) & (pd.to_datetime(df['date'], format='%Y-%m-%d %H:%M:%S').dt.date <= end_date)]
-    else:
-        df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+    # 过滤日期
+    df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
     # 计算volume的标识
     df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
 
     # 把date作为日期索引
-    df.index = pd.to_datetime(df.date)
+    df.index = df.date
     return df
 
 
 if __name__ == "__main__":
-    # k = get_data("000612", start_date="20240510", end_date="20240519", freq='W')
-    k = get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min')
+    k = get_data("000612", start_date="20240501", end_date="20240519", freq='min')
+    # k = get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min')
     print(k)
