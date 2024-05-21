@@ -13,7 +13,7 @@ import webbrowser
 import os
 import datetime
 from utils.func import get_name
-from utils.FSData import get_data, get_data_type, get_data_min
+from utils.FSData import get_data
 from utils.FSPlot import K, V, MACD, DKC, BIAS, KL, DMA
 from utils.cons import precision
 
@@ -30,33 +30,20 @@ class KLineChart:
         - precision :str                 #数据精度, 默认2
         '''
         self.title = get_name(code)
-
         # 如果默认日期为'20240202'，则end_date转为最新的日期
         if end_date == '20240202':
             now = datetime.datetime.now()
             if now.hour >= 15:
-                if freq == 'min':
-                    end_date = now.strftime('%Y-%m-%d')
-                else:
-                    end_date = now.strftime('%Y%m%d')
+                end_date = now.strftime('%Y%m%d')
             else:
                 yesterday = now - datetime.timedelta(days=1)
-                if freq == 'min':
-                    end_date = yesterday.strftime('%Y-%m-%d')
-                else:
-                    end_date = yesterday.strftime('%Y%m%d')
+                end_date = yesterday.strftime('%Y%m%d')
+        df = get_data(code, start_date, end_date, freq)
+        self.data = df.copy()
 
-        if freq == 'D':
-            df = get_data(code, start_date, end_date)
-            self.data = df.copy()
-            self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
-        elif freq == 'min':
-            df = get_data_min(code, end_date)
-            self.data = df.copy()
-            self.dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
+        if freq == 'min':
+            self.dateindex = df.index.strftime('%Y-%m-%d %H').tolist()
         else:
-            df = get_data_type(code, start_date, end_date, freq)
-            self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
     def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxPoints=[],

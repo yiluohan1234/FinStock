@@ -39,7 +39,7 @@ def get_data(code, start_date, end_date, freq):
             symbol = "sh" + str(code)
         else:
             symbol = "sz" + str(code)
-        df = ak.stock_zh_a_minute(symbol=symbol, period="30", adjust="qfq")
+        df = ak.stock_zh_a_minute(symbol=symbol, period="60", adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
     else:
         date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
@@ -150,7 +150,7 @@ def get_index_data(code, start_date, end_date, freq):
         df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
     elif freq == 'min':
-        df = ak.stock_zh_a_minute(symbol=code, period="30", adjust="qfq")
+        df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
     else:

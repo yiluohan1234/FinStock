@@ -12,7 +12,7 @@ from pyecharts import options as opts
 import webbrowser
 import os
 import datetime
-from utils.FSData import get_index_data, get_index_data_type, get_index_data_min
+from utils.FSData import get_index_data
 from utils.FSPlot import K, V, MACD, DKC, BIAS, KL, DMA
 from utils.cons import precision
 
@@ -29,33 +29,19 @@ class AIndex:
         - precision :str                 #数据精度,默认2
         '''
         self.title = self.code2name(code)
-
         # 如果默认日期为'20240202'，则end_date转为最新的日期
         if end_date == '20240202':
             now = datetime.datetime.now()
             if now.hour >= 15:
-                if freq == 'min':
-                    end_date = now.strftime('%Y-%m-%d')
-                else:
-                    end_date = now.strftime('%Y%m%d')
+                end_date = now.strftime('%Y%m%d')
             else:
                 yesterday = now - datetime.timedelta(days=1)
-                if freq == 'min':
-                    end_date = yesterday.strftime('%Y-%m-%d')
-                else:
-                    end_date = yesterday.strftime('%Y%m%d')
-
-        if freq == 'D':
-            df = get_index_data(code, start_date, end_date)
-            self.data = df.copy()
-            self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
-        elif freq == 'min':
-            df = get_index_data_min(code, end_date)
-            self.data = df.copy()
-            self.dateindex = df.index.strftime('%H:%M').tolist()
+                end_date = yesterday.strftime('%Y%m%d')
+        df = get_index_data(code, start_date, end_date, freq)
+        self.data = df.copy()
+        if freq == 'min':
+            self.dateindex = df.index.strftime('%Y-%m-%d %H').tolist()
         else:
-            df = get_index_data_type(code, start_date, end_date, freq)
-            self.data = df.copy()
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
     def code2name(self, code):
