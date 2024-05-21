@@ -666,6 +666,71 @@ def KL(data, n, KLlines) -> Line:
     return c
 
 
+def KPL(data, n, KPLlines) -> Line:
+    '''
+    绘制斜率图
+    :param data: 数据
+    :type data: pandas.DataFrame
+    :param n: 数字级别
+    :type n: int
+    :param KPLlines: 预测斜率列表，['kp5', 'kp10']
+    :type KPLlines: list
+    :return: 返回预测斜率Line对象
+    :rtype: Line
+    '''
+    dateindex = data.index.strftime("%Y-%m-%d").tolist()
+    k_name = "kp{}".format(n)
+
+    c = (Line()
+        .add_xaxis(dateindex)  # X轴数据
+        .add_yaxis(
+        series_name="kp{}".format(n),
+        y_axis=data[k_name].values.tolist(),  # Y轴数据
+        xaxis_index=1,
+        yaxis_index=1,
+        label_opts=opts.LabelOpts(is_show=False),
+        itemstyle_opts=opts.ItemStyleOpts(
+            color='#ef232a'  # '#14b143'
+        ),
+        markline_opts=opts.MarkLineOpts(
+            data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
+            linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+        )
+    )
+        .set_global_opts(
+        xaxis_opts=opts.AxisOpts(
+            type_="category",  # 坐标轴类型-离散数据
+            grid_index=1,
+            axislabel_opts=opts.LabelOpts(is_show=False),
+            axisline_opts=opts.AxisLineOpts(is_show=True),
+        ),
+        legend_opts=opts.LegendOpts(is_show=False),
+        yaxis_opts=opts.AxisOpts(
+            axislabel_opts=opts.LabelOpts(is_show=False),
+            axisline_opts=opts.AxisLineOpts(is_show=True),
+            axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+            # splitline_opts=opts.SplitLineOpts(is_show=False),
+        ),
+    )
+    )
+    # 叠加多个k线
+    if len(KPLlines) != 0:
+        klLine = Line().add_xaxis(dateindex)
+        for i in KPLlines:
+            klLine.add_yaxis(
+                series_name=i,
+                y_axis=round(data[i], precision).values.tolist(),
+                is_smooth=True,
+                is_symbol_show=False,
+                is_hover_animation=False,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
+            )
+        klLine.set_global_opts(xaxis_opts=opts.AxisOpts(type_="category", is_show=False))
+        c.overlap(klLine)
+    return c
+
+
 def DMA(data, n, dmalines) -> Line:
     '''
     绘制均线差图
