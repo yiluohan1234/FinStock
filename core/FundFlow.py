@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 #######################################################################
-#    > File Name: FundFlow.py
+#    > File Name: fundflow.py
 #    > Author: cuiyufei
 #    > Mail: XXX@qq.com
 #    > Created Time: 2024年5月2日

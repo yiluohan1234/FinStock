@@ -12,8 +12,8 @@ from pyecharts import options as opts
 import webbrowser
 import os
 import datetime
-from utils.FSData import get_index_data
-from utils.FSPlot import K, V, MACD, DKC, BIAS, KL, DMA
+from utils.data import get_index_data
+from utils.plot import K, V, MACD, DKC, BIAS, KL, DMA
 from utils.cons import precision
 
 

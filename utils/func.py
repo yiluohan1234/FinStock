@@ -278,3 +278,41 @@ def get_szsh_code(code):
     elif code.find('200', 0, 4) == 0:
         gp_type = 'SZ'+code
     return gp_type
+
+
+def num2str(num):
+    '''
+    实现数值转换为万，亿单位，保留2位小数
+    :param num: 数字
+    :type num: float
+    :return: 转换数字位亿万单位的字符串
+    :rtype: str
+    '''
+    if num > 0:
+        flag = 1
+    else:
+        flag = -1
+    num = abs(num)
+    level = 0
+    while num > 10000:
+        if level >= 2:
+            break
+        num /= 10000
+        level += 1
+    units = ['', '万', '亿']
+
+    return '{}{}'.format(round(flag * num, 3), units[level])
+
+
+def get_num2str_df(df):
+    '''
+    实现将dataframe转换为万，亿单位，保留2位小数
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 转换数字位亿万单位的数据
+    :rtype: pandas.DataFrame
+    '''
+    for col in df.columns.tolist():
+        if str(df[col].dtype) == 'float64':
+            df[col] = df[col].apply(lambda x: num2str(x))
+    return df

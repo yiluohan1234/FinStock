@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 #######################################################################
-#    > File Name: FSPlot.py
+#    > File Name: plot.py
 #    > Author: cuiyufei
 #    > Mail: XXX@qq.com
 #    > Created Time: 2024年5月20日
@@ -16,7 +16,7 @@ from pyecharts.globals import CurrentConfig, NotebookType
 # CurrentConfig.NOTEBOOK_TYPE = NotebookType.JUPYTER_LAB
 CurrentConfig.NOTEBOOK_TYPE = NotebookType.JUPYTER_NOTEBOOK
 CurrentConfig.ONLINE_HOST = 'https://assets.pyecharts.org/assets/'
-from utils.FSData import get_data
+from utils.data import get_data
 import os
 import webbrowser
 from utils.cons import precision, prices_cols

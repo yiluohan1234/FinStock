@@ -15,9 +15,9 @@ import warnings
 warnings.filterwarnings("ignore")
 #设置显示全部行，不省略
 import pandas as pd
-pd.set_option('display.max_rows',None)
+pd.set_option('display.max_rows', None)
 #设置显示全部列，不省略
-pd.set_option('display.max_columns',None)
+pd.set_option('display.max_columns', None)
 
 
 def main(code):

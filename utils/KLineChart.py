@@ -13,8 +13,8 @@ import webbrowser
 import os
 import datetime
 from utils.func import get_name
-from utils.FSData import get_data
-from utils.FSPlot import K, V, MACD, DKC, BIAS, KL, DMA
+from utils.data import get_data
+from utils.plot import K, V, MACD, DKC, BIAS, KL, DMA
 from utils.cons import precision
 
 
