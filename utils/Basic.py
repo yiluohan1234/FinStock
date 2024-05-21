@@ -61,7 +61,7 @@ def get_main_indicators_ths(code, n, indicator="按年度"):
     df = df.head(n)
     for col in df.columns.tolist()[1:]:
         df[col] = df[col].apply(str2value)
-    for col in ['营业总收入', '归母净利润', '扣非净利润']:
+    for col in ['营业总收入', '净利润', '扣非净利润']:
         df[col] = round(df[col]/100000000, 2)
     # https://blog.csdn.net/a6661314/article/details/133634976
     df['报告期'] = df['报告期'].astype("str")
