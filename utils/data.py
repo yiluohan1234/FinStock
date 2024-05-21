@@ -28,10 +28,11 @@ def get_data(code, start_date, end_date, freq):
     :return: 返回股票综合数据
     :rtype: pandas.DataFrame
     '''
+    # 对于日数据，向前推一年，方便计算移动平均
+    date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
+    start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
     if freq == 'D':
-        date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
-        start = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
-        df = ak.stock_zh_a_hist(symbol=code, start_date=start, end_date=end_date, adjust="qfq").iloc[:, :6]
+        df = ak.stock_zh_a_hist(symbol=code, start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
         # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
@@ -41,9 +42,7 @@ def get_data(code, start_date, end_date, freq):
         df["date"] = pd.to_datetime(df["date"])
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
     else:
-        date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
-        start = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
-        df = ak.stock_zh_a_hist(symbol=code, start_date=start, end_date=end_date, adjust="qfq").iloc[:, :6]
+        df = ak.stock_zh_a_hist(symbol=code, start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df = transfer_price_freq(df, freq)
 
@@ -59,7 +58,6 @@ def get_data(code, start_date, end_date, freq):
             precision)
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
-
 
     df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
     df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
@@ -201,6 +199,6 @@ def get_index_data(code, start_date, end_date, freq):
 
 
 if __name__ == "__main__":
-    k = get_data("000612", start_date="20240501", end_date="20240519", freq='min')
+    k = get_data("000612", start_date="20240501", end_date="20240519", freq='D')
     # k = get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min')
     print(k)
