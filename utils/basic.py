@@ -9,7 +9,6 @@
 #######################################################################
 import akshare as ak
 import pandas as pd
-
 from utils.func import get_szsh_code, str2value, get_display_data, get_report_type
 
 

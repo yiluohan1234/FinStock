@@ -9,10 +9,16 @@
 #######################################################################
 
 import akshare as ak
-import pandas as pd
 from datetime import datetime
 from utils.func import get_num2str_df, get_display_data
-
+# 设置显示全部行，不省略
+import pandas as pd
+pd.set_option('display.max_rows', None)
+# 设置显示全部列，不省略
+pd.set_option('display.max_columns', None)
+# pd.set_option('display.unicode.ambiguous_as_wide', True)
+# pd.set_option('display.unicode.east_asian_width', True)
+pd.set_option('display.width', 180)
 
 def get_individual_fund_flow(code, n, is_display=True):
     '''
@@ -165,14 +171,6 @@ def get_north_data(start_date, end_date, symbol="北向资金"):
 
 
 if __name__ == "__main__":
-    #设置显示全部行，不省略
-    import pandas as pd
-    pd.set_option('display.max_rows', None)
-    #设置显示全部列，不省略
-    pd.set_option('display.max_columns', None)
-    # pd.set_option('display.unicode.ambiguous_as_wide', True)
-    # pd.set_option('display.unicode.east_asian_width', True)
-    pd.set_option('display.width', 180)
     # code = "000977"
     # k = get_individual_fund_flow_rank(code, is_display=True)
     # print(k)
