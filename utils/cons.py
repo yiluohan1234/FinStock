@@ -11,3 +11,4 @@
 ema_list = [5, 10, 20, 30, 60, 120, 250]
 precision = 2
 prices_cols = ['open', 'close', 'low', 'high']
+transfer_date_dic = {'D': 'daily', 'W': 'weekly', 'M': 'monthly'}

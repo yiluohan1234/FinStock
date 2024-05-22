@@ -11,7 +11,7 @@ import akshare as ak
 import datetime
 import pandas as pd
 from utils.func import cal_K, cal_macd, frb, transfer_price_freq, get_szsh_code, cal_K_predict
-from utils.cons import ema_list, precision
+from utils.cons import ema_list, precision, transfer_date_dic
 
 
 def get_data(code, start_date, end_date, freq):
@@ -31,20 +31,21 @@ def get_data(code, start_date, end_date, freq):
     # 对于日数据，向前推一年，方便计算移动平均
     date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
     start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
-    if freq == 'D':
-        df = ak.stock_zh_a_hist(symbol=code, start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
+    if freq == 'D' or freq == 'W' or freq == 'M':
+        df = ak.stock_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
         # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
     elif freq == 'min':
+        # stock_zh_a_hist_min_em
         df = ak.stock_zh_a_minute(symbol=get_szsh_code(code), period="60", adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
-    else:
-        df = ak.stock_zh_a_hist(symbol=code, start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
-        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
-        df = transfer_price_freq(df, freq)
+    # else:
+    #     df = ak.stock_zh_a_hist(symbol=code, start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
+    #     df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
+    #     df = transfer_price_freq(df, freq)
 
     df['volume'] = round(df['volume'].astype('float') / 10000, 2)
 
@@ -199,6 +200,8 @@ def get_index_data(code, start_date, end_date, freq):
 
 
 if __name__ == "__main__":
-    k = get_data("000612", start_date="20240501", end_date="20240519", freq='D')
+    k = get_data("000612", start_date="20240501", end_date="20240521", freq='M')
     # k = get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min')
     print(k)
+    # df = ak.stock_zh_index_hist_csindex(symbol="000001", start_date="20240501", end_date="20240521")
+    # print(df.dtypes)

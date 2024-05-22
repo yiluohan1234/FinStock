@@ -317,3 +317,31 @@ def get_num2str_df(df):
         if str(df[col].dtype) == 'float64':
             df[col] = df[col].apply(lambda x: num2str(x))
     return df
+
+
+def get_date_week(current_date):
+    '''
+    获取当前日期的周数
+    :param current_date: 日期字符串，'20240521'
+    :type current_date: str
+    :return: 返回第n个周
+    :rtype: str
+    '''
+    week = datetime.datetime.strptime(current_date, '%Y%m%d').strftime('%W')
+    return week
+
+
+def get_date_month(current_date):
+    '''
+    获取当前日期的月份
+    :param current_date: 日期字符串，'20240521'
+    :type current_date: str
+    :return: 返回第n个月
+    :rtype: str
+    '''
+    month = datetime.datetime.strptime(current_date, '%Y%m%d').month
+    return str(month)
+
+
+if __name__ == "__main__":
+    print(get_date_month("20240521"))

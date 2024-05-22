@@ -29,7 +29,6 @@ def main(code):
            is_notebook=False
            )
     # k.web()
-    print(k.get_data_k(20))
 
     f = FundFlow()
     df, df_display = f.get_individual_fund_flow_rank(code)

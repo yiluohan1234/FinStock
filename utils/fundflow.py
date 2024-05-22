@@ -176,5 +176,11 @@ if __name__ == "__main__":
     # print(k)
     # k = get_individual_fund_flow(code, 10)
     # print(k)
-    k = get_north_data(start_date="20240501", end_date="20240520")
-    print(k)
+    # k = get_north_data(start_date="20240501", end_date="20240520")
+    # print(k)
+    import akshare as ak
+    # df = ak.stock_individual_info_em("000977")
+    # period='daily'; choice of {'daily', 'weekly', 'monthly'}
+    df = ak.stock_zh_a_hist(symbol="000977", period="weekly", start_date="20240101", end_date='20240521', adjust="")
+    print(df)
+    # 公司动态 stock_gsrl_gsdt_em(date="20230808")
