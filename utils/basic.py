@@ -147,6 +147,7 @@ def get_lrb_data(code, n, data_type=0, is_display=True):
     dt = {}
     # 过滤年报
     dt['报告日'] = df_lrb['REPORT_DATE_NAME']
+    dt['REPORT_TYPE'] = df_lrb['REPORT_TYPE']
     # df_lrb = df_lrb.sort_index(ascending=False)
     # 营业收入及同比
     dt['营业总收入'] = round(df_lrb['TOTAL_OPERATE_INCOME'] / 100000000, 2)
