@@ -10,7 +10,7 @@
 
 import akshare as ak
 from datetime import datetime
-from utils.func import get_num2str_df, get_display_data
+from utils.func import get_num2str_df, get_display_data, get_szsh_code
 # 设置显示全部行，不省略
 import pandas as pd
 pd.set_option('display.max_rows', None)
@@ -170,6 +170,50 @@ def get_north_data(start_date, end_date, symbol="北向资金"):
     return df
 
 
+def get_research_report(code, n=5):
+    '''
+    获取个股研报
+    :param code: 股票代码
+    :type code: str
+    :param n: 返回行数
+    :type n: int
+    :return: 返回个股研报
+    :rtype: pandas.DataFrame
+    '''
+    df = ak.stock_research_report_em(symbol=code)
+    df = df.head(n)
+
+    return df[['股票简称', '报告名称', '东财评级', '机构', '日期']]
+
+
+def get_free_top_10_em(code, date='20240331'):
+    '''
+    获取10大流通股
+    :param code: 股票代码
+    :type code: str
+    :param date: 日期
+    :type date: int
+    :return: 返回10大流通股
+    :rtype: pandas.DataFrame
+    '''
+    df = ak.stock_gdfx_free_top_10_em(symbol=get_szsh_code(code), date=date)
+
+    return df
+
+
+def get_gdhs_detail(code):
+    '''
+    获取股东人数
+    :param code: 股票代码
+    :type code: str
+    :return: 返回股东人数
+    :rtype: pandas.DataFrame
+    '''
+    df = ak.stock_zh_a_gdhs_detail_em(symbol=code)
+
+    return df
+
+
 if __name__ == "__main__":
     # code = "000977"
     # k = get_individual_fund_flow_rank(code, is_display=True)
@@ -181,6 +225,7 @@ if __name__ == "__main__":
     import akshare as ak
     # df = ak.stock_individual_info_em("000977")
     # period='daily'; choice of {'daily', 'weekly', 'monthly'}
-    df = ak.stock_zh_a_hist(symbol="000977", period="weekly", start_date="20240101", end_date='20240521', adjust="")
-    print(df)
+    # df = ak.stock_zh_a_hist(symbol="000977", period="weekly", start_date="20240101", end_date='20240521', adjust="")
+    # print(df)
     # 公司动态 stock_gsrl_gsdt_em(date="20230808")
+    print(get_gdhs_detail("000737"))
