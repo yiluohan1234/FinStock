@@ -10,7 +10,7 @@
 import akshare as ak
 import datetime
 import pandas as pd
-from utils.func import cal_K, cal_macd, frb, transfer_price_freq, get_szsh_code, cal_K_predict
+from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict
 from utils.cons import ema_list, precision, transfer_date_dic
 
 

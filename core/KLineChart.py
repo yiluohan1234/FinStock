@@ -11,7 +11,6 @@ from pyecharts.charts import Line, Grid, EffectScatter
 from pyecharts import options as opts
 import webbrowser
 import os
-import datetime
 from utils.func import get_name
 from utils.data import get_kline_chart_date
 from utils.plot import K, V, MACD, DKC, BIAS, KL, DMA, KPL
