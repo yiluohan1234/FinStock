@@ -13,32 +13,24 @@ import webbrowser
 import os
 import datetime
 from utils.func import get_name
-from utils.data import get_data
+from utils.data import get_kline_chart_date
 from utils.plot import K, V, MACD, DKC, BIAS, KL, DMA, KPL
 from utils.cons import precision
 
 
 class KLineChart:
 
-    def __init__(self, code, start_date='20200101', end_date='20240202', freq='D', precision=2):
+    def __init__(self, code, start_date='20200101', end_date='20240202', freq='D', zh_index=False):
         '''
         @params:
         - code: str                      #股票代码
         - start_date: str                #开始时间, 如'202000101'
         - end_date: str                  #结束时间, 如'20240202'
         - freq : str                     #默认 'D' :日线数据
-        - precision :str                 #数据精度, 默认2
+        - zh_index :str                  #是否为指数
         '''
-        self.title = get_name(code)
-        # 如果默认日期为'20240202'，则end_date转为最新的日期
-        if end_date == '20240202':
-            now = datetime.datetime.now()
-            if now.hour >= 15:
-                end_date = now.strftime('%Y%m%d')
-            else:
-                yesterday = now - datetime.timedelta(days=1)
-                end_date = yesterday.strftime('%Y%m%d')
-        df = get_data(code, start_date, end_date, freq)
+        self.title = get_name(code, zh_index)
+        df = get_kline_chart_date(code, start_date, end_date, freq, zh_index)
         self.data = df.copy()
 
         if freq == 'min':

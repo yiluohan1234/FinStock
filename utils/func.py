@@ -194,17 +194,24 @@ def get_macd_data(df, fastperiod=12, slowperiod=26, signalperiod=9):
     return DIF, DEA, MACD
 
 
-def get_name(code):
+def get_name(code, zh_index):
     '''
     获取股票名称
     :param code: 股票代码
     :type code: str
+    :param zh_index: 是否位指数
+    :type zh_index: bool
     :return: 股票名称
     :rtype: str
     '''
-    name_code = ak.stock_zh_a_spot_em()
-    name = name_code[name_code['代码'] == code]['名称'].values[0]
-    return name
+    if not zh_index:
+        name_code = ak.stock_zh_a_spot_em()
+        name = name_code[name_code['代码'] == code]['名称'].values[0]
+        return name
+    else:
+        code_name = {"000001": "上证指数",
+                     "sh880326": "铝"}
+        return code_name[code]
 
 
 def frb(open_value, close_value):

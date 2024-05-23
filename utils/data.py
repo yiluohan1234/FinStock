@@ -28,11 +28,8 @@ def get_data(code, start_date, end_date, freq):
     :return: 返回股票综合数据
     :rtype: pandas.DataFrame
     '''
-    # 对于日数据，向前推一年，方便计算移动平均
-    date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
-    start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
     if freq == 'D' or freq == 'W' or freq == 'M':
-        df = ak.stock_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
+        df = ak.stock_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date, adjust="qfq").iloc[:, :6]
         # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
@@ -124,10 +121,8 @@ def get_index_data(code, start_date, end_date, freq):
     :return: 返回股票综合数据
     :rtype: pandas.DataFrame
     '''
-    date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
-    start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
     if freq == 'D' or freq == 'W' or freq == 'M':
-        df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_end_date, end_date=end_date).iloc[:, :6]
+        df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date).iloc[:, :6]
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
     elif freq == 'min':
@@ -198,6 +193,31 @@ def get_index_data(code, start_date, end_date, freq):
 
     # 把date作为日期索引
     df.index = df.date
+    return df
+
+
+def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
+    '''
+    @params:
+    - code: str                      #股票代码
+    - start_date: str                #开始时间, 如'202000101'
+    - end_date: str                  #结束时间, 如'20240202'
+    - freq : str                     #默认 'D' :日线数据
+    - zh_index :str                  #是否为指数
+    '''
+    date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
+    start_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
+    if end_date == '20240202':
+        now = datetime.datetime.now()
+        if now.hour >= 15:
+            end_date = now.strftime('%Y%m%d')
+        else:
+            yesterday = now - datetime.timedelta(days=1)
+            end_date = yesterday.strftime('%Y%m%d')
+    if not zh_index:
+        df = get_data(code, start_date, end_date, freq)
+    else:
+        df = get_index_data(code, start_date, end_date, freq)
     return df
 
 
