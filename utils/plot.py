@@ -1145,6 +1145,42 @@ def plot_multi_line(x, y, df_list, names_list):
     return _line
 
 
+def plot_df_line(df, x, y_list):
+    '''
+    一个df绘制多个折线图对比图
+    :param df: dataframe列表
+    :type df: pandas.Dataframe
+    :param x: 横坐标轴的列名称
+    :type x: str
+    :param y_list: 纵坐标轴列名称
+    :type y_list: list
+    :return: 返回Line对象
+    :rtype: Line
+    # line = plot_multi_line('报告日', '营业总收入', [df, df1], ['612', '977'])
+    '''
+    x_data = df[x].tolist()
+
+    if len(y_list) != 0:
+        _line = Line().add_xaxis(x_data)
+        for col in y_list:
+            _line.add_yaxis(series_name=col,
+                            y_axis=df[col].values.tolist(),
+                            label_opts=opts.LabelOpts(is_show=False),
+                            )
+            _line.set_global_opts(
+                tooltip_opts=opts.TooltipOpts(is_show=True, trigger="axis", axis_pointer_type="cross"),
+                xaxis_opts=opts.AxisOpts(type_="category", is_show=True),
+                yaxis_opts=opts.AxisOpts(
+                    type_="value",
+                    axistick_opts=opts.AxisTickOpts(is_show=True),
+                    splitline_opts=opts.SplitLineOpts(is_show=True),
+                    is_show=True
+                ),
+            )
+    # line = plot_multi_line('报告日', '营业总收入', [df, df1], ['612', '977'])
+    return _line
+
+
 def plot_table(data, headers, title):
     table = Table()
 

@@ -221,6 +221,13 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     return df
 
 
+# bond_zh_us_rate_df = ak.bond_zh_us_rate(start_date="19901219")
+# print(bond_zh_us_rate_df[['日期', '中国国债收益率10年', '美国国债收益率10年']])
+# from utils.plot import plot_df_line
+# bar = plot_df_line(bond_zh_us_rate_df, '日期' , ['中国国债收益率10年', "美国国债收益率10年"])
+# bar.render("./test.html")
+
+
 if __name__ == "__main__":
     time_start = datetime.datetime.now()
     # print(get_data("000612", start_date="20240501", end_date="20240521", freq='M'))
