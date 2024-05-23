@@ -224,12 +224,45 @@ def get_zcfz_data(code, n, data_type=0, is_display=True):
     # https://blog.csdn.net/a389085918/article/details/80284812
     dt = {}
     dt['报告日'] = df_zcfz['REPORT_DATE_NAME']
+    dt['REPORT_TYPE'] = df_zcfz['REPORT_TYPE']
     # df_zcfz = df_zcfz.sort_index(ascending=False)
     # 资产负债率
     dt['总资产'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
     dt['总负债'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
     dt['资产负债率'] = round(df_zcfz['TOTAL_LIABILITIES'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
+    dt['长期应收款'] = round(df_zcfz['LONG_RECE'] / 100000000, 2)
+    dt['长期股权投资'] = round(df_zcfz['LONG_EQUITY_INVEST'] / 100000000, 2)
+    dt['投资性房地产'] = round(df_zcfz['INVEST_REALESTATE'] / 100000000, 2)
+    dt['固定资产'] = round(df_zcfz['FIXED_ASSET'] / 100000000, 2)
+    dt['固定资产清理'] = round(df_zcfz['FIXED_ASSET_DISPOSAL'] / 100000000, 2)
+    dt['在建工程'] = round(df_zcfz['CIP'] / 100000000, 2)
+    dt['工程物资'] = round(df_zcfz['PROJECT_MATERIAL'] / 100000000, 2)
+    dt['生产性生物资产'] = round(df_zcfz['PRODUCTIVE_BIOLOGY_ASSET'] / 100000000, 2)
+    # 流动资产
+    dt['货币资产'] = round(df_zcfz['TRADE_FINASSET'] / 100000000, 2)
+    dt['交易性金融资产'] = round(df_zcfz['TRADE_FINASSET'] / 100000000, 2)
+    dt['衍生金融资产'] = round(df_zcfz['DERIVE_FINASSET'] / 100000000, 2)
+    dt['应收票据及应收账款'] = round(df_zcfz['NOTE_ACCOUNTS_RECE'] / 100000000, 2)
+    dt['应收款项融资'] = round(df_zcfz['FINANCE_RECE'] / 100000000, 2)
+    dt['预付款项'] = round(df_zcfz['PREPAYMENT'] / 100000000, 2)
+    dt['其他应收款'] = round(df_zcfz['OTHER_RECE'] / 100000000, 2)
+    dt['买入反售金融资产'] = round(df_zcfz['SELL_REPO_FINASSET'] / 100000000, 2)
     dt['存货'] = round(df_zcfz['INVENTORY'] / 100000000, 2)
+    # 流动负债
+    dt['短期借款'] = round(df_zcfz['SHORT_LOAN'] / 100000000, 2)
+    dt['交易性金融负债'] = round(df_zcfz['TRADE_FINLIAB'] / 100000000, 2)
+    dt['衍生金融负债'] = round(df_zcfz['DERIVE_FINLIAB'] / 100000000, 2)
+    dt['应付票据及应付账款'] = round(df_zcfz['NOTE_ACCOUNTS_PAYABLE'] / 100000000, 2)
+    dt['预收款'] = round(df_zcfz['ADVANCE_RECEIVABLES'] / 100000000, 2)
+    dt['合同负债'] = round(df_zcfz['CONTRACT_LIAB'] / 100000000, 2)
+    dt['应付手续费及佣金'] = round(df_zcfz['FEE_COMMISSION_PAYABLE'] / 100000000, 2)
+    dt['应付职工薪酬'] = round(df_zcfz['STAFF_SALARY_PAYABLE'] / 100000000, 2)
+    dt['应缴税费'] = round(df_zcfz['TAX_PAYABLE'] / 100000000, 2)
+    dt['其他应付款(合计)'] = round(df_zcfz['TOTAL_OTHER_PAYABLE'] / 100000000, 2)
+    dt['一年内到期的非流动负债'] = round(df_zcfz['NONCURRENT_LIAB_1YEAR'] / 100000000, 2)
+    dt['应付短期债券'] = round(df_zcfz['SHORT_BOND_PAYABLE'] / 100000000, 2)
+    dt['其他流动负债'] = round(df_zcfz['OTHER_CURRENT_LIAB'] / 100000000, 2)
+    dt['流动负债合计'] = round(df_zcfz['TOTAL_CURRENT_LIAB'] / 100000000, 2)
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
     # 应收账款周转率=营业收入/（（期初应收账款+期末应收账款）/2）
@@ -325,10 +358,10 @@ def get_zygc_data(code, data_date, indicator="全部"):
     return ret_df
 
 if __name__ == "__main__":
-    code = "000737"
+    code = "002714"
     # df = get_basic_info("000737")
     # print(df)
     # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")
     # print(zygc_em_df)
-    df_xjll = get_xjll_data(code, 5, is_display=False)
+    df_xjll = get_zcfz_data(code, 6, data_type=2, is_display=True)
     print(df_xjll)
