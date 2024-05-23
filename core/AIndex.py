@@ -19,7 +19,7 @@ from utils.cons import precision
 
 class AIndex:
 
-    def __init__(self, code='sh000001', start_date='20200101', end_date='20240202', freq='D', precision=1):
+    def __init__(self, code='000001', start_date='20200101', end_date='20240202', freq='D', precision=1):
         '''
         @params:
         - code: str                      #股票代码
@@ -49,7 +49,7 @@ class AIndex:
         @params:
         - code: str                      #股票代码
         '''
-        code_name = {"sh000001": "上证指数",
+        code_name = {"000001": "上证指数",
                      "sh880326": "铝"}
 
         return code_name[code]

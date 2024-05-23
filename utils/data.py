@@ -124,19 +124,21 @@ def get_index_data(code, start_date, end_date, freq):
     :return: 返回股票综合数据
     :rtype: pandas.DataFrame
     '''
-    if freq == 'D':
-        df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
-        df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+    date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
+    start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
+    if freq == 'D' or freq == 'W' or freq == 'M':
+        df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_end_date, end_date=end_date).iloc[:, :6]
+        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
     elif freq == 'min':
         df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
-    else:
-        df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
-        df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-        df = transfer_price_freq(df, freq)
+    # else:
+    #     df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
+    #     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+    #     df = transfer_price_freq(df, freq)
 
     df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
 
@@ -200,8 +202,11 @@ def get_index_data(code, start_date, end_date, freq):
 
 
 if __name__ == "__main__":
-    k = get_data("000612", start_date="20240501", end_date="20240521", freq='M')
-    # k = get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min')
-    print(k)
-    # df = ak.stock_zh_index_hist_csindex(symbol="000001", start_date="20240501", end_date="20240521")
-    # print(df.dtypes)
+    time_start = datetime.datetime.now()
+    # print(get_data("000612", start_date="20240501", end_date="20240521", freq='M'))
+    # print(get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min'))
+    # print(k)
+    df = ak.stock_zh_index_hist_csindex(symbol="000001", start_date="20240501", end_date="20240521")
+    print(df.dtypes)
+    time_end = datetime.datetime.now()
+    print(f"运行耗时{(time_end - time_start).seconds}s")
