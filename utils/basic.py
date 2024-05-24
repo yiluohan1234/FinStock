@@ -370,8 +370,8 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     # dt['投资活动现金流入小计'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
     # dt['购建固定资产、无形资产和其他长期资产支付的现金'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
     # dt['投资支付的现金'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
-    # dt['支付其他与投资活动有关的现金'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
-    # dt['投资活动现金流出小计'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
+    # dt['支付其他与投资活动有关的现金'] = round(df_xjll['PAY_OTHER_INVEST'] / 100000000, precision)
+    # dt['投资活动现金流出小计'] = round(df_xjll['TOTAL_INVEST_OUTFLOW'] / 100000000, precision)
     # dt['投资活动产生的现金流量净额'] = round(df_xjll['NETCASH_INVEST'] / 100000000, precision)
     ## 筹资活动产生的现金流量
     # 分配股利、利润或偿付利息支付的现金
