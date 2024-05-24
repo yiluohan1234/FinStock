@@ -10,7 +10,7 @@
 import akshare as ak
 import pandas as pd
 from utils.func import get_szsh_code, str2value, get_display_data, get_report_type
-
+from utils.cons import precision
 
 def get_basic_info(code, indicator='2023-12-31'):
     '''同花顺-主营介绍
@@ -339,37 +339,40 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     '''
     # 人力投入回报率=企业净利润/员工薪酬福利总额×100%，这是衡量人力资本有效性的核心指标，表明公司在人力资源上的投入和净利润的比值，回报率越高，说明人力资源的效率和效能越高。
     df_xjll = ak.stock_cash_flow_sheet_by_report_em(symbol=get_szsh_code(code))
+    print(df_xjll.columns.tolist())
     dt = {}
     dt['报告日'] = df_xjll['REPORT_DATE_NAME']
     dt['REPORT_TYPE'] = df_xjll['REPORT_TYPE']
     # 经营活动产生的现金流量
-    # 销售商品、提供劳务收到的现金
-    # 客户存款和同业存放款项净增加额
-    # 收取利息、手续费及佣金的现金
-    # 收到的税收返还
-    # 收到其他与经营活动有关的现金
-    # 经营活动现金流入小计
-    # 购买商品、接受劳务支付的现金
-    # 客户贷款及垫款净增加额
-    # 存放中央银行和同业款项净增加额
-    # 支付利息、手续费及佣金的现金
-    # 支付给职工以及为职工支付的现金
-    # 支付的各项税费
-    # 支付其他与经营活动有关的现金
-    # 经营活动现金流出的其他项目
-    # 经营活动现金流出小计
-    # 经营活动产生的现金流量净额
+    dt['销售商品、提供劳务收到的现金'] = round(df_xjll['NETCASH_OPERATE'] / 100000000, precision)
+    dt['客户存款和同业存放款项净增加额'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
+    dt['收取利息、手续费及佣金的现金'] = round(df_xjll['RECEIVE_INTEREST_COMMISSION'] / 100000000, precision)
+    dt['收到的税收返还'] = round(df_xjll['RECEIVE_TAX_REFUND'] / 100000000, precision)
+    # dt['收到其他与经营活动有关的现金'] = round(df_xjll['RECEIVE_OTHER_OPERATE'] / 100000000, precision)
+    dt['经营活动现金流入小计'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
+    dt['购买商品、接受劳务支付的现金'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
+    dt['客户贷款及垫款净增加额'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
+    # dt['存放中央银行和同业款项净增加额'] = round(df_xjll['PBC_INTERBANK_ADD'] / 100000000, precision)
+
+    # dt['支付利息、手续费及佣金的现金'] = round(df_xjll['RECEIVE_INTEREST_COMMISSION'] / 100000000, precision)
+    # dt['支付给职工以及为职工支付的现金'] = round(df_xjll['PAY_STAFF_CASH']/100000000, precision)
+    # dt['支付的各项税费'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
+    # dt['支付其他与经营活动有关的现金'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
+    # dt['经营活动现金流出的其他项目'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
+    # dt['经营活动现金流出小计'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
+    # dt['经营活动产生的现金流量净额'] = round(df_xjll['NETCASH_OPERATE'] / 100000000, precision)
+
     ## 投资活动产生的现金流量
-    # 收回投资收到的现金
-    # 取得投资收益收到的现金
-    # 处置固定资产、无形资产和其他长期资产收回的现金净额
-    # 收到的其他与投资活动有关的现金
-    # 投资活动现金流入小计
-    # 购建固定资产、无形资产和其他长期资产支付的现金
-    # 投资支付的现金
-    # 支付其他与投资活动有关的现金
-    # 投资活动现金流出小计
-    # 投资活动产生的现金流量净额
+    # dt['收回投资收到的现金'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
+    # dt['取得投资收益收到的现金'] = round(df_xjll['RECEIVE_INVEST_INCOME'] / 100000000, precision)
+    # dt['处置固定资产、无形资产和其他长期资产收回的现金净额'] = round(df_xjll['RECEIVE_INVEST_INCOME'] / 100000000, precision)
+    # dt['收到的其他与投资活动有关的现金'] = round(df_xjll['RECEIVE_OTHER_INVEST'] / 100000000, precision)
+    # dt['投资活动现金流入小计'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
+    # dt['购建固定资产、无形资产和其他长期资产支付的现金'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
+    # dt['投资支付的现金'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
+    # dt['支付其他与投资活动有关的现金'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
+    # dt['投资活动现金流出小计'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
+    # dt['投资活动产生的现金流量净额'] = round(df_xjll['NETCASH_INVEST'] / 100000000, precision)
     ## 筹资活动产生的现金流量
     # 分配股利、利润或偿付利息支付的现金
     # 其中:子公司支付给少数股东的股利、利润
@@ -380,8 +383,8 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     # 现金及现金等价物净增加额
     # 加:期初现金及现金等价物余额
     # 期末现金及现金等价物余额
-    ## 补充资料
-    # 净利润
+     ## 补充资料
+    # dt['净利润'] = round(df_xjll['NETPROFIT'] / 100000000, precision)
     # 固定资产和投资性房地产折旧
     # 其中:固定资产折旧、油气资产折耗、生产性生物资产折旧
     # 无形资产摊销
@@ -403,7 +406,6 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     # 加:现金等价物的期末余额
     # 现金及现金等价物的净增加额
 
-    dt['员工薪酬福利总额'] = round(df_xjll['PAY_STAFF_CASH']/100000000, 2)
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
 
