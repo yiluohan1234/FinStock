@@ -127,7 +127,7 @@ def get_main_indicators_sina(code, n, indicator="按年度", ret_columns=[], is_
         return df
 
 
-def get_lrb_data(code, n, data_type=0, is_display=True):
+def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns = []):
     '''
     获取利润表数据
     :param code: 股票代码
@@ -138,6 +138,8 @@ def get_lrb_data(code, n, data_type=0, is_display=True):
     :type data_type: int
     :param is_display: 是否返回展示数据
     :type is_display: bool
+    :param ret_columns: 返回数据列名列表,必须包含"报告日"字段
+    :type ret_columns: list
     :return: 返回利润表数据
     :rtype: pandas.DataFrame
     '''
@@ -197,6 +199,9 @@ def get_lrb_data(code, n, data_type=0, is_display=True):
         ret_df = ret_df[ret_df['REPORT_TYPE'] == '年报']
 
     # 返回最近n个数据
+    ret_df.drop('REPORT_TYPE', axis=1, inplace=True)
+    if len(ret_columns) != 0:
+        ret_df = ret_df[ret_columns]
     ret_df = ret_df.head(n)
     ret_df_display = get_display_data(ret_df)
 
@@ -206,7 +211,7 @@ def get_lrb_data(code, n, data_type=0, is_display=True):
         return ret_df
 
 
-def get_zcfz_data(code, n, data_type=0, is_display=True):
+def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     '''
     获取资产负债表数据
     :param code: 股票代码
@@ -217,6 +222,8 @@ def get_zcfz_data(code, n, data_type=0, is_display=True):
     :type data_type: int
     :param is_display: 是否返回展示数据
     :type is_display: bool
+    :param ret_columns: 返回数据列名列表,必须包含"报告日"字段
+    :type ret_columns: list
     :return: 返回现金流量数据
     :rtype: pandas.DataFrame
     '''
@@ -227,42 +234,67 @@ def get_zcfz_data(code, n, data_type=0, is_display=True):
     dt['REPORT_TYPE'] = df_zcfz['REPORT_TYPE']
     # df_zcfz = df_zcfz.sort_index(ascending=False)
     # 资产负债率
-    dt['总资产'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
-    dt['总负债'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
-    dt['资产负债率'] = round(df_zcfz['TOTAL_LIABILITIES'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
-    dt['长期应收款'] = round(df_zcfz['LONG_RECE'] / 100000000, 2)
-    dt['长期股权投资'] = round(df_zcfz['LONG_EQUITY_INVEST'] / 100000000, 2)
+    # dt['总资产'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
+    # dt['总负债'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
+    # dt['资产负债率'] = round(df_zcfz['TOTAL_LIABILITIES'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
+    # 流动资产
+    dt['货币资金'] = round(df_zcfz['MONETARYFUNDS'] / 100000000, 2)
+    dt['拆出资金'] = round(df_zcfz['LEND_FUND'] / 100000000, 2)
+    dt['交易性金融资产'] = round(df_zcfz['TRADE_FINASSET'] / 100000000, 2)
+    # dt['衍生金融资产'] = round(df_zcfz['DERIVE_FINASSET'] / 100000000, 2)
+    dt['应收票据及应收账款'] = round(df_zcfz['NOTE_ACCOUNTS_RECE'] / 100000000, 2)
+    dt['应收票据'] = round(df_zcfz['NOTE_RECE'] / 100000000, 2)
+    dt['应收账款'] = round(df_zcfz['ACCOUNTS_RECE'] / 100000000, 2)
+    # dt['应收款项融资'] = round(df_zcfz['FINANCE_RECE'] / 100000000, 2)
+    dt['预付款项'] = round(df_zcfz['PREPAYMENT'] / 100000000, 2)
+    dt['其他应收款(合计)'] = round(df_zcfz['TOTAL_OTHER_RECE'] / 100000000, 2)
+    dt['买入返售金融资产'] = round(df_zcfz['BUY_RESALE_FINASSET'] / 100000000, 2)
+    dt['存货'] = round(df_zcfz['INVENTORY'] / 100000000, 2)
+    dt['其他流动资产'] = round(df_zcfz['OTHER_CURRENT_ASSET'] / 100000000, 2)
+    dt['流动资产合计'] = round(df_zcfz['TOTAL_CURRENT_ASSETS'] / 100000000, 2)
+    # 非流动资产
+    dt['发放贷款及垫款'] = round(df_zcfz['LOAN_ADVANCE'] / 100000000, 2)
+    dt['债权投资'] = round(df_zcfz['CREDITOR_INVEST'] / 100000000, 2)
+    dt['其他非流动金融资产'] = round(df_zcfz['OTHER_NONCURRENT_FINASSET'] / 100000000, 2)
     dt['投资性房地产'] = round(df_zcfz['INVEST_REALESTATE'] / 100000000, 2)
     dt['固定资产'] = round(df_zcfz['FIXED_ASSET'] / 100000000, 2)
-    dt['固定资产清理'] = round(df_zcfz['FIXED_ASSET_DISPOSAL'] / 100000000, 2)
     dt['在建工程'] = round(df_zcfz['CIP'] / 100000000, 2)
-    dt['工程物资'] = round(df_zcfz['PROJECT_MATERIAL'] / 100000000, 2)
-    dt['生产性生物资产'] = round(df_zcfz['PRODUCTIVE_BIOLOGY_ASSET'] / 100000000, 2)
-    # 流动资产
-    dt['货币资产'] = round(df_zcfz['TRADE_FINASSET'] / 100000000, 2)
-    dt['交易性金融资产'] = round(df_zcfz['TRADE_FINASSET'] / 100000000, 2)
-    dt['衍生金融资产'] = round(df_zcfz['DERIVE_FINASSET'] / 100000000, 2)
-    dt['应收票据及应收账款'] = round(df_zcfz['NOTE_ACCOUNTS_RECE'] / 100000000, 2)
-    dt['应收款项融资'] = round(df_zcfz['FINANCE_RECE'] / 100000000, 2)
-    dt['预付款项'] = round(df_zcfz['PREPAYMENT'] / 100000000, 2)
-    dt['其他应收款'] = round(df_zcfz['OTHER_RECE'] / 100000000, 2)
-    dt['买入反售金融资产'] = round(df_zcfz['SELL_REPO_FINASSET'] / 100000000, 2)
-    dt['存货'] = round(df_zcfz['INVENTORY'] / 100000000, 2)
+    dt['使用权资产'] = round(df_zcfz['USERIGHT_ASSET'] / 100000000, 2)
+    dt['无形资产'] = round(df_zcfz['INTANGIBLE_ASSET'] / 100000000, 2)
+    dt['开发支出'] = round(df_zcfz['DEVELOP_EXPENSE'] / 100000000, 2)
+    dt['长期待摊费用'] = round(df_zcfz['LONG_PREPAID_EXPENSE'] / 100000000, 2)
+    dt['递延所得税资产'] = round(df_zcfz['DEFER_TAX_ASSET'] / 100000000, 2)
+    dt['其他非流动资产'] = round(df_zcfz['OTHER_NONCURRENT_ASSET'] / 100000000, 2)
+    dt['非流动资产合计'] = round(df_zcfz['TOTAL_NONCURRENT_ASSETS'] / 100000000, 2)
+    dt['资产合计'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
     # 流动负债
-    dt['短期借款'] = round(df_zcfz['SHORT_LOAN'] / 100000000, 2)
-    dt['交易性金融负债'] = round(df_zcfz['TRADE_FINLIAB'] / 100000000, 2)
-    dt['衍生金融负债'] = round(df_zcfz['DERIVE_FINLIAB'] / 100000000, 2)
     dt['应付票据及应付账款'] = round(df_zcfz['NOTE_ACCOUNTS_PAYABLE'] / 100000000, 2)
-    dt['预收款'] = round(df_zcfz['ADVANCE_RECEIVABLES'] / 100000000, 2)
+    dt['应付帐款'] = round(df_zcfz['ACCOUNTS_PAYABLE'] / 100000000, 2)
     dt['合同负债'] = round(df_zcfz['CONTRACT_LIAB'] / 100000000, 2)
-    dt['应付手续费及佣金'] = round(df_zcfz['FEE_COMMISSION_PAYABLE'] / 100000000, 2)
     dt['应付职工薪酬'] = round(df_zcfz['STAFF_SALARY_PAYABLE'] / 100000000, 2)
     dt['应缴税费'] = round(df_zcfz['TAX_PAYABLE'] / 100000000, 2)
     dt['其他应付款(合计)'] = round(df_zcfz['TOTAL_OTHER_PAYABLE'] / 100000000, 2)
+    dt['应付股利'] = round(df_zcfz['DIVIDEND_PAYABLE'] / 100000000, 2)
     dt['一年内到期的非流动负债'] = round(df_zcfz['NONCURRENT_LIAB_1YEAR'] / 100000000, 2)
-    dt['应付短期债券'] = round(df_zcfz['SHORT_BOND_PAYABLE'] / 100000000, 2)
     dt['其他流动负债'] = round(df_zcfz['OTHER_CURRENT_LIAB'] / 100000000, 2)
     dt['流动负债合计'] = round(df_zcfz['TOTAL_CURRENT_LIAB'] / 100000000, 2)
+    # 非流动负债
+    dt['租赁负债'] = round(df_zcfz['LEASE_LIAB'] / 100000000, 2)
+    dt['递延所得税负债'] = round(df_zcfz['DEFER_TAX_LIAB'] / 100000000, 2)
+    dt['非流动负债合计'] = round(df_zcfz['TOTAL_NONCURRENT_LIAB'] / 100000000, 2)
+    dt['负债合计'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
+    # 所有者权益
+    dt['实收资本'] = round(df_zcfz['SHARE_CAPITAL'] / 100000000, 2)
+    dt['资本公积'] = round(df_zcfz['CAPITAL_RESERVE'] / 100000000, 2)
+    dt['其他综合收益'] = round(df_zcfz['OTHER_COMPRE_INCOME'] / 100000000, 2)
+    dt['盈余公积'] = round(df_zcfz['SURPLUS_RESERVE'] / 100000000, 2)
+    dt['一般风险准备'] = round(df_zcfz['GENERAL_RISK_RESERVE'] / 100000000, 2)
+    dt['未分配利润'] = round(df_zcfz['UNASSIGN_RPOFIT'] / 100000000, 2)
+    dt['归属于母公司股东权益总计'] = round(df_zcfz['TOTAL_PARENT_EQUITY'] / 100000000, 2)
+    dt['少数股东权益'] = round(df_zcfz['MINORITY_EQUITY'] / 100000000, 2)
+    dt['股东权益合计'] = round(df_zcfz['TOTAL_EQUITY'] / 100000000, 2)
+    dt['负债和股东权益总计'] = round(df_zcfz['TOTAL_LIAB_EQUITY'] / 100000000, 2)
+
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
     # 应收账款周转率=营业收入/（（期初应收账款+期末应收账款）/2）
@@ -274,7 +306,11 @@ def get_zcfz_data(code, n, data_type=0, is_display=True):
         ret_df = ret_df[ret_df['REPORT_TYPE'] == '中报']
     elif data_type == 4:
         ret_df = ret_df[ret_df['REPORT_TYPE'] == '年报']
+
     # 返回最近n个数据
+    ret_df.drop('REPORT_TYPE', axis=1, inplace=True)
+    if len(ret_columns) != 0:
+        ret_df = ret_df[ret_columns]
     ret_df = ret_df.head(n)
 
     ret_df_display = get_display_data(ret_df)
@@ -285,7 +321,7 @@ def get_zcfz_data(code, n, data_type=0, is_display=True):
         return ret_df
 
 
-def get_xjll_data(code, n, data_type=0, is_display=True):
+def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     '''
     获取现金流量表数据
     :param code: 股票代码
@@ -296,6 +332,8 @@ def get_xjll_data(code, n, data_type=0, is_display=True):
     :type data_type: int
     :param is_display: 是否返回展示数据
     :type is_display: bool
+    :param ret_columns: 返回数据列名列表,必须包含"报告日"字段
+    :type ret_columns: list
     :return: 返回现金流量数据
     :rtype: pandas.DataFrame
     '''
@@ -303,6 +341,68 @@ def get_xjll_data(code, n, data_type=0, is_display=True):
     df_xjll = ak.stock_cash_flow_sheet_by_report_em(symbol=get_szsh_code(code))
     dt = {}
     dt['报告日'] = df_xjll['REPORT_DATE_NAME']
+    dt['REPORT_TYPE'] = df_xjll['REPORT_TYPE']
+    # 经营活动产生的现金流量
+    # 销售商品、提供劳务收到的现金
+    # 客户存款和同业存放款项净增加额
+    # 收取利息、手续费及佣金的现金
+    # 收到的税收返还
+    # 收到其他与经营活动有关的现金
+    # 经营活动现金流入小计
+    # 购买商品、接受劳务支付的现金
+    # 客户贷款及垫款净增加额
+    # 存放中央银行和同业款项净增加额
+    # 支付利息、手续费及佣金的现金
+    # 支付给职工以及为职工支付的现金
+    # 支付的各项税费
+    # 支付其他与经营活动有关的现金
+    # 经营活动现金流出的其他项目
+    # 经营活动现金流出小计
+    # 经营活动产生的现金流量净额
+    ## 投资活动产生的现金流量
+    # 收回投资收到的现金
+    # 取得投资收益收到的现金
+    # 处置固定资产、无形资产和其他长期资产收回的现金净额
+    # 收到的其他与投资活动有关的现金
+    # 投资活动现金流入小计
+    # 购建固定资产、无形资产和其他长期资产支付的现金
+    # 投资支付的现金
+    # 支付其他与投资活动有关的现金
+    # 投资活动现金流出小计
+    # 投资活动产生的现金流量净额
+    ## 筹资活动产生的现金流量
+    # 分配股利、利润或偿付利息支付的现金
+    # 其中:子公司支付给少数股东的股利、利润
+    # 支付的其他与筹资活动有关的现金
+    # 筹资活动现金流出小计
+    # 筹资活动产生的现金流量净额
+    # 汇率变动对现金及现金等价物的影响
+    # 现金及现金等价物净增加额
+    # 加:期初现金及现金等价物余额
+    # 期末现金及现金等价物余额
+    ## 补充资料
+    # 净利润
+    # 固定资产和投资性房地产折旧
+    # 其中:固定资产折旧、油气资产折耗、生产性生物资产折旧
+    # 无形资产摊销
+    # 长期待摊费用摊销
+    # 处置固定资产、无形资产和其他长期资产的损失
+    # 固定资产报废损失
+    # 公允价值变动损失
+    # 财务费用
+    # 投资损失
+    # 递延所得税
+    # 其中:递延所得税资产减少
+    # 递延所得税负债增加
+    # 存货的减少
+    # 经营性应收项目的减少
+    # 经营性应付项目的增加
+    # 经营活动产生的现金流量净额
+    # 现金的期末余额
+    # 减:现金的期初余额
+    # 加:现金等价物的期末余额
+    # 现金及现金等价物的净增加额
+
     dt['员工薪酬福利总额'] = round(df_xjll['PAY_STAFF_CASH']/100000000, 2)
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
@@ -313,7 +413,11 @@ def get_xjll_data(code, n, data_type=0, is_display=True):
         ret_df = ret_df[ret_df['REPORT_TYPE'] == '中报']
     elif data_type == 4:
         ret_df = ret_df[ret_df['REPORT_TYPE'] == '年报']
+
     # 返回最近n个数据
+    ret_df.drop('REPORT_TYPE', axis=1, inplace=True)
+    if len(ret_columns) != 0:
+        ret_df = ret_df[ret_columns]
     ret_df = ret_df.head(n)
 
     ret_df_display = get_display_data(ret_df)
@@ -358,10 +462,10 @@ def get_zygc_data(code, data_date, indicator="全部"):
     return ret_df
 
 if __name__ == "__main__":
-    code = "002714"
+    code = "600519"
     # df = get_basic_info("000737")
     # print(df)
     # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")
     # print(zygc_em_df)
-    df_xjll = get_zcfz_data(code, 6, data_type=2, is_display=True)
+    df_xjll = get_xjll_data(code, 6, data_type=0, is_display=True)
     print(df_xjll)
