@@ -21,19 +21,19 @@ pd.set_option('display.max_columns', None)
 
 def main(code):
     k = KLineChart(code)
-    k.plot(area=['V', 'KL'], width=1200, height=600,
+    k.plot(n=20, area=['V', 'KL'], width=1200, height=600,
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            vlines=['vma10', 'vma60'],
-           KLlines=['k10', 'k20'],
+           # KLlines=['k10', 'k20'],
            is_notebook=False
            )
     # k.web()
 
-    df_display = get_individual_fund_flow_rank(code)
-    print(df_display)
-    print("----------------------------- 近5日资金流动 -----------------------------")
-    df_fund_111_display = get_individual_fund_flow(code, 10)
-    print(df_fund_111_display)
+    # df_display = get_individual_fund_flow_rank(code)
+    # print(df_display)
+    # print("----------------------------- 近5日资金流动 -----------------------------")
+    # df_fund_111_display = get_individual_fund_flow(code, 10)
+    # print(df_fund_111_display)
 
     # df_zygc = get_basic_info(code)
     # print(df_zygc)
@@ -70,5 +70,5 @@ def main(code):
 
 
 if __name__ == "__main__":
-    main("000977")
+    main("000737")
 
