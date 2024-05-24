@@ -230,39 +230,6 @@ def frb(open_value, close_value):
         return -1
 
 
-def transfer_price_freq(df, freq):
-    """
-    将数据转化为指定周期：开盘价(周期第一天)、收盘价(周期最后一天)、最高价(周期)、最低价(周期)
-    :param df: 日数据，包含每天开盘价、收盘价、最高价、最低价
-    :type df: pandas.DataFrame
-    :param freq: 转换周期，周：'W'，月:'M'，季度:'Q'
-    :type freq: str
-    :return: 转换后的数据
-    :rtype: pandas.DataFrame
-    """
-    if freq == 'M':
-        freq = 'ME'
-
-    df["date"] = pd.to_datetime(df["date"])
-    df.set_index('date', inplace=True)
-
-    period_stock_data = round(df.resample(freq).last(), precision)
-    period_stock_data['open'] = round(df['open'].resample(freq).first(), precision)
-    period_stock_data['close'] = round(df['close'].resample(freq).last(), precision)
-    period_stock_data['high'] = round(df['high'].resample(freq).max(), precision)
-    period_stock_data['low'] = round(df['low'].resample(freq).min(), precision)
-    period_stock_data['volume'] = round(df['volume'].resample(freq).sum(), precision)
-
-    #去除没有交易
-    # period_stock_data = df[df['volume'].notnull()]
-    period_stock_data.dropna(subset=['close'], how='any', inplace=True)
-    if freq == 'W':
-        # 周采样默认为周日，改为周五
-        period_stock_data.index = period_stock_data.index+datetime.timedelta(days=-2)
-    period_stock_data.reset_index(inplace=True)
-
-    return period_stock_data
-
 def get_szsh_code(code):
     '''
     获取上证指数的字母前缀
@@ -348,6 +315,40 @@ def get_date_month(current_date):
     '''
     month = datetime.datetime.strptime(current_date, '%Y%m%d').month
     return str(month)
+
+
+def transfer_price_freq(df, freq):
+    """
+    将数据转化为指定周期：开盘价(周期第一天)、收盘价(周期最后一天)、最高价(周期)、最低价(周期)
+    :param df: 日数据，包含每天开盘价、收盘价、最高价、最低价
+    :type df: pandas.DataFrame
+    :param freq: 转换周期，周：'W'，月:'M'，季度:'Q'
+    :type freq: str
+    :return: 转换后的数据
+    :rtype: pandas.DataFrame
+    """
+    if freq == 'M':
+        freq = 'ME'
+
+    df["date"] = pd.to_datetime(df["date"])
+    df.set_index('date', inplace=True)
+
+    period_stock_data = round(df.resample(freq).last(), precision)
+    period_stock_data['open'] = round(df['open'].resample(freq).first(), precision)
+    period_stock_data['close'] = round(df['close'].resample(freq).last(), precision)
+    period_stock_data['high'] = round(df['high'].resample(freq).max(), precision)
+    period_stock_data['low'] = round(df['low'].resample(freq).min(), precision)
+    period_stock_data['volume'] = round(df['volume'].resample(freq).sum(), precision)
+
+    #去除没有交易
+    # period_stock_data = df[df['volume'].notnull()]
+    period_stock_data.dropna(subset=['close'], how='any', inplace=True)
+    if freq == 'W':
+        # 周采样默认为周日，改为周五
+        period_stock_data.index = period_stock_data.index+datetime.timedelta(days=-2)
+    period_stock_data.reset_index(inplace=True)
+
+    return period_stock_data
 
 
 if __name__ == "__main__":
