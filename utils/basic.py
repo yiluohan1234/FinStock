@@ -145,7 +145,6 @@ def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns = []):
     '''
     # df_lrb = ak.stock_financial_report_sina(stock=self.code, symbol='利润表')
     df_lrb = ak.stock_profit_sheet_by_report_em(symbol=get_szsh_code(code))
-    print(df_lrb.columns.tolist())
     dt = {}
     # 过滤年报
     dt['报告日'] = df_lrb['REPORT_DATE_NAME']
@@ -374,7 +373,6 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     '''
     # 人力投入回报率=企业净利润/员工薪酬福利总额×100%，这是衡量人力资本有效性的核心指标，表明公司在人力资源上的投入和净利润的比值，回报率越高，说明人力资源的效率和效能越高。
     df_xjll = ak.stock_cash_flow_sheet_by_report_em(symbol=get_szsh_code(code))
-    print(df_xjll.columns.tolist())
     dt = {}
     dt['报告日'] = df_xjll['REPORT_DATE_NAME']
     dt['REPORT_TYPE'] = df_xjll['REPORT_TYPE']
