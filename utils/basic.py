@@ -145,29 +145,63 @@ def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns = []):
     '''
     # df_lrb = ak.stock_financial_report_sina(stock=self.code, symbol='利润表')
     df_lrb = ak.stock_profit_sheet_by_report_em(symbol=get_szsh_code(code))
-
+    print(df_lrb.columns.tolist())
     dt = {}
     # 过滤年报
     dt['报告日'] = df_lrb['REPORT_DATE_NAME']
     dt['REPORT_TYPE'] = df_lrb['REPORT_TYPE']
     # df_lrb = df_lrb.sort_index(ascending=False)
-    # 营业收入及同比
+    # 营业收入
     dt['营业总收入'] = round(df_lrb['TOTAL_OPERATE_INCOME'] / 100000000, 2)
     dt['营业总收入同比'] = round(df_lrb['TOTAL_OPERATE_INCOME_YOY'], 2)
+    dt['营业收入'] = round(df_lrb['OPERATE_INCOME'] / 100000000, 2)
+    dt['营业收入同比'] = round(df_lrb['OPERATE_INCOME_YOY'], 2)
+    dt['利息收入'] = round(df_lrb['INTEREST_INCOME'] / 100000000, 2)
+    dt['利息收入同比'] = round(df_lrb['INTEREST_INCOME_YOY'], 2)
+    # 营业成本
     dt['营业总成本'] = round(df_lrb['TOTAL_OPERATE_COST'] / 100000000, 2)
     dt['营业总成本同比'] = round(df_lrb['TOTAL_OPERATE_COST_YOY'], 2)
+    dt['利息支出'] = round(df_lrb['INTEREST_EXPENSE'] / 100000000, 2)
+    dt['手续费及佣金支出'] = round(df_lrb['FEE_COMMISSION_EXPENSE'] / 100000000, 2)
+    dt['税金及附加'] = round(df_lrb['OPERATE_TAX_ADD'] / 100000000, 2)
+    dt['销售费用'] = round(df_lrb['SALE_EXPENSE'] / 100000000, 2)
+    dt['管理费用'] = round(df_lrb['MANAGE_EXPENSE'] / 100000000, 2)
+    dt['研发费用'] = round(df_lrb['RESEARCH_EXPENSE'] / 100000000, 2)
+    dt['财务费用'] = round(df_lrb['FINANCE_EXPENSE'] / 100000000, 2)
+    dt['利息费用'] = round(df_lrb['FE_INTEREST_EXPENSE'] / 100000000, 2)
+    dt['利息收入'] = round(df_lrb['FE_INTEREST_INCOME'] / 100000000, 2)
+    # 其他经营收益
+    dt['公允价值变动收益'] = round(df_lrb['FAIRVALUE_CHANGE_INCOME'] / 100000000, 2)
+    dt['投资收益'] = round(df_lrb['INVEST_INCOME'] / 100000000, 2)
+    dt['资产处置收益'] = round(df_lrb['ASSET_DISPOSAL_INCOME'] / 100000000, 2)
+    dt['信用减值损失'] = round(df_lrb['CREDIT_IMPAIRMENT_INCOME'] / 100000000, 2)
+    dt['其他收益'] = round(df_lrb['OTHER_INCOME'] / 100000000, 2)
+    # 营业利润
     dt['营业利润'] = round(df_lrb['OPERATE_PROFIT'] / 100000000, 2)
     dt['营业利润同比'] = round(df_lrb['OPERATE_PROFIT_YOY'], 2)
+    dt['营业外收入'] = round(df_lrb['NONBUSINESS_INCOME'] / 100000000, 2)
+    dt['营业外支出'] = round(df_lrb['NONBUSINESS_EXPENSE'] / 100000000, 2)
     dt['利润总额'] = round(df_lrb['TOTAL_PROFIT'] / 100000000, 2)
     dt['利润总额同比'] = round(df_lrb['TOTAL_PROFIT_YOY'], 2)
+    dt['所得税'] = round(df_lrb['INCOME_TAX'] / 100000000, 2)
     dt['净利润'] = round(df_lrb['NETPROFIT'] / 100000000, 2)
     dt['净利润同比'] = round(df_lrb['NETPROFIT_YOY'], 2)
+    dt['持续经营净利润'] = round(df_lrb['CONTINUED_NETPROFIT'] / 100000000, 2)
     dt['归属于母公司所有者的净利润'] = round(df_lrb['PARENT_NETPROFIT'] / 100000000, 2)
     dt['归属于母公司所有者的净利润同比'] = round(df_lrb['PARENT_NETPROFIT_YOY'], 2)
-    # 净利润/营业总收入(%)
-    # 营业利润/营业总收入(%)
-    # 息税前利润/营业总收入(%)
-    # EBITDA/营业总收入(%)
+    dt['少数股东损益'] = round(df_lrb['MINORITY_INTEREST'] / 100000000, 2)
+    dt['扣除非经常性损益后的净利润'] = round(df_lrb['DEDUCT_PARENT_NETPROFIT'] / 100000000, 2)
+    # 每股收益
+    dt['基本每股收益'] = round(df_lrb['BASIC_EPS'], 2)
+    dt['稀释每股收益'] = round(df_lrb['DILUTED_EPS'], 2)
+    # 其他综合收益
+    dt['其他综合收益'] = round(df_lrb['OTHER_COMPRE_INCOME'] / 100000000, 2)
+    dt['归属于母公司股东的其他综合收益'] = round(df_lrb['PARENT_OCI'] / 100000000, 2)
+    # 综合收益总额
+    dt['综合收益总额'] = round(df_lrb['TOTAL_COMPRE_INCOME'] / 100000000, 2)
+    dt['归属于母公司股东的综合收益总额'] = round(df_lrb['DEDUCT_PARENT_NETPROFIT'] / 100000000, 2)
+    dt['归属于少数股东的综合收益总额'] = round(df_lrb['MINORITY_INTEREST'] / 100000000, 2)
+
 
     dt['净利润/营业总收入(%)'] = round(df_lrb['NETPROFIT'] * 100 / df_lrb['TOTAL_OPERATE_INCOME'], 2)
     dt['营业利润/营业总收入(%)'] = round(df_lrb['OPERATE_PROFIT'] * 100 / df_lrb['TOTAL_OPERATE_INCOME'], 2)
@@ -188,6 +222,7 @@ def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns = []):
     dt['销售净利率'] = round(df_lrb['NETPROFIT'] * 100 / df_lrb['OPERATE_INCOME'], 2)
     # 销售成本率=销售成本/销售收入净额×100%
     dt['销售成本率'] = round(df_lrb['OPERATE_COST'] * 100 / df_lrb['OPERATE_INCOME'], 2)
+
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
 
@@ -344,67 +379,66 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
     dt['报告日'] = df_xjll['REPORT_DATE_NAME']
     dt['REPORT_TYPE'] = df_xjll['REPORT_TYPE']
     # 经营活动产生的现金流量
-    dt['销售商品、提供劳务收到的现金'] = round(df_xjll['NETCASH_OPERATE'] / 100000000, precision)
-    dt['客户存款和同业存放款项净增加额'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
+    dt['销售商品、提供劳务收到的现金'] = round(df_xjll['SALES_SERVICES'] / 100000000, precision)
+    dt['客户存款和同业存放款项净增加额'] = round(df_xjll['DEPOSIT_INTERBANK_ADD'] / 100000000, precision)
     dt['收取利息、手续费及佣金的现金'] = round(df_xjll['RECEIVE_INTEREST_COMMISSION'] / 100000000, precision)
     dt['收到的税收返还'] = round(df_xjll['RECEIVE_TAX_REFUND'] / 100000000, precision)
-    # dt['收到其他与经营活动有关的现金'] = round(df_xjll['RECEIVE_OTHER_OPERATE'] / 100000000, precision)
-    dt['经营活动现金流入小计'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
-    dt['购买商品、接受劳务支付的现金'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
-    dt['客户贷款及垫款净增加额'] = round(df_xjll['PLEDGE_LOAN_ADD'] / 100000000, precision)
-    # dt['存放中央银行和同业款项净增加额'] = round(df_xjll['PBC_INTERBANK_ADD'] / 100000000, precision)
-
-    # dt['支付利息、手续费及佣金的现金'] = round(df_xjll['RECEIVE_INTEREST_COMMISSION'] / 100000000, precision)
-    # dt['支付给职工以及为职工支付的现金'] = round(df_xjll['PAY_STAFF_CASH']/100000000, precision)
-    # dt['支付的各项税费'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
-    # dt['支付其他与经营活动有关的现金'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
-    # dt['经营活动现金流出的其他项目'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
-    # dt['经营活动现金流出小计'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
-    # dt['经营活动产生的现金流量净额'] = round(df_xjll['NETCASH_OPERATE'] / 100000000, precision)
+    dt['收到其他与经营活动有关的现金'] = round(df_xjll['RECEIVE_OTHER_OPERATE'] / 100000000, precision)
+    dt['经营活动现金流入小计'] = round(df_xjll['TOTAL_OPERATE_INFLOW'] / 100000000, precision)
+    dt['购买商品、接受劳务支付的现金'] = round(df_xjll['BUY_SERVICES'] / 100000000, precision)
+    dt['客户贷款及垫款净增加额'] = round(df_xjll['LOAN_ADVANCE_ADD'] / 100000000, precision)
+    dt['存放中央银行和同业款项净增加额'] = round(df_xjll['PBC_INTERBANK_ADD'] / 100000000, precision)
+    dt['支付利息、手续费及佣金的现金'] = round(df_xjll['PAY_INTEREST_COMMISSION'] / 100000000, precision)
+    dt['支付给职工以及为职工支付的现金'] = round(df_xjll['PAY_STAFF_CASH']/100000000, precision)
+    dt['支付的各项税费'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
+    dt['支付其他与经营活动有关的现金'] = round(df_xjll['PAY_OTHER_OPERATE']/100000000, precision)
+    dt['经营活动现金流出的其他项目'] = round(df_xjll['OPERATE_OUTFLOW_OTHER']/100000000, precision)
+    dt['经营活动现金流出小计'] = round(df_xjll['TOTAL_OPERATE_OUTFLOW']/100000000, precision)
+    dt['经营活动产生的现金流量净额'] = round(df_xjll['NETCASH_OPERATE'] / 100000000, precision)
 
     ## 投资活动产生的现金流量
-    # dt['收回投资收到的现金'] = round(df_xjll['PAY_ALL_TAX']/100000000, precision)
-    # dt['取得投资收益收到的现金'] = round(df_xjll['RECEIVE_INVEST_INCOME'] / 100000000, precision)
-    # dt['处置固定资产、无形资产和其他长期资产收回的现金净额'] = round(df_xjll['RECEIVE_INVEST_INCOME'] / 100000000, precision)
-    # dt['收到的其他与投资活动有关的现金'] = round(df_xjll['RECEIVE_OTHER_INVEST'] / 100000000, precision)
-    # dt['投资活动现金流入小计'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
-    # dt['购建固定资产、无形资产和其他长期资产支付的现金'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
-    # dt['投资支付的现金'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
-    # dt['支付其他与投资活动有关的现金'] = round(df_xjll['PAY_OTHER_INVEST'] / 100000000, precision)
-    # dt['投资活动现金流出小计'] = round(df_xjll['TOTAL_INVEST_OUTFLOW'] / 100000000, precision)
-    # dt['投资活动产生的现金流量净额'] = round(df_xjll['NETCASH_INVEST'] / 100000000, precision)
-    ## 筹资活动产生的现金流量
-    # 分配股利、利润或偿付利息支付的现金
-    # 其中:子公司支付给少数股东的股利、利润
-    # 支付的其他与筹资活动有关的现金
-    # 筹资活动现金流出小计
-    # 筹资活动产生的现金流量净额
-    # 汇率变动对现金及现金等价物的影响
-    # 现金及现金等价物净增加额
-    # 加:期初现金及现金等价物余额
-    # 期末现金及现金等价物余额
-     ## 补充资料
-    # dt['净利润'] = round(df_xjll['NETPROFIT'] / 100000000, precision)
-    # 固定资产和投资性房地产折旧
-    # 其中:固定资产折旧、油气资产折耗、生产性生物资产折旧
-    # 无形资产摊销
-    # 长期待摊费用摊销
-    # 处置固定资产、无形资产和其他长期资产的损失
-    # 固定资产报废损失
-    # 公允价值变动损失
-    # 财务费用
-    # 投资损失
-    # 递延所得税
-    # 其中:递延所得税资产减少
-    # 递延所得税负债增加
-    # 存货的减少
-    # 经营性应收项目的减少
-    # 经营性应付项目的增加
-    # 经营活动产生的现金流量净额
-    # 现金的期末余额
-    # 减:现金的期初余额
-    # 加:现金等价物的期末余额
-    # 现金及现金等价物的净增加额
+    dt['收回投资收到的现金'] = round(df_xjll['WITHDRAW_INVEST']/100000000, precision)
+    dt['取得投资收益收到的现金'] = round(df_xjll['RECEIVE_INVEST_INCOME'] / 100000000, precision)
+    dt['处置固定资产、无形资产和其他长期资产收回的现金净额'] = round(df_xjll['DISPOSAL_LONG_ASSET'] / 100000000, precision)
+    dt['收到的其他与投资活动有关的现金'] = round(df_xjll['RECEIVE_OTHER_INVEST'] / 100000000, precision)
+    dt['投资活动现金流入小计'] = round(df_xjll['TOTAL_INVEST_INFLOW'] / 100000000, precision)
+    dt['购建固定资产、无形资产和其他长期资产支付的现金'] = round(df_xjll['CONSTRUCT_LONG_ASSET'] / 100000000, precision)
+    dt['投资支付的现金'] = round(df_xjll['INVEST_PAY_CASH'] / 100000000, precision)
+    dt['支付其他与投资活动有关的现金'] = round(df_xjll['PAY_OTHER_INVEST'] / 100000000, precision)
+    dt['投资活动现金流出小计'] = round(df_xjll['TOTAL_INVEST_OUTFLOW'] / 100000000, precision)
+    dt['投资活动产生的现金流量净额'] = round(df_xjll['NETCASH_INVEST'] / 100000000, precision)
+    # 筹资活动产生的现金流量
+    dt['分配股利、利润或偿付利息支付的现金'] = round(df_xjll['ASSIGN_DIVIDEND_PORFIT'] / 100000000, precision)
+    dt['其中:子公司支付给少数股东的股利、利润'] = round(df_xjll['SUBSIDIARY_PAY_DIVIDEND'] / 100000000, precision)
+    dt['支付的其他与筹资活动有关的现金'] = round(df_xjll['PAY_OTHER_FINANCE'] / 100000000, precision)
+    dt['筹资活动现金流出小计'] = round(df_xjll['TOTAL_FINANCE_OUTFLOW'] / 100000000, precision)
+    dt['筹资活动产生的现金流量净额'] = round(df_xjll['NETCASH_FINANCE'] / 100000000, precision)
+    dt['汇率变动对现金及现金等价物的影响'] = round(df_xjll['RATE_CHANGE_EFFECT'] / 100000000, precision)
+    dt['现金及现金等价物净增加额'] = round(df_xjll['CCE_ADD'] / 100000000, precision)
+    dt['加:期初现金及现金等价物余额'] = round(df_xjll['BEGIN_CCE'] / 100000000, precision)
+    dt['期末现金及现金等价物余额'] = round(df_xjll['END_CCE'] / 100000000, precision)
+    # 补充资料
+    dt['净利润'] = round(df_xjll['NETPROFIT'] / 100000000, precision)
+    dt['固定资产和投资性房地产折旧'] = round(df_xjll['FA_IR_DEPR'] / 100000000, precision)
+    dt['其中:固定资产折旧、油气资产折耗、生产性生物资产折旧'] = round(df_xjll['OILGAS_BIOLOGY_DEPR'] / 100000000, precision)
+    dt['无形资产摊销'] = round(df_xjll['IA_AMORTIZE'] / 100000000, precision)
+    dt['长期待摊费用摊销'] = round(df_xjll['LPE_AMORTIZE'] / 100000000, precision)
+    dt['处置固定资产、无形资产和其他长期资产的损失'] = round(df_xjll['DISPOSAL_LONGASSET_LOSS'] / 100000000, precision)
+    dt['固定资产报废损失'] = round(df_xjll['FA_SCRAP_LOSS'] / 100000000, precision)
+    dt['公允价值变动损失'] = round(df_xjll['FAIRVALUE_CHANGE_LOSS'] / 100000000, precision)
+    dt['财务费用'] = round(df_xjll['FINANCE_EXPENSE'] / 100000000, precision)
+    dt['投资损失'] = round(df_xjll['INVEST_LOSS'] / 100000000, precision)
+    dt['递延所得税'] = round(df_xjll['DEFER_TAX'] / 100000000, precision)
+    dt['其中:递延所得税资产减少'] = round(df_xjll['DT_ASSET_REDUCE'] / 100000000, precision)
+    dt['递延所得税负债增加'] = round(df_xjll['DT_LIAB_ADD'] / 100000000, precision)
+    dt['存货的减少'] = round(df_xjll['INVENTORY_REDUCE'] / 100000000, precision)
+    dt['经营性应收项目的减少'] = round(df_xjll['OPERATE_RECE_REDUCE'] / 100000000, precision)
+    dt['经营性应付项目的增加'] = round(df_xjll['OPERATE_PAYABLE_ADD'] / 100000000, precision)
+    dt['经营活动产生的现金流量净额'] = round(df_xjll['NETCASH_OPERATE'] / 100000000, precision)
+    dt['现金的期末余额'] = round(df_xjll['END_CASH'] / 100000000, precision)
+    dt['减:现金的期初余额'] = round(df_xjll['BEGIN_CASH'] / 100000000, precision)
+    dt['加:现金等价物的期末余额'] = round(df_xjll['END_CASH_EQUIVALENTS'] / 100000000, precision)
+    dt['现金及现金等价物的净增加额'] = round(df_xjll['CCE_ADDNOTE'] / 100000000, precision)
 
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
@@ -469,5 +503,5 @@ if __name__ == "__main__":
     # print(df)
     # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")
     # print(zygc_em_df)
-    df_xjll = get_xjll_data(code, 6, data_type=0, is_display=True)
+    df_xjll = get_lrb_data(code, 6, data_type=0, is_display=True)
     print(df_xjll)
