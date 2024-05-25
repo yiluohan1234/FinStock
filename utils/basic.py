@@ -18,12 +18,18 @@ def get_basic_info(code, indicator='2023-12-31'):
     @params:
     - code: str      # 股票代码
     '''
-    cninfo_df = ak.stock_profile_cninfo(symbol=code)
+    # cninfo_df = ak.stock_profile_cninfo(symbol=code)
+    # print("----------------------------- 简介 -----------------------------\n")
+    # print("公司名称:", cninfo_df.iloc[0][0])
+    # print("A股简称:", cninfo_df.iloc[0][4])
+    # print("成立时间:", cninfo_df.iloc[0][14])
+    # print("上市时间:", cninfo_df.iloc[0][15])
+    name_code = ak.stock_zh_a_spot_em()
+    name = name_code[name_code['代码'] == code]['名称'].values[0]
     print("----------------------------- 简介 -----------------------------\n")
-    print("公司名称:", cninfo_df.iloc[0][0])
-    print("A股简称:", cninfo_df.iloc[0][4])
-    print("成立时间:", cninfo_df.iloc[0][14])
-    print("上市时间:", cninfo_df.iloc[0][15])
+    print("公司名称:", name)
+    stock_ipo_summary_cninfo_df = ak.stock_ipo_summary_cninfo(symbol=code)
+    print("上市时间:", stock_ipo_summary_cninfo_df.iloc[0][9])
     zyjs_ths_df = ak.stock_zyjs_ths(symbol=code)
     print("主营业务:", zyjs_ths_df.iloc[0][1])  # '主营业务'
     print("产品类型:", zyjs_ths_df.iloc[0][2])  # '产品类型'
@@ -100,7 +106,7 @@ def get_main_indicators_sina(code, n, indicator="按年度", ret_columns=[], is_
     :rtype: pandas.DataFrame
     '''
     df = ak.stock_financial_abstract(code)
-    df.drop(['选项'] ,axis=1, inplace=True)
+    df.drop(['选项'], axis=1, inplace=True)
     dT = get_display_data(df)
     dT.index.name = '报告期'
     df = dT.reset_index()
@@ -109,7 +115,7 @@ def get_main_indicators_sina(code, n, indicator="按年度", ret_columns=[], is_
     for col in ['归母净利润', '营业总收入', '营业成本', '净利润', '扣非净利润', '股东权益合计(净资产)', '经营现金流量净额']:
         df[col] = df[col]/100000000
 
-    for col in df.columns.tolist()[1:]:
+    for col in df.columns.tolist()[1:-1]:
         df[col] = round(df[col], 2)
 
     if indicator == "按年度":
@@ -502,5 +508,8 @@ if __name__ == "__main__":
     # print(df)
     # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")
     # print(zygc_em_df)
-    df_xjll = get_lrb_data(code, 6, data_type=0, is_display=True)
-    print(df_xjll)
+    df_main_display = get_main_indicators_sina(
+        code="002848",
+        n=5,
+        ret_columns=['报告期', '营业总收入', '营业总收入增长率', '净利润', '扣非净利润'])
+    print(df_main_display)
