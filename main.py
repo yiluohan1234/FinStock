@@ -21,13 +21,14 @@ pd.set_option('display.max_columns', None)
 
 def main(code):
     k = KLineChart(code)
-    k.plot(n=20, area=['V', 'KL'], width=1200, height=600,
+    k.plot(n=20, area=['V', 'KL', 'KPL'], width=1600, height=900,
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            vlines=['vma10', 'vma60'],
-           # KLlines=['k10', 'k20'],
+           KLlines=['k10', 'k60', 'k5'],
+           KPLlines=['kp10', 'kp60', 'kp5'],
            is_notebook=False
            )
-    # k.web()
+    k.web()
 
     # df_display = get_individual_fund_flow_rank(code)
     # print(df_display)
@@ -68,7 +69,18 @@ def main(code):
     #     ret_columns=['报告期', '存货周转天数', '应收账款周转天数', '总资产周转率', '存货周转率', '应收账款周转率', '应付账款周转率', '流动资产周转率'])
     # print(df_main_yunying_display)
 
+def main_a(code):
+    k = KLineChart(code, zh_index=True)
+    k.plot(n=20, area=['V', 'KL', 'KPL'], width=1600, height=900,
+           klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
+           vlines=['vma10', 'vma60'],
+           KLlines=['k10', 'k60'],
+           KPLlines=['kp10', 'kp60'],
+           is_notebook=False
+           )
+    k.web()
+
 
 if __name__ == "__main__":
-    main("000737")
-
+    main("000977")
+    # main_a("000001")
