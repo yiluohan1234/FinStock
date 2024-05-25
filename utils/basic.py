@@ -10,7 +10,8 @@
 import akshare as ak
 import pandas as pd
 from utils.func import get_szsh_code, str2value, get_display_data, get_report_type
-from utils.cons import precision
+from utils.cons import precision, lrb_ret_columns, xjll_ret_columns, zcfz_ret_columns
+
 
 def get_basic_info(code, indicator='2023-12-31'):
     '''同花顺-主营介绍
@@ -127,7 +128,7 @@ def get_main_indicators_sina(code, n, indicator="按年度", ret_columns=[], is_
         return df
 
 
-def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns = []):
+def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns=lrb_ret_columns):
     '''
     获取利润表数据
     :param code: 股票代码
@@ -245,7 +246,7 @@ def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns = []):
         return ret_df
 
 
-def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=[]):
+def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_columns):
     '''
     获取资产负债表数据
     :param code: 股票代码
@@ -355,7 +356,7 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=[]):
         return ret_df
 
 
-def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=[]):
+def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=xjll_ret_columns):
     '''
     获取现金流量表数据
     :param code: 股票代码
