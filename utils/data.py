@@ -206,7 +206,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     - zh_index :str                  #是否为指数
     '''
     date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
-    start_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
+    start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
     if end_date == '20240202':
         now = datetime.datetime.now()
         if now.hour >= 15:
@@ -215,9 +215,10 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
             yesterday = now - datetime.timedelta(days=1)
             end_date = yesterday.strftime('%Y%m%d')
     if not zh_index:
-        df = get_data(code, start_date, end_date, freq)
+        df = get_data(code, start_end_date, end_date, freq)
     else:
-        df = get_index_data(code, start_date, end_date, freq)
+        df = get_index_data(code, start_end_date, end_date, freq)
+    df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
     return df
 
 
@@ -233,7 +234,7 @@ if __name__ == "__main__":
     # print(get_data("000612", start_date="20240501", end_date="20240521", freq='M'))
     # print(get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min'))
     # print(k)
-    df = ak.stock_zh_index_hist_csindex(symbol="000001", start_date="20240501", end_date="20240521")
-    print(df.dtypes)
+    df = get_kline_chart_date(code="300547", start_date='20180301', end_date='20180519', freq='D', zh_index=False)
+    print(df)
     time_end = datetime.datetime.now()
     print(f"运行耗时{(time_end - time_start).seconds}s")
