@@ -22,7 +22,7 @@ import webbrowser
 from utils.cons import precision, prices_cols
 
 
-def K(data, title, klines, jxPoints, jxLines) -> Kline:
+def K(data, title, klines, jxLines, threeLines) -> Kline:
     '''
     绘制k线图
     :param data: 数据
@@ -31,10 +31,10 @@ def K(data, title, klines, jxPoints, jxLines) -> Kline:
     :type title: str
     :param klines: 均线列表
     :type klines: list
-    :param jxPoints: 颈线端点的列表，每段颈线一个列表
-    :type jxPoints: list
-    :param jxLines: 颈线上三个涨降幅满足位列表
+    :param jxLines: 颈线端点的列表，每段颈线一个列表
     :type jxLines: list
+    :param threeLines: 颈线上三个涨降幅满足位列表
+    :type threeLines: list
     :return: 返回Kline对象
     :rtype: Kline
     '''
@@ -131,13 +131,13 @@ def K(data, title, klines, jxPoints, jxLines) -> Kline:
         c.overlap(kLine)
 
     # 叠加自定义直线
-    if len(jxPoints) != 0:
-        jxs = plot_multi_jx(jxPoints)
+    if len(jxLines) != 0:
+        jxs = plot_multi_jx(jxLines)
         c.overlap(jxs)
 
     # 叠加三个涨跌幅满足位直线
-    if len(jxLines) != 0:
-        lines = plot_three_stage(jxLines)
+    if len(threeLines) != 0:
+        lines = plot_three_stage(threeLines)
         c.overlap(lines)
 
     # 叠加买卖标记
@@ -649,17 +649,21 @@ def KL(data, n, KLlines) -> Line:
         )
     )
     # 叠加多个k线
+    lines_color = ['green', 'blue', 'cyan', 'yellow', 'orange', 'purple']
     if len(KLlines) != 0:
         klLine = Line().add_xaxis(dateindex)
-        for i in KLlines:
+        for i, line in enumerate(KLlines):
             klLine.add_yaxis(
-                series_name=i,
-                y_axis=round(data[i], precision).values.tolist(),
+                series_name=line,
+                y_axis=round(data[line], precision).values.tolist(),
                 is_smooth=True,
                 is_symbol_show=False,
                 is_hover_animation=False,
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
+                itemstyle_opts=opts.ItemStyleOpts(
+                    color=lines_color[i]  # '#14b143'
+                ),
             )
         klLine.set_global_opts(xaxis_opts=opts.AxisOpts(type_="category", is_show=False))
         c.overlap(klLine)
