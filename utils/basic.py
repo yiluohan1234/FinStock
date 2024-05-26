@@ -35,7 +35,8 @@ def get_basic_info(code, indicator='2023-12-31'):
     print("产品类型:", zyjs_ths_df.iloc[0][2])  # '产品类型'
     print("产品名称:", zyjs_ths_df.iloc[0][3])  # '产品名称'
     print("经营范围:", zyjs_ths_df.iloc[0][4])  # '经营范围'
-
+    print("----------------------------- 股东人数 -----------------------------\n")
+    print(get_gd_info(code, 6))
     # 主营构成-东财
     print("\n----------------------------- 主营构成 -----------------------------\n")
     ret_columns = ['报告日期', '分类类型', '主营构成', '主营收入', '收入比例', '主营成本', '成本比例', '主营利润', '利润比例', '毛利率']
@@ -55,6 +56,60 @@ def get_basic_info(code, indicator='2023-12-31'):
     # df[df.columns.tolist()[2:]]
     # print(df[df.columns.tolist()[2:]].to_string(index=False))
     return df[ret_columns]
+
+
+def get_free_top_10_em(code, date='20240331', is_display=True):
+    '''
+    获取10大流通股
+    :param code: 股票代码
+    :type code: str
+    :param date: 日期
+    :type date: str
+    :param is_display: 是否返回展示数据
+    :type is_display: bool
+    :return: 返回股东人数
+    :rtype: pandas.DataFrame
+    :return: 返回10大流通股
+    :rtype: pandas.DataFrame
+    '''
+    df = ak.stock_gdfx_free_top_10_em(symbol=get_szsh_code(code), date=date)
+    ret_df_display = get_display_data(df)
+    if is_display:
+        return ret_df_display
+    else:
+        return df
+
+
+def get_gd_info(code, n, is_display=True):
+    '''
+    获取股东人数
+    :param code: 股票代码
+    :type code: str
+    :param n: 返回数据个数
+    :type n: str
+    :param is_display: 是否返回展示数据
+    :type is_display: bool
+    :return: 返回股东人数
+    :rtype: pandas.DataFrame
+    '''
+    df_gd = ak.stock_zh_a_gdhs_detail_em(symbol=code)
+
+    dt = {}
+    dt['报告日'] = df_gd['股东户数统计截止日']
+    dt['股东户数'] = round(df_gd['股东户数-本次'] / 10000, precision)
+    dt['增减比例'] = round(df_gd['股东户数-增减比例'], precision)
+
+    ret_df = pd.DataFrame(dt)
+    ret_df = pd.DataFrame(dt)
+    ret_df = ret_df.fillna(0)
+    ret_df = ret_df.head(n)
+
+    ret_df_display = get_display_data(ret_df)
+
+    if is_display:
+        return ret_df_display
+    else:
+        return ret_df
 
 
 def get_main_indicators_ths(code, n, indicator="按年度", is_display=True):
