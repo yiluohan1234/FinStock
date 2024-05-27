@@ -20,6 +20,8 @@ from utils.data import get_data
 import os
 import webbrowser
 from utils.cons import precision, prices_cols
+from utils.basic import get_main_indicators_sina, get_lrb_data, get_main_indicators_ths
+from utils.fundflow import get_individual_fund_flow
 
 
 def K(data, title, klines, jxLines, threeLines) -> Kline:
@@ -896,6 +898,20 @@ def plot_line(data, x, y, title) -> Line:
         )   # 设置线条宽度为4
         .set_global_opts(
             title_opts=opts.TitleOpts(title=title),
+            datazoom_opts=[                                              # 区域缩放
+                opts.DataZoomOpts(
+                    is_show=False,
+                    type_="inside",      # 内部缩放
+                    range_start=0,      # 初始显示范围
+                    range_end=100,       # 初始显示范围
+                ),
+                opts.DataZoomOpts(
+                    is_show=False,
+                    type_="slider",       # 外部滑动缩放
+                    range_start=0,       # 初始显示范围
+                    range_end=100,        # 初始显示范围
+                ),
+            ],
             yaxis_opts=opts.AxisOpts(
                 name="{}".format(y),
                 type_="value",
@@ -908,11 +924,11 @@ def plot_line(data, x, y, title) -> Line:
     return line
 
 
-def plot_bar_line(data, x, y_bar, y_line) -> Bar:
+def plot_bar_line(df, x, y_bar, y_line) -> Bar:
     '''
     绘制业务同比增长的直方折线图
-    :param data: 数据
-    :type data: list
+    :param df: 数据
+    :type df: pandas.DataFrame
     :param x: 横坐标轴的列名称
     :type x: str
     :param y_bar: 纵坐标轴列名称(bar)
@@ -1196,18 +1212,14 @@ def plot_table(data, headers, title):
 
 
 def plot_page(self):
-    from core.FundFlow import FundFlow
-    from core.Basic import Basic
     df_lrb, df_lrb_display = self.get_lrb_data("000977", 5, 4)
     # df_lrb1, df_lrb_display1 = self.get_lrb_data("000612", 5, 4)
-    f = FundFlow()
-    df_fund, df_fund_display = f.get_individual_fund_flow("000977", 5)
+    df_fund, df_fund_display = get_individual_fund_flow("000977", 5)
 
     #df_zygc = self.get_basic_info("000977")
 
-    b = Basic()
-    df_import, df_import_display = b.get_main_indicators_ths("000977", 5)
-    df_main, df_main_display = b.get_main_indicators_sina("000977", 5)
+    df_import, df_import_display = get_main_indicators_ths("000977", 5)
+    df_main, df_main_display = get_main_indicators_sina("000977", 5)
 
     # df_north = f.get_north_data(start_date='20240202', end_date='20240511')
     # df_sh = f.get_north_data(start_date='20240202', end_date='20240511', symbol="沪股通")
@@ -1274,5 +1286,6 @@ def plot_page(self):
 
 
 if __name__ == "__main__":
-    df = get_data("000612", start_date="20240101", end_date="20240519")
-
+    df_main = get_main_indicators_sina("000977", 5, is_display=False)
+    plot_line(df_main, '报告期', '总资产周转率', '总资产周转率').render('visual.html')
+    webbrowser.open_new_tab('file://' + os.path.realpath('visual.html'))
