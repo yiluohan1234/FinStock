@@ -90,13 +90,17 @@ def get_data(code, start_date, end_date, freq):
     df['DIF'], df['DEA'], df['MACD'] = cal_macd(df)
 
     # 标记买入和卖出信号
-    # for i in range(len(df)):
-    #     if i == 0:
-    #         continue
-    #     if (df.loc[i, 'k5'] >= df.loc[i, 'k10']) and (df.loc[i-1, 'k5'] < df.loc[i-1, 'k10']) and df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0:
-    #         df.loc[i, 'BUY'] = True
-    #     if df.loc[i, 'close'] < df.loc[i, 'ene'] and df.loc[i, 'k20'] > 0:
-    #         df.loc[i, 'SELL'] = True
+    for i in range(len(df)):
+        if i == 0:
+            continue
+        if (df.loc[i, 'k10'] > df.loc[i, 'k20'] and df.loc[i-1, 'k10'] < df.loc[i-1, 'k20']) and \
+            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
+            (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k20'] > df.loc[i-1, 'k20'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
+            df.loc[i, 'BUY'] = True
+        if (df.loc[i, 'k10'] < df.loc[i, 'k20'] and df.loc[i-1, 'k10'] > df.loc[i-1, 'k20']) and \
+            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
+            (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
+            df.loc[i, 'SELL'] = True
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
