@@ -25,20 +25,34 @@ class SmaCross(bt.Strategy):
     def __init__(self):
         sma1 = btind.SMA(period=self.p.pfast)
         sma2 = btind.SMA(period=self.p.pslow)
-        k10 = self.datas[0]['k10']
-        k20 = self.datas[0]['k20']
-        self.crossover = btind.CrossOver(k10, k20)
+        self.k10 = self.datas[0].k10
+        self.k10_pre = self.datas[-1].k10
+        self.k20 = self.datas[0].k20
+        self.k20_pre = self.datas[-1].k20
+        self.k60 = self.datas[0].k20
+        self.k60_pre = self.datas[-1].k60
+        self.crossover = btind.CrossUp(self.k10, self.k20)
 
     def next(self):
         if self.position.size == 0:
-            if self.crossover > 0:
+            if self.crossover > 0 and self.k10 < 0 and self.k20 < 0 and self.k60 < 0 and self.k10 > self.k10_pre and self.k20 > self.k20_pre and self.k60 >= self.k60_pre:
                 amount_to_invest = (self.broker.cash * 0.95)
                 self.size = int(amount_to_invest / self.data.close)
                 self.buy(size=self.size)
         elif self.position.size > 0:
-            if self.crossover < 0:
+            if self.crossover < 0 and self.k10 > 0 and self.k20 > 0 and self.k60 > 0 and self.k10 < self.k10_pre and self.k20 < self.k20_pre and self.k60 <= self.k60_pre:
                 self.close()
 
+
+class PandasDataPlus(bt.feeds.PandasData):
+    lines = ('k10', 'k20', 'k60')  # 要添加的列名
+    # 设置 line 在数据源上新增的位置
+    params = (
+        ('k10', -1),  # turnover对应传入数据的列名，这个-1会自动匹配backtrader的数据类与原有pandas文件的列名
+        ('k20', -1),
+        ('k60', -1),
+        # 如果是个大于等于0的数，比如8，那么backtrader会将原始数据下标8(第9列，下标从0开始)的列认为是turnover这一列
+    )
 
 if __name__ == "__main__":
     code = "000977"  # 股票代码
@@ -57,15 +71,15 @@ if __name__ == "__main__":
     start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
     end_date = datetime.strptime(edate, "%Y%m%d")
 
-    data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
-    print(data)
+    # data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
+    data = PandasDataPlus(dataname=df, fromdate=start_date, todate=end_date)
 
     # 将数据添加到引擎中
     cerebro.adddata(data)
     # 设置初始资金
-    cerebro.broker.setcash(start_cash)
-    # 设置交易手续费
-    cerebro.broker.setcommission(commission=commfee)
+    cerebro.broker.setcash(10000.00)
+    # 设置交易手续费,佣金为万5
+    cerebro.broker.setcommission(commission=0.0005)
     # 添加性能分析器
     cerebro.addanalyzer(btanalyzers.SharpeRatio, _name='mysharpe')
     print("期初总资金: %.2f" % start_cash)
