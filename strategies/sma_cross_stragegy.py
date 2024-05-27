@@ -34,22 +34,22 @@ class SmaCross(bt.Strategy):
         self.k10_pre = self.datas[-1].k10
         self.k20 = self.datas[0].k20
         self.k20_pre = self.datas[-1].k20
-        self.k60 = self.datas[0].k20
+        self.k60 = self.datas[0].k60
         self.k60_pre = self.datas[-1].k60
-        self.crossover = btind.CrossUp(self.k10, self.k20)
+        self.crossover = btind.CrossOver(self.k10, self.k20)
 
     def next(self):
         if self.order:  # 检查是否有指令等待执行
             return
         # 检查是否持仓
         if self.position.size == 0:
-            if self.crossover > 0:# and self.k10 < 0 and self.k20 < 0 and self.k60 < 0 and self.k10 > self.k10_pre and self.k20 > self.k20_pre and self.k60 >= self.k60_pre:
+            if self.crossover > 0 and self.k10 < 0 and self.k20 < 0 and self.k60 < 0 and self.k10 >= self.k10_pre and self.k20 >= self.k20_pre and self.k60 >= self.k60_pre:
                 amount_to_invest = (self.broker.cash * 0.95)
                 self.size = int(amount_to_invest / self.data.close)
                 self.log("BUY CREATE, %.2f" % self.data_close[0])
                 self.order = self.buy()
         elif self.position.size > 0:
-            if self.crossover < 0:# and self.k10 > 0 and self.k20 > 0 and self.k60 > 0 and self.k10 < self.k10_pre and self.k20 < self.k20_pre and self.k60 <= self.k60_pre:
+            if self.crossover < 0 and self.k10 > 0 and self.k20 > 0 and self.k60 > 0 and self.k10 <= self.k10_pre and self.k20 <= self.k20_pre and self.k60 <= self.k60_pre:
                 self.log("SELL CREATE, %.2f" % self.data_close[0])
                 self.order = self.sell()
 
@@ -138,5 +138,5 @@ if __name__ == "__main__":
     end_value = cerebro.broker.getvalue()  # 获取回测结束后的总资金
     print("期末总资金: %.2f" % end_value)
     # cerebro.plotinfo.plotname = "BOLL线 回测结果"
-    cerebro.plot()
+    #cerebro.plot()
 
