@@ -11,7 +11,7 @@ import akshare as ak
 import datetime
 import time
 import pandas as pd
-from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict
+from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict, k_cross_strategy, max_min_strategy
 from utils.cons import ema_list, precision, transfer_date_dic
 
 
@@ -90,17 +90,7 @@ def get_data(code, start_date, end_date, freq):
     df['DIF'], df['DEA'], df['MACD'] = cal_macd(df)
 
     # 标记买入和卖出信号
-    for i in range(len(df)):
-        if i == 0:
-            continue
-        if (df.loc[i, 'k10'] > df.loc[i, 'k20'] and df.loc[i-1, 'k10'] < df.loc[i-1, 'k20']) and \
-            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
-            (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k20'] > df.loc[i-1, 'k20'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
-            df.loc[i, 'BUY'] = True
-        if (df.loc[i, 'k10'] < df.loc[i, 'k20'] and df.loc[i-1, 'k10'] > df.loc[i-1, 'k20']) and \
-            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
-            (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
-            df.loc[i, 'SELL'] = True
+    df = max_min_strategy(df)
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
@@ -236,10 +226,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    # print(get_data("000612", start_date="20240501", end_date="20240521", freq='M'))
-    # print(get_index_data("sh000001", start_date="20240110", end_date="20240519", freq='min'))
-    # print(k)
-    df = get_kline_chart_date(code="300547", start_date='20180301', end_date='20180519', freq='D', zh_index=False)
-    print(df)
+    df = get_kline_chart_date(code="000737", start_date='20240101', end_date="20240527", freq='D', zh_index=False)
+    print(df[(df['BUY'] == True) | (df['SELL'] == True)])
     time_end = time.time()
-    print("运行耗时{}seconds".format(time_end-time_start))
+    print("运行耗时{}s".format(round(time_end-time_start, 2)))
