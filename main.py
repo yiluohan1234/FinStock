@@ -21,14 +21,15 @@ pd.set_option('display.max_columns', None)
 
 def main(code):
     k = KLineChart(code)
-    k.plot(n=20, area=['V', 'KL'], width=1600, height=900,
-           klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
+    k.plot(n=20, area=['V', 'KL', 'DMA'], width=1600, height=900,
+           klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250', 'ene', 'upper', 'lower'],
            vlines=['vma10', 'vma20'],
            KLlines=['k10', 'k60'],
            KPLlines=['kp10', 'kp60'],
+           dmalines=['ma10', 'ma60'],
            is_notebook=False
            )
-    # k.web()
+    k.web()
 
     df_display = get_individual_fund_flow_rank(code)
     print(df_display)
