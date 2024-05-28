@@ -418,5 +418,34 @@ def find_max_min_point(df):
     return df
 
 
+def AMPD(data):
+    """
+    实现AMPD获取波峰算法
+    :param data: 1-D numpy.ndarray
+    :return:
+    :param data: 数据
+    :type data: numpy.ndarray
+    :return: 波峰所在索引值的列表
+    :rtype: list
+    """
+    p_data = np.zeros_like(data, dtype=np.int32)
+    count = data.shape[0]
+    arr_rowsum = []
+    for k in range(1, count // 2 + 1):
+        row_sum = 0
+        for i in range(k, count - k):
+            if data[i] > data[i - k] and data[i] > data[i + k]:
+                row_sum -= 1
+        arr_rowsum.append(row_sum)
+    min_index = np.argmin(arr_rowsum)
+    max_window_length = min_index
+    for k in range(1, max_window_length + 1):
+        for i in range(k, count - k):
+            if data[i] > data[i - k] and data[i] > data[i + k]:
+                p_data[i] += 1
+    return np.where(p_data == max_window_length)[0]
+    # 这个代码再修改一下，还可以找到第二高的点，第三高的点。在AMPD函数最后一行里面，np.where(p_data == max_window_length-top)[0] 其中top分别为0，1，2就可以代表第一高（波峰），第二高、第三高等。
+
+
 if __name__ == "__main__":
     print(get_date_month("20240521"))
