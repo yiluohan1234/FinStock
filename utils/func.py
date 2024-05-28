@@ -10,6 +10,7 @@
 import akshare as ak
 import numpy as np
 import pandas as pd
+from scipy.signal import find_peaks
 import datetime
 from utils.cons import precision
 
@@ -389,6 +390,30 @@ def max_min_strategy(df):
         if (df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i-1, 'k20'] >= df.loc[i-2, 'k20']) and \
             (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
             (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
+            df.loc[i, 'SELL'] = True
+    return df
+
+
+def find_max_min_point(df):
+    """
+    获取数据的局部最大值和最小值的索引
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 索引值
+    :rtype: numpy.ndarray
+    """
+    series = np.array(df['k20'])
+    peaks, _ = find_peaks(series)  # 纵轴局部最高点
+    mins, _ = find_peaks(series*-1)  # 纵轴局部最低点
+
+    for i in range(len(df)):
+        if i == 0:
+            continue
+        if (i in mins.tolist()) and \
+            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0):
+            df.loc[i, 'BUY'] = True
+        if (i in peaks.tolist()) and \
+            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0):
             df.loc[i, 'SELL'] = True
     return df
 

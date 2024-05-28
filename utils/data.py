@@ -11,7 +11,7 @@ import akshare as ak
 import datetime
 import time
 import pandas as pd
-from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict, k_cross_strategy, max_min_strategy
+from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict, k_cross_strategy, max_min_strategy, find_max_min_point
 from utils.cons import ema_list, precision, transfer_date_dic
 
 
@@ -230,3 +230,4 @@ if __name__ == "__main__":
     print(df[(df['BUY'] == True) | (df['SELL'] == True)])
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))
+    #各位大神，最近在拜读姚老师的形态学，关于有效突破有点疑问，希望大神能解答一下。如下图，正泰电器构筑了一个长达5个月的三重底，颈线21.97，22日收盘21.98，能算有效突破吗？这个有效是个什么限定
