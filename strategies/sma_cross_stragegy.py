@@ -30,26 +30,22 @@ class SmaCross(bt.Strategy):
         self.order = None
         self.buy_price = None
         self.buy_comm = None
-        self.k10 = self.datas[0].k10
-        self.k10_pre = self.datas[-1].k10
-        self.k20 = self.datas[0].k20
-        self.k20_pre = self.datas[-1].k20
-        self.k60 = self.datas[0].k60
-        self.k60_pre = self.datas[-1].k60
-        self.crossover = btind.CrossOver(self.k10, self.k20)
+        sma1 = btind.SMA(period=self.p.pfast)
+        sma2 = btind.SMA(period=self.p.pslow)
+        self.crossover = btind.CrossOver(sma1, sma2)
 
     def next(self):
         if self.order:  # 检查是否有指令等待执行
             return
         # 检查是否持仓
         if self.position.size == 0:
-            if self.crossover > 0 and self.k10 < 0 and self.k20 < 0 and self.k60 < 0 and self.k10 >= self.k10_pre and self.k20 >= self.k20_pre and self.k60 >= self.k60_pre:
+            if self.crossover > 0:
                 amount_to_invest = (self.broker.cash * 0.95)
                 self.size = int(amount_to_invest / self.data.close)
                 self.log("BUY CREATE, %.2f" % self.data_close[0])
                 self.order = self.buy()
         elif self.position.size > 0:
-            if self.crossover < 0 and self.k10 > 0 and self.k20 > 0 and self.k60 > 0 and self.k10 <= self.k10_pre and self.k20 <= self.k20_pre and self.k60 <= self.k60_pre:
+            if self.crossover < 0:
                 self.log("SELL CREATE, %.2f" % self.data_close[0])
                 self.order = self.sell()
 

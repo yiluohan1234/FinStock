@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 #######################################################################
-#    > File Name: k_strategy.py
+#    > File Name: bigger_than_ema.py
 #    > Author: cuiyufei
 #    > Mail: XXX@qq.com
 #    > Created Time: 2024年5月27日

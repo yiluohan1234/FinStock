@@ -18,8 +18,7 @@ import backtrader as bt
 import backtrader.feeds as btfeeds
 import backtrader.indicators as btind
 import backtrader.analyzers as btanalyzers
-import pandas as pd
-import tushare as ts
+from utils.data import get_kline_chart_date
 
 from datetime import date, datetime
 
@@ -94,16 +93,6 @@ class MultiStrategy(bt.Strategy):
         self.log('(MA Period %2d) Ending Value %.2f' %
                  (self.params.maperiod, self.broker.getvalue()), dt=None)
 
-def get_data(code, start="2020-01-01", end="2023-01-31"):
-    df = ts.get_k_data(code, autype="qfq", start=start, end=end)
-    df.index = pd.to_datetime(df.date)
-    df["openinterest"] = 0
-    df = df[["open", "high", "low", "close", "volume", "openinterest"]]
-    return df
-
-dataframe = get_data("600018")
-start = datetime(2020, 1, 1)
-end = datetime(2021, 12, 31)
 
 if __name__ == "__main__":
 
@@ -111,19 +100,17 @@ if __name__ == "__main__":
     cerebro = bt.Cerebro()
     cerebro.addstrategy(MultiStrategy)
 
-    # 设置数据源
-    # data = btfeeds.GenericCSVData(
-    #     dataname='/Users/charmve/Qbot/pytrader/doc/04.kdj_with_macd/002859.csv',
-    #     datetime=0,
-    #     high=1,
-    #     low=2,
-    #     open=3,
-    #     close=4,
-    #     volume=5,
-    #     openinterest=-1,
-    # )
+    code = "000977"  # 股票代码
+    start_cash = 10000  # 初始自己为10000
+    stake = 100  # 单次交易数量为1手
+    commfee = 0.0005  # 佣金为万5
+    sdate = "20240101"  # 回测时间段
+    edate = "20240526"
+    df = get_kline_chart_date(code=code, start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
+    end_date = datetime.strptime(edate, "%Y%m%d")
 
-    data = bt.feeds.PandasData(dataname=dataframe, fromdate=start, todate=end)
+    data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
     print(data)
 
     # 将数据添加到引擎中
@@ -147,4 +134,4 @@ if __name__ == "__main__":
     print('Sharpe Ratio:', thestrat.analyzers.mysharpe.get_analysis()['sharperatio'])
 
     # Plot the result
-    cerebro.plot()
+    # cerebro.plot()

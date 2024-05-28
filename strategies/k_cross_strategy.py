@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 #######################################################################
-#    > File Name: k_strategy.py
+#    > File Name: k_cross_strategy.py
 #    > Author: cuiyufei
 #    > Mail: XXX@qq.com
 #    > Created Time: 2024年5月27日
@@ -9,58 +9,46 @@
 #######################################################################
 
 
-from datetime import datetime
-
-import akshare as ak
 import backtrader as bt
-import pandas as pd
+import backtrader.indicators as btind
+import backtrader.feeds as btfeeds
+import backtrader.analyzers as btanalyzers
 from utils.data import get_kline_chart_date
+from datetime import date, datetime
 
-
-class BollStrategy(bt.Strategy):  # BOLL策略程序
+class KCross(bt.Strategy):
     params = (
-        ("nk", 13),  # 求均值的天数
         ("printlog", False),
-    )  # 打印log
+    )
 
-    def __init__(self):  # 初始化
+    def __init__(self):
         self.data_close = self.datas[0].close  # 指定价格序列
         # 初始化交易指令、买卖价格和手续费
         self.order = None
         self.buy_price = None
         self.buy_comm = None
-        # Boll指标计算
-        self.top = bt.indicators.BollingerBands(
-            self.datas[0], period=self.params.nk
-        ).top
-        self.bot = bt.indicators.BollingerBands(
-            self.datas[0], period=self.params.nk
-        ).bot
-        # 添加移动均线指标
-        self.sma = bt.indicators.SimpleMovingAverage(
-            self.datas[0], period=self.params.nk
-        )
+        self.k10 = self.datas[0].k10
+        self.k10_pre = self.datas[-1].k10
+        self.k20 = self.datas[0].k20
+        self.k20_pre = self.datas[-1].k20
+        self.k60 = self.datas[0].k60
+        self.k60_pre = self.datas[-1].k60
+        self.crossover = btind.CrossOver(self.k10, self.k20)
 
-    def next(self):  # 买卖策略
+    def next(self):
         if self.order:  # 检查是否有指令等待执行
             return
         # 检查是否持仓
-        """
-        if not self.position:  # 没有持仓
-            if self.data_close[0] > self.sma[0]:  # 执行买入条件判断：收盘价格上涨突破20日均线
-                self.order = self.buy(size=100)   # 执行买入
-        else:
-            if self.data_close[0] < self.sma[0]:  # 执行卖出条件判断：收盘价格跌破20日均线
-                self.order = self.sell(size=100)  # 执行卖出
-        """
-        if not self.position:  # 没有持仓
-            if self.data_close[0] < self.bot[0]:  # 收盘价格跌破下轨
+        if self.position.size == 0:
+            if self.crossover > 0 and self.k10 < 0 and self.k20 < 0 and self.k60 < 0 and self.k10 >= self.k10_pre and self.k20 >= self.k20_pre and self.k60 >= self.k60_pre:
+                amount_to_invest = (self.broker.cash * 0.95)
+                self.size = int(amount_to_invest / self.data.close)
                 self.log("BUY CREATE, %.2f" % self.data_close[0])
-                self.order = self.buy()  # 执行买入
-        else:
-            if self.data_close[0] > self.top[0]:  # 收盘价格上涨突破上轨
+                self.order = self.buy()
+        elif self.position.size > 0:
+            if self.crossover < 0 and self.k10 > 0 and self.k20 > 0 and self.k60 > 0 and self.k10 <= self.k10_pre and self.k20 <= self.k20_pre and self.k60 <= self.k60_pre:
                 self.log("SELL CREATE, %.2f" % self.data_close[0])
-                self.order = self.sell()  # 执行卖出
+                self.order = self.sell()
 
     def log(self, txt, dt=None, do_print=False):  # 日志函数
         if self.params.printlog or do_print:
@@ -100,33 +88,43 @@ class BollStrategy(bt.Strategy):  # BOLL策略程序
 
     def stop(self):  # 回测结束后输出结果
         self.log(
-            "(BOLL线： %2d日) 期末总资金 %.2f" % (self.params.nk, self.broker.getvalue()),
+            "期末总资金 %.2f" % (self.broker.getvalue()),
             do_print=True,
             )
 
 
-code = "000977"  # 股票代码
-start_cash = 10000  # 初始自己为10000
-stake = 100  # 单次交易数量为1手
-commfee = 0.0005  # 佣金为万5
-sdate = "20240101"  # 回测时间段
-edate = "20240526"
+class PandasDataPlus(bt.feeds.PandasData):
+    lines = ('k10', 'k20', 'k60')  # 要添加的列名
+    # 设置 line 在数据源上新增的位置
+    params = (
+        ('k10', -1),  # turnover对应传入数据的列名，这个-1会自动匹配backtrader的数据类与原有pandas文件的列名
+        ('k20', -1),
+        ('k60', -1),
+        # 如果是个大于等于0的数，比如8，那么backtrader会将原始数据下标8(第9列，下标从0开始)的列认为是turnover这一列
+    )
 
-# qbot
 if __name__ == "__main__":
-    cerebro = bt.Cerebro()  # 创建回测系统实例
+    code = "000737"  # 股票代码
+    start_cash = 10000  # 初始自己为10000
+    stake = 100  # 单次交易数量为1手
+    commfee = 0.0005  # 佣金为万5
+    sdate = "20240101"  # 回测时间段
+    edate = "20240526"
+    # 创建Cerebro引擎
+    cerebro = bt.Cerebro()
+
     # 利用AKShare获取股票的前复权数据的前6列
-    df_qfq = get_kline_chart_date(code=code, start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    df = get_kline_chart_date(code=code, start_date=sdate, end_date=edate, freq='D', zh_index=False)
 
     start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
     end_date = datetime.strptime(edate, "%Y%m%d")
-    # start_date=datetime(2022,1,4)
-    # end_date=datetime(2022,9,16)
-    data = bt.feeds.PandasData(
-        dataname=df_qfq, fromdate=start_date, todate=end_date
-    )  # 规范化数据格式
-    cerebro.adddata(data)  # 加载数据
-    cerebro.addstrategy(BollStrategy, nk=13, printlog=True)  # 加载交易策略
+
+    # data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
+    data = PandasDataPlus(dataname=df, fromdate=start_date, todate=end_date)
+
+    # 将数据添加到引擎中
+    cerebro.adddata(data)
+    cerebro.addstrategy(KCross, printlog=True)
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name="PyFolio")
     cerebro.broker.setcash(start_cash)  # broker设置资金
     cerebro.broker.setcommission(commission=commfee)  # broker手续费
@@ -136,15 +134,4 @@ if __name__ == "__main__":
     end_value = cerebro.broker.getvalue()  # 获取回测结束后的总资金
     print("期末总资金: %.2f" % end_value)
     # cerebro.plotinfo.plotname = "BOLL线 回测结果"
-    cerebro.plot()
-
-    # result_img = cerebro.plot(style='line', plotdist=0.1, grid=True)
-    # # result_img = cerebro.plot()
-    # result_img[0][0].savefig(f'{"result_img.png"}')
-
-    # strat = back[0]
-    # portfolio_stats = strat.analyzers.getbyname("PyFolio")
-    # returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
-    # print(returns)
-    # returns.index = returns.index.tz_convert(None)
-    # quantstats.reports.html(returns, output="stats.html", title="BTC Sentiment")
+    #cerebro.plot()

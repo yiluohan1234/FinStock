@@ -28,7 +28,7 @@ def main(code):
            KPLlines=['kp10', 'kp60'],
            is_notebook=False
            )
-    k.web()
+    # k.web()
 
     df_display = get_individual_fund_flow_rank(code)
     print(df_display)
