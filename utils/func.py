@@ -350,6 +350,48 @@ def transfer_price_freq(df, freq):
 
     return period_stock_data
 
+def k_cross_strategy(df):
+    """
+    策略：k10、k20和k60为负，k10上穿k20买入；k10、k20和k60为正，k10下穿k20卖出；
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 标记后的数据
+    :rtype: pandas.DataFrame
+    """
+    for i in range(len(df)):
+        if i == 0:
+            continue
+        if (df.loc[i, 'k10'] > df.loc[i, 'k20'] and df.loc[i-1, 'k10'] < df.loc[i-1, 'k20']) and \
+            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
+            (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k20'] > df.loc[i-1, 'k20'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
+            df.loc[i, 'BUY'] = True
+        if (df.loc[i, 'k10'] < df.loc[i, 'k20'] and df.loc[i-1, 'k10'] > df.loc[i-1, 'k20']) and \
+            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
+            (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
+            df.loc[i, 'SELL'] = True
+    return df
+
+def max_min_strategy(df):
+    """
+    策略：k10、k20和k60为负，k20最小值买入；k10、k20和k60为正，k20最大值卖出；
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 标记后的数据
+    :rtype: pandas.DataFrame
+    """
+    for i in range(len(df)):
+        if i < 2:
+            continue
+        if (df.loc[i, 'k20'] > df.loc[i-1, 'k20'] and df.loc[i-1, 'k20'] <= df.loc[i-2, 'k20']) and \
+            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
+            (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
+            df.loc[i, 'BUY'] = True
+        if (df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i-1, 'k20'] >= df.loc[i-2, 'k20']) and \
+            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
+            (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
+            df.loc[i, 'SELL'] = True
+    return df
+
 
 if __name__ == "__main__":
     print(get_date_month("20240521"))
