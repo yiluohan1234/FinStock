@@ -11,7 +11,7 @@ import akshare as ak
 import datetime
 import time
 import pandas as pd
-from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict, k_cross_strategy, max_min_strategy, find_max_min_point
+from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict, k_cross_strategy, max_min_strategy, find_max_min_point, max_min_low_high_strategy
 from utils.cons import ema_list, precision, transfer_date_dic
 
 
