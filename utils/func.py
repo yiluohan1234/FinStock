@@ -396,15 +396,17 @@ def max_min_strategy(df, k_name='k20'):
     return df
 
 
-def find_max_min_point(df):
+def find_max_min_point(df, k_name='k20'):
     """
     获取数据的局部最大值和最小值的索引
     :param df: 数据
     :type df: pandas.DataFrame
+    :param k_name: 斜率名字
+    :type k_name: str
     :return: 索引值
     :rtype: numpy.ndarray
     """
-    series = np.array(df['k20'])
+    series = np.array(df[k_name])
     peaks, _ = find_peaks(series)  # 纵轴局部最高点
     mins, _ = find_peaks(series*-1)  # 纵轴局部最低点
 
