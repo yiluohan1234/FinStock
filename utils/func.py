@@ -372,22 +372,24 @@ def k_cross_strategy(df):
             df.loc[i, 'SELL'] = True
     return df
 
-def max_min_strategy(df):
+def max_min_strategy(df, k_name='k20'):
     """
-    策略：k10、k20和k60为负，k20最小值买入；k10、k20和k60为正，k20最大值卖出；
+    策略：k10、k20和k60为负，k_name最小值买入；k10、k20和k60为正，k_name最大值卖出；
     :param df: 数据
     :type df: pandas.DataFrame
+    :param k_name: 斜率名字
+    :type k_name: str
     :return: 标记后的数据
     :rtype: pandas.DataFrame
     """
     for i in range(len(df)):
         if i < 2:
             continue
-        if (df.loc[i, 'k20'] > df.loc[i-1, 'k20'] and df.loc[i-1, 'k20'] <= df.loc[i-2, 'k20']) and \
+        if (df.loc[i, k_name] > df.loc[i-1, k_name] and df.loc[i-1, k_name] <= df.loc[i-2, k_name]) and \
             (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
             (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
             df.loc[i, 'BUY'] = True
-        if (df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i-1, 'k20'] >= df.loc[i-2, 'k20']) and \
+        if (df.loc[i, k_name] < df.loc[i-1, k_name] and df.loc[i-1, k_name] >= df.loc[i-2, k_name]) and \
             (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
             (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
             df.loc[i, 'SELL'] = True
