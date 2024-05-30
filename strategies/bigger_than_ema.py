@@ -107,13 +107,9 @@ class BiggerThanEmaStrategy(bt.Strategy):
 
 
 if __name__ == "__main__":
-    code = "000977"  # 股票代码
-    start_cash = 10000  # 初始自己为10000
-    stake = 100  # 单次交易数量为1手
-    commfee = 0.0005  # 佣金为万5
     sdate = "20240101"  # 回测时间段
     edate = "20240526"
-    df = get_kline_chart_date(code=code, start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    df = get_kline_chart_date(code="000977", start_date=sdate, end_date=edate, freq='D', zh_index=False)
 
     start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
     end_date = datetime.strptime(edate, "%Y%m%d")
@@ -122,17 +118,16 @@ if __name__ == "__main__":
     cerebro = bt.Cerebro()
     # 取得股票历史数据
     data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
-    print(data)
     # 为Cerebro引擎添加策略
-    cerebro.addstrategy(BiggerThanEmaStrategy)
+    cerebro.addstrategy(BiggerThanEmaStrategy, maperiod=20)
     # 加载交易数据
     cerebro.adddata(data)
     # 设置投资金额
-    cerebro.broker.setcash(start_cash)
+    cerebro.broker.setcash(10000.0)
     # 每笔交易使用固定交易量
-    cerebro.addsizer(bt.sizers.FixedSize, stake=stake)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     # 设置佣金为0.001, 除以100去掉%号
-    cerebro.broker.setcommission(commission=commfee)
+    cerebro.broker.setcommission(commission=0.0005)
     # 获取回测开始时的总资金
     print("期初资金: %.2f" % cerebro.broker.getvalue())
     # 运行回测系统
@@ -141,4 +136,4 @@ if __name__ == "__main__":
     print("期末资金: %.2f" % cerebro.broker.getvalue())
     # cerebro.plotinfo.plotname = "收盘价大于简单移动平均价"
     # Plot the result
-    cerebro.plot()
+    # cerebro.plot()

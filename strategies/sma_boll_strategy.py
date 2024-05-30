@@ -9,8 +9,7 @@
 #######################################################################
 
 
-from datetime import datetime
-
+import datetime
 import backtrader as bt
 from utils.data import get_kline_chart_date
 
@@ -109,13 +108,18 @@ class BollStrategy(bt.Strategy):  # BOLL策略程序
 
 if __name__ == "__main__":
     sdate = "20240101"  # 回测时间段
-    edate = "20240526"
+    now = datetime.datetime.now()
+    if now.hour >= 15:
+        edate = now.strftime('%Y%m%d')
+    else:
+        yesterday = now - datetime.timedelta(days=1)
+        edate = yesterday.strftime('%Y%m%d')
     cerebro = bt.Cerebro()  # 创建回测系统实例
     # 利用AKShare获取股票的前复权数据的前6列
-    df_qfq = get_kline_chart_date(code="000948", start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    df_qfq = get_kline_chart_date(code="000977", start_date=sdate, end_date=edate, freq='D', zh_index=False)
 
-    start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
-    end_date = datetime.strptime(edate, "%Y%m%d")
+    start_date = datetime.datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
+    end_date = datetime.datetime.strptime(edate, "%Y%m%d")
     # start_date=datetime(2022,1,4)
     # end_date=datetime(2022,9,16)
     data = bt.feeds.PandasData(dataname=df_qfq, fromdate=start_date, todate=end_date)  # 规范化数据格式

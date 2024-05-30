@@ -9,7 +9,7 @@
 #######################################################################
 
 
-from datetime import datetime
+import datetime
 
 import backtrader as bt
 from utils.data import get_kline_chart_date
@@ -103,46 +103,31 @@ class BollStrategy(bt.Strategy):  # BOLL策略程序
             )
 
 
-code = "000977"  # 股票代码
-start_cash = 10000  # 初始自己为10000
-stake = 100  # 单次交易数量为1手
-commfee = 0.0005  # 佣金为万5
-sdate = "20240101"  # 回测时间段
-edate = "20240526"
-
-# qbot
 if __name__ == "__main__":
+    sdate = "20240101"  # 回测时间段
+    now = datetime.datetime.now()
+    if now.hour >= 15:
+        edate = now.strftime('%Y%m%d')
+    else:
+        yesterday = now - datetime.timedelta(days=1)
+        edate = yesterday.strftime('%Y%m%d')
     cerebro = bt.Cerebro()  # 创建回测系统实例
     # 利用AKShare获取股票的前复权数据的前6列
-    df_qfq = get_kline_chart_date(code=code, start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    df_qfq = get_kline_chart_date(code="000977", start_date=sdate, end_date=edate, freq='D', zh_index=False)
 
-    start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
-    end_date = datetime.strptime(edate, "%Y%m%d")
-    # start_date=datetime(2022,1,4)
-    # end_date=datetime(2022,9,16)
-    data = bt.feeds.PandasData(
-        dataname=df_qfq, fromdate=start_date, todate=end_date
-    )  # 规范化数据格式
+    start_date = datetime.datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
+    end_date = datetime.datetime.strptime(edate, "%Y%m%d")
+    data = bt.feeds.PandasData(dataname=df_qfq, fromdate=start_date, todate=end_date )  # 规范化数据格式
     cerebro.adddata(data)  # 加载数据
     cerebro.addstrategy(BollStrategy, nk=13, printlog=True)  # 加载交易策略
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name="PyFolio")
-    cerebro.broker.setcash(start_cash)  # broker设置资金
-    cerebro.broker.setcommission(commission=commfee)  # broker手续费
-    cerebro.addsizer(bt.sizers.FixedSize, stake=stake)  # 设置买入数量
-    print("期初总资金: %.2f" % start_cash)
+    cerebro.broker.setcash(10000.0)  # broker设置资金
+    cerebro.broker.setcommission(commission=0.0005)  # broker手续费
+    cerebro.addsizer(bt.sizers.FixedSize, stake=100)  # 设置买入数量
+    print("期初总资金: %.2f" % 10000.0)
     back = cerebro.run()  # 运行回测
     end_value = cerebro.broker.getvalue()  # 获取回测结束后的总资金
     print("期末总资金: %.2f" % end_value)
     # cerebro.plotinfo.plotname = "BOLL线 回测结果"
-    cerebro.plot()
+    # cerebro.plot()
 
-    # result_img = cerebro.plot(style='line', plotdist=0.1, grid=True)
-    # # result_img = cerebro.plot()
-    # result_img[0][0].savefig(f'{"result_img.png"}')
-
-    # strat = back[0]
-    # portfolio_stats = strat.analyzers.getbyname("PyFolio")
-    # returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
-    # print(returns)
-    # returns.index = returns.index.tz_convert(None)
-    # quantstats.reports.html(returns, output="stats.html", title="BTC Sentiment")

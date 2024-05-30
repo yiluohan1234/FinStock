@@ -14,7 +14,7 @@ import backtrader.indicators as btind
 import backtrader.feeds as btfeeds
 import backtrader.analyzers as btanalyzers
 from utils.data import get_kline_chart_date
-from datetime import date, datetime
+import datetime
 
 class KCross(bt.Strategy):
     params = (
@@ -40,13 +40,13 @@ class KCross(bt.Strategy):
             return
         # 检查是否持仓
         if self.position.size == 0:
-            if self.crossover > 0 and self.k10 < 0 and self.k20 < 0 and self.k60 < 0 and self.k10 >= self.k10_pre and self.k20 >= self.k20_pre and self.k60 >= self.k60_pre:
+            if self.crossover > 0 and self.k10 < 0 and self.k20 < 0 and self.k60 < 0:
                 amount_to_invest = (self.broker.cash * 0.95)
                 self.size = int(amount_to_invest / self.data.close)
                 self.log("BUY CREATE, %.2f" % self.data_close[0])
                 self.order = self.buy()
         elif self.position.size > 0:
-            if self.crossover < 0 and self.k10 > 0 and self.k20 > 0 and self.k60 > 0 and self.k10 <= self.k10_pre and self.k20 <= self.k20_pre and self.k60 <= self.k60_pre:
+            if self.crossover < 0 and self.k10 > 0 and self.k20 > 0 and self.k60 > 0:
                 self.log("SELL CREATE, %.2f" % self.data_close[0])
                 self.order = self.sell()
 
@@ -103,21 +103,21 @@ class PandasDataPlus(bt.feeds.PandasData):
         # 如果是个大于等于0的数，比如8，那么backtrader会将原始数据下标8(第9列，下标从0开始)的列认为是turnover这一列
     )
 
+
 if __name__ == "__main__":
-    code = "000737"  # 股票代码
-    start_cash = 10000  # 初始自己为10000
-    stake = 100  # 单次交易数量为1手
-    commfee = 0.0005  # 佣金为万5
     sdate = "20240101"  # 回测时间段
-    edate = "20240526"
-    # 创建Cerebro引擎
-    cerebro = bt.Cerebro()
-
+    now = datetime.datetime.now()
+    if now.hour >= 15:
+        edate = now.strftime('%Y%m%d')
+    else:
+        yesterday = now - datetime.timedelta(days=1)
+        edate = yesterday.strftime('%Y%m%d')
+    cerebro = bt.Cerebro()  # 创建回测系统实例
     # 利用AKShare获取股票的前复权数据的前6列
-    df = get_kline_chart_date(code=code, start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    df = get_kline_chart_date(code="000977", start_date=sdate, end_date=edate, freq='D', zh_index=False)
 
-    start_date = datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
-    end_date = datetime.strptime(edate, "%Y%m%d")
+    start_date = datetime.datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
+    end_date = datetime.datetime.strptime(edate, "%Y%m%d")
 
     # data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
     data = PandasDataPlus(dataname=df, fromdate=start_date, todate=end_date)
@@ -126,10 +126,10 @@ if __name__ == "__main__":
     cerebro.adddata(data)
     cerebro.addstrategy(KCross, printlog=True)
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name="PyFolio")
-    cerebro.broker.setcash(start_cash)  # broker设置资金
-    cerebro.broker.setcommission(commission=commfee)  # broker手续费
-    cerebro.addsizer(bt.sizers.FixedSize, stake=stake)  # 设置买入数量
-    print("期初总资金: %.2f" % start_cash)
+    cerebro.broker.setcash(10000.0)  # broker设置资金
+    cerebro.broker.setcommission(commission=0.0005)  # broker手续费
+    cerebro.addsizer(bt.sizers.FixedSize, stake=100)  # 设置买入数量
+    print("期初总资金: %.2f" % 10000.0)
     back = cerebro.run()  # 运行回测
     end_value = cerebro.broker.getvalue()  # 获取回测结束后的总资金
     print("期末总资金: %.2f" % end_value)
