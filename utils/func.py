@@ -443,6 +443,22 @@ def find_max_min_point(df, k_name='k20'):
     return df
 
 
+def sma_boll_strategy(df):
+    """
+    收盘小于ma10买入，高于boll的up卖出
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 索引值
+    :rtype: pandas.DataFrame
+    """
+    for i in range(len(df)):
+        if df.loc[i, 'close'] > df.loc[i, 'up']:
+            df.loc[i, 'SELL'] = True
+        if df.loc[i, 'close'] < df.loc[i, 'ma10']:
+            df.loc[i, 'BUY'] = True
+    return df
+
+
 def AMPD(data):
     """
     实现AMPD获取波峰算法
