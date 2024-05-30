@@ -195,7 +195,7 @@ def get_lrb_data(code, n, data_type=0, is_display=True, ret_columns=lrb_ret_colu
     :param code: 股票代码
     :type code: str
     :param n: 返回数据个数
-    :type n: str
+    :type n: int
     :param data_type: 返回数据的形式，0为自然，1为季报，2为中报，4为年报
     :type data_type: int
     :param is_display: 是否返回展示数据
@@ -313,7 +313,7 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     :param code: 股票代码
     :type code: str
     :param n: 返回数据个数
-    :type n: str
+    :type n: int
     :param data_type: 返回数据的形式，0为自然，1为季报，2为中报，4为年报
     :type data_type: int
     :param is_display: 是否返回展示数据
@@ -325,14 +325,16 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     '''
     df_zcfz = ak.stock_balance_sheet_by_report_em(symbol=get_szsh_code(code))
     # https://blog.csdn.net/a389085918/article/details/80284812
+    print(df_zcfz.columns.tolist())
     dt = {}
     dt['报告日'] = df_zcfz['REPORT_DATE_NAME']
     dt['REPORT_TYPE'] = df_zcfz['REPORT_TYPE']
     # df_zcfz = df_zcfz.sort_index(ascending=False)
     # 资产负债率
-    # dt['总资产'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
-    # dt['总负债'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
-    # dt['资产负债率'] = round(df_zcfz['TOTAL_LIABILITIES'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
+    dt['总资产'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
+    dt['总负债'] = round(df_zcfz['TOTAL_LIABILITIES'] / 100000000, 2)
+    dt['资产负债率'] = round(df_zcfz['TOTAL_LIABILITIES'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
+    dt['货币资金/总资产(%)'] = round(df_zcfz['MONETARYFUNDS'] * 100 / df_zcfz['TOTAL_ASSETS'], 2)
     # 流动资产
     dt['货币资金'] = round(df_zcfz['MONETARYFUNDS'] / 100000000, 2)
     dt['拆出资金'] = round(df_zcfz['LEND_FUND'] / 100000000, 2)
@@ -412,7 +414,12 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     dt['长期股权投资'] = round(df_zcfz['LONG_EQUITY_INVEST'] / 100000000, 2)
     dt['工程物资'] = round(df_zcfz['PROJECT_MATERIAL'] / 100000000, 2)
     dt['固定资产清理'] = round(df_zcfz['FIXED_ASSET_DISPOSAL'] / 100000000, 2)
-    # dt['长期应收款'] = round(df_zcfz['LONG_RECE'] / 100000000, 2)
+    dt['长期应付款'] = round(df_zcfz['LONG_PAYABLE'] / 100000000, 2)
+
+    # 有息负债=短期借款+一年内到期的非流动负债+长期借款+应付债券+长期应付款
+    dt['有息负债'] = round((df_zcfz['SHORT_LOAN'] + df_zcfz['NONCURRENT_LIAB_1YEAR'] + df_zcfz['LONG_LOAN'] + df_zcfz['LONG_PAYABLE']) / 100000000, 2)
+    dt['银行存款'] = round(df_zcfz['ACCEPT_DEPOSIT_INTERBANK'] / 100000000, 2)
+
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
     # 应收账款周转率=营业收入/（（期初应收账款+期末应收账款）/2）
@@ -445,7 +452,7 @@ def get_xjll_data(code, n, data_type=0, is_display=True, ret_columns=xjll_ret_co
     :param code: 股票代码
     :type code: str
     :param n: 返回数据个数
-    :type n: str
+    :type n: int
     :param data_type: 返回数据的形式，0为自然，1为季报，2为中报，4为年报
     :type data_type: int
     :param is_display: 是否返回展示数据
@@ -585,8 +592,5 @@ if __name__ == "__main__":
     # print(df)
     # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")
     # print(zygc_em_df)
-    df_main_display = get_main_indicators_sina(
-        code="002848",
-        n=5,
-        ret_columns=['报告期', '营业总收入', '营业总收入增长率', '净利润', '扣非净利润'])
+    df_main_display = get_zcfz_data(code="600519", data_type=0, n=10)
     print(df_main_display)
