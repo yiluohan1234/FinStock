@@ -21,9 +21,10 @@ class BollStrategy(bt.Strategy):  # BOLL策略程序
         ("printlog", False),
     )  # 打印log
 
-    def __init__(self):  # 初始化
-        self.data_close = self.datas[0].close  # 指定价格序列
-        # 初始化交易指令、买卖价格和手续费
+    def __init__(self):
+        # Keep a reference to the "close" line in the data[0] dataseries
+        self.data_close = self.datas[0].close
+        # To keep track of pending orders
         self.order = None
         self.buy_price = None
         self.buy_comm = None
@@ -63,31 +64,34 @@ class BollStrategy(bt.Strategy):  # BOLL策略程序
                 self.log("SELL CREATE, %.2f" % self.data_close[0])
                 self.order = self.sell()  # 执行卖出
 
-    def log(self, txt, dt=None, do_print=False):  # 日志函数
+    def log(self, txt, dt=None, do_print=False):
+        ''' Logging function fot this strategy'''
         if self.params.printlog or do_print:
             dt = dt or self.datas[0].datetime.date(0)
             print("%s, %s" % (dt.isoformat(), txt))
 
-    def notify_order(self, order):  # 记录交易执行情况
-        # 如果order为submitted/accepted,返回空
+    def notify_order(self, order):
+        # Buy/Sell order submitted/accepted to/by broker - Nothing to do
         if order.status in [order.Submitted, order.Accepted]:
             return
-        # 指令为buy/sell,报告价格结果
+
+        # Check if an order has been completed
+        # Attention: broker could reject order if not enough cash
         if order.status in [order.Completed]:
             if order.isbuy():
                 self.log(
-                    f"买入:\n价格:{order.executed.price},\
-                成本:{order.executed.value},\
-                手续费:{order.executed.comm}"
-                )
+                    '买入, 价格: %.2f, 成本: %.2f, 手续费: %.2f' %
+                    (order.executed.price,
+                     order.executed.value,
+                     order.executed.comm))
                 self.buyprice = order.executed.price
                 self.buycomm = order.executed.comm
             else:
-                self.log(
-                    f"卖出:\n价格：{order.executed.price},\
-                成本: {order.executed.value},\
-                手续费{order.executed.comm}"
-                )
+                self.log('卖出, 价格: %.2f, 成本: %.2f, 手续费: %.2f' %
+                         (order.executed.price,
+                          order.executed.value,
+                          order.executed.comm))
+
             self.bar_executed = len(self)
 
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
@@ -114,24 +118,27 @@ if __name__ == "__main__":
     else:
         yesterday = now - datetime.timedelta(days=1)
         edate = yesterday.strftime('%Y%m%d')
-    cerebro = bt.Cerebro()  # 创建回测系统实例
-    # 利用AKShare获取股票的前复权数据的前6列
-    df_qfq = get_kline_chart_date(code="000977", start_date=sdate, end_date=edate, freq='D', zh_index=False)
-
-    start_date = datetime.datetime.strptime(sdate, "%Y%m%d")  # 转换日期格式
+    # Get data from AkShare
+    df = get_kline_chart_date(code="000977", start_date=sdate, end_date=edate, freq='D', zh_index=False)
+    start_date = datetime.datetime.strptime(sdate, "%Y%m%d")
     end_date = datetime.datetime.strptime(edate, "%Y%m%d")
-    # start_date=datetime(2022,1,4)
-    # end_date=datetime(2022,9,16)
-    data = bt.feeds.PandasData(dataname=df_qfq, fromdate=start_date, todate=end_date)  # 规范化数据格式
-    cerebro.adddata(data)  # 加载数据
+
+    # Create a cerebro entity
+    cerebro = bt.Cerebro()
+    # Create a Data Feed
+    data = bt.feeds.PandasData(dataname=df, fromdate=start_date, todate=end_date)
+    # Add the Data Feed to Cerebro
+    cerebro.adddata(data)
     cerebro.addstrategy(BollStrategy, nk=13, maperiod=20, printlog=True)  # 加载交易策略
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name="PyFolio")
-    cerebro.broker.setcash(10000.0)  # broker设置资金
-    cerebro.broker.setcommission(commission=0.0005)  # broker手续费
-    cerebro.addsizer(bt.sizers.FixedSize, stake=100)  # 设置买入数量
-    print("期初总资金: %.2f" % 10000.0)
+    # Set our desired cash start
+    cerebro.broker.setcash(10000.0)
+    cerebro.broker.setcommission(commission=0.0005)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    # Print out the starting conditions
+    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
     back = cerebro.run()  # 运行回测
-    end_value = cerebro.broker.getvalue()  # 获取回测结束后的总资金
-    print("期末总资金: %.2f" % end_value)
+    # Print out the final result
+    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
     # cerebro.plotinfo.plotname = "BOLL线 回测结果"
     # cerebro.plot()
