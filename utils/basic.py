@@ -417,8 +417,9 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     dt['长期应付款'] = round(df_zcfz['LONG_PAYABLE'] / 100000000, 2)
 
     # 有息负债=短期借款+一年内到期的非流动负债+长期借款+应付债券+长期应付款
-    dt['有息负债'] = round((df_zcfz['SHORT_LOAN'] + df_zcfz['NONCURRENT_LIAB_1YEAR'] + df_zcfz['LONG_LOAN'] + df_zcfz['LONG_PAYABLE']) / 100000000, 2)
+    dt['有息负债'] = round((df_zcfz['SHORT_LOAN'] + df_zcfz['NONCURRENT_LIAB_1YEAR'] + df_zcfz['LONG_LOAN'] + df_zcfz['LONG_PAYABLE'] + df_zcfz['BOND_PAYABLE']) / 100000000, 2)
     dt['银行存款'] = round(df_zcfz['ACCEPT_DEPOSIT_INTERBANK'] / 100000000, 2)
+    dt['有息负债率'] = round((df_zcfz['SHORT_LOAN'] + df_zcfz['NONCURRENT_LIAB_1YEAR'] + df_zcfz['LONG_LOAN'] + df_zcfz['LONG_PAYABLE'] + df_zcfz['BOND_PAYABLE']) / df_zcfz['TOTAL_LIABILITIES'], 2)
 
     ret_df = pd.DataFrame(dt)
     ret_df = ret_df.fillna(0)
@@ -587,7 +588,7 @@ def get_zygc_data(code, data_date, indicator="全部"):
     return ret_df
 
 if __name__ == "__main__":
-    code = "600519"
+    code = "000977"
     # df = get_basic_info("000737")
     # print(df)
     # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")

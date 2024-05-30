@@ -351,6 +351,7 @@ def transfer_price_freq(df, freq):
 
     return period_stock_data
 
+
 def k_cross_strategy(df):
     """
     策略：k10、k20和k60为负，k10上穿k20买入；k10、k20和k60为正，k10下穿k20卖出；
