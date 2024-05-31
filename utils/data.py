@@ -87,7 +87,7 @@ def get_data(code, start_date, end_date, freq):
     df['DIF'], df['DEA'], df['MACD'] = MACD(df)
 
     # 标记买入和卖出信号
-    df = max_min_strategy(df)
+    df = max_min_low_high_strategy(df)
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 

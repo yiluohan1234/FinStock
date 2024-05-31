@@ -37,7 +37,7 @@ class KLineChart:
         else:
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
-    def plot(self, n=20, area=['V', 'DKC'], width=1100, height=600, klines=[], vlines=[], dmalines=[], jxLines=[],
+    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxLines=[],
              threeLines=[], KLlines=[], KPLlines=[], is_notebook=True):
         '''
         @params:
