@@ -139,37 +139,206 @@ def cal_K_predict(df, precision=2):
     return round(slope, precision)
 
 
-def ema(df_close, window):
+def MA(df, n):
+    """
+    计算简单移动平均值
+    MA(X,N)，求X的N日移动平均值。算法：(X1+X2+X3+，，，+Xn)/N。例如：MA(CLOSE,10)表示求10日均价。
+    :param df: 含有close列的dataframe
+    :type df: pandas.DataFrame
+    :param n: 移动数
+    :type n: int
+    :return: 返回简单移动平均值
+    :rtype: pandas.DataFrame
+    """
+    ma_n = df.close.rolling(n).mean()
+    return ma_n
+
+
+def EMA(df_close, n):
     """
     计算指数移动平均值
-    :param df_close: 收盘dataframe
+    EMA(X,N)，求X的N日指数平滑移动平均。算法：若Y=EMA(X,N)则Y=[2*X+(N-1)*Y']/(N+1)，其中Y'表示上一周期Y值。例如：EMA(CLOSE,30)表示求30日指数平滑均价。
+    :param df_close: 含有close列的dataframe
     :type df_close: pandas.DataFrame
-    :param window: 移动数
-    :type window: int
+    :param n: 移动数
+    :type n: int
     :return: 返回移动平均值
     :rtype: pandas.DataFrame
     """
-    return df_close.ewm(span=window, min_periods=window, adjust=False).mean()
+    ema_n = df_close.ewm(span=n, min_periods=n, adjust=False).mean()
+    return ema_n
 
 
-def cal_macd(df, short=12, long=26, mid=9):
+def MACD(df, short=12, long=26, mid=9):
     """
     计算MACD指标
+    MACD指数平滑异同移动平均线为两条长、短的平滑平均线。参数默认short=12,long=26,M=9
+            DIFF : EMA(CLOSE,SHORT) - EMA(CLOSE,LONG);
+            DEA  : EMA(DIFF,M);
+            MACD : 2*(DIFF-DEA);
+    其买卖原则为：
+        1.DIFF、DEA均为正，DIFF向上突破DEA，买入信号参考。
+        2.DIFF、DEA均为负，DIFF向下跌破DEA，卖出信号参考。
+        3.DEA线与K线发生背离，行情可能出现反转信号。
+        4.分析MACD柱状线，由红变绿(正变负)，卖出信号参考；由绿变红，买入信号参考。
     :param df: datframe数据
     :type df: pandas.DataFrame
-    :param short: 短期天数
+    :param short: short值
     :type short: int
-    :param long: 长期天数
+    :param long: long值
     :type long: int
-    :param mid: 天数
+    :param mid: mid值
     :type mid: int
     :return: 返回MACD指标dif、dea和macd
     :rtype: pandas.DataFrame
     """
-    dif = ema(df.close, short) - ema(df.close, long)
-    dea = ema(dif, mid)
+    dif = EMA(df.close, short) - EMA(df.close, long)
+    dea = EMA(dif, mid)
     macd = (dif - dea) * 2
     return dif, dea, macd
+
+
+def KDJ(df, N=9, M1=3, M2=3):
+    """
+    计算KDJ指标
+    返回k、d、j的值，默认N=9,M1=3,M2=3
+    RSV=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;
+    LLV:求最低值，HHV：求最高值，LOW：当日（周期）最低价，HIGH：当日（周期）最高价
+            a=SMA(RSV,M1,1);
+            b=SMA(a,M2,1);
+            e=3*a-2*b;
+            K:a;D:b;J:e;同花顺中默认N=9,M1=3,M2=3；
+    KDJ指标指标说明
+        KDJ，其综合动量观念、强弱指标及移动平均线的优点，早年应用在期货投资方面，功能颇为显著，目前为股市中最常被使用的指标之一。
+    买卖原则
+        1 K线由右边向下交叉D值做卖，K线由右边向上交叉D值做买。
+        2 高档连续二次向下交叉确认跌势，低挡连续二次向上交叉确认涨势。
+        3 D值<20%超卖，D值>80%超买，J>100%超买，J<10%超卖。
+        4 KD值于50%左右徘徊或交叉时，无意义。
+        5 投机性太强的个股不适用。
+        6 可观察KD值同股价的背离，以确认高低点。
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N: N值
+    :type N: int
+    :param M1: M1值
+    :type M1: int
+    :param M2: M2值
+    :type M2: int
+    :return: 返回KDJ指标k、d和j
+    :rtype: pandas.DataFrame
+    """
+    llv = df.low.rolling(N).min() # 假设你的low是一个pandas.series的对象
+    hhv = df.high.rolling(N).max()
+    rsv = (df.close - llv)/(hhv -llv)*100
+    k = rsv.ewm(M1-1).mean()
+    d = k.ewm(M2-1).mean()
+    j = 3*k - 2*d
+    return k, d, j
+
+
+def RSI(df, N1=6, N2=12, N3=24):
+    """
+    计算RSI指标
+    默认N1=6,N2=12,N3=24，返回6日RSI值、12日RSI值、24日RSI值，RSI一般选用6日、12日、24日作为参考基期
+        LC := REF(CLOSE,1);#上一周期的收盘价
+        RSI$1:SMA(MAX(CLOSE-LC,0),N1,1)/SMA(ABS(CLOSE-LC),N1,1)*100;
+        RSI$2:SMA(MAX(CLOSE-LC,0),N2,1)/SMA(ABS(CLOSE-LC),N2,1)*100;
+        RSI$3:SMA(MAX(CLOSE-LC,0),N3,1)/SMA(ABS(CLOSE-LC),N3,1)*100;
+        a:20;
+        d:80;
+    RSI指标：
+        RSIS为1978年美国作者Wells WidlerJR。所提出的交易方法之一。所谓RSI英文全名为Relative Strenth Index，中文名称为相对强弱指标．RSI的基本原理是在一个正常的股市中，多
+        空买卖双方的力道必须得到均衡，股价才能稳定;而RSI是对于固定期间内，股价上涨总幅度平均值占总幅度平均值的比例。
+        1 RSI值于0-100之间呈常态分配，当6日RSI值为80‰以上时，股市呈超买现象，若出现M头，市场风险较大；当6日RSI值在20‰以下时，股市呈超卖现象，若出现W头，市场机会增大。
+        2 RSI一般选用6日、12日、24日作为参考基期，基期越长越有趋势性(慢速RSI)，基期越短越有敏感性，(快速RSI)。当快速RSI由下往上突破慢速RSI时，机会增大；当快速RSI由上而下跌破慢速RSI时，风险增大。
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N1: N1值
+    :type N1: int
+    :param N2: N2值
+    :type N2: int
+    :param N3: N3值
+    :type N3: int
+    :return: 返回KDJ指标k、d和j
+    :rtype: pandas.DataFrame
+    """
+    lc = df.close.shift(1)
+    # 计算前收盘价
+    max_diff = (df.close - lc)
+    abs_diff = max_diff.copy()
+
+    max_diff[max_diff < 0] = 0  # 实现MAX(CLOSE-LC,0)
+    abs_diff = abs_diff.abs()  # 实现ABS(CLOSE-LC)
+
+    RSI1, RSI2, RSI3 = (max_diff.ewm(N-1).mean()/abs_diff.ewm(N-1).mean()*100 for N in [N1, N2, N3])
+    return RSI1, RSI2, RSI3
+
+
+def BOLL(df, N=20, M=2):
+    """
+    计算BOLL指标
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N: N值
+    :type N: int
+    :param M: M值
+    :type M: int
+    :return: 返回BOLL指标boll、up、down
+    :rtype: pandas.DataFrame
+    """
+    boll = df.close.rolling(20).mean()
+    delta = df.close - boll
+    beta = delta.rolling(20).std()
+    up = boll + 2 * beta
+    down = boll - 2 * beta
+    return boll, up, down
+
+
+def ENE(df, N=10, M=9.0):
+    """
+    计算包络线ENE(10,9,9)
+    ENE代表中轨。MA(CLOSE,N)代表N日均价
+    UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
+    LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N: N值
+    :type N: int
+    :param M: M值
+    :type M: int
+    :return: 返回BOLL指标boll、up、down
+    :rtype: pandas.DataFrame
+    """
+    ene = df.close.rolling(N).mean()
+    upper = (1 + M / 100) * ene
+    lower = (1 - M / 100) * ene
+    return ene, upper, lower
+
+
+def ATR(df, N=14):
+    """
+    求真实波幅的N日移动平均    参数：N 天数，默认取14
+    TR:MAX(MAX((HIGH-LOW),ABS(REF(CLOSE,1)-HIGH)),ABS(REF(CLOSE,1)-LOW));
+    ATR:MA(TR,N);
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N: N值
+    :type N: int
+    :return: 返回ATR
+    :rtype: pandas.DataFrame
+    """
+    maxx = df['high'] - df['low']
+    abs_high = abs(df['close'].shift(1) - df['high'])
+    abs_low = abs(df['close'].shift(1) - df['low'])
+    a = pd.DataFrame()
+    a['maxx'] = maxx.values
+    a['abs_high'] = abs_high.values
+    a['abs_low'] = abs_low.values
+    TR = a.max(axis=1)
+    ATR = TR.rolling(N).mean()
+    STOP = df['close'].shift(1) - ATR * 3  # 止损价=(上一日收盘价-3*ATR)
+    return ATR, STOP
 
 
 def get_macd_data(df, fastperiod=12, slowperiod=26, signalperiod=9):

@@ -7,12 +7,9 @@
 #    > Created Time: 2024年5月20日
 #    > description: 数据获取工具
 #######################################################################
-import akshare as ak
-import datetime
 import time
-import pandas as pd
-from utils.func import cal_K, cal_macd, frb, get_szsh_code, cal_K_predict, k_cross_strategy, max_min_strategy, find_max_min_point, max_min_low_high_strategy
-from utils.cons import ema_list, precision, transfer_date_dic
+from utils.func import *
+from utils.cons import *
 
 
 def get_data(code, start_date, end_date, freq):
@@ -87,7 +84,7 @@ def get_data(code, start_date, end_date, freq):
 
     # 计算MACD
     # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
-    df['DIF'], df['DEA'], df['MACD'] = cal_macd(df)
+    df['DIF'], df['DEA'], df['MACD'] = MACD(df)
 
     # 标记买入和卖出信号
     df = max_min_strategy(df)
@@ -172,7 +169,7 @@ def get_index_data(code, start_date, end_date, freq):
 
     # 计算MACD
     # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
-    df['DIF'], df['DEA'], df['MACD'] = cal_macd(df)
+    df['DIF'], df['DEA'], df['MACD'] = MACD(df)
 
     # 标记买入和卖出信号
     # for i in range(len(df)):
@@ -227,6 +224,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 if __name__ == "__main__":
     time_start = time.time()
     df = get_kline_chart_date(code="000737", start_date='20240101', end_date="20240527", freq='D', zh_index=False)
-    print(df[(df['BUY'] == True) | (df['SELL'] == True)])
+    # print(df[(df['BUY'] == True) | (df['SELL'] == True)])
+    print(df[['ATR', 'stop', 'ATR1', 'STOP1']])
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))
