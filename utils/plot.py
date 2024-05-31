@@ -107,12 +107,12 @@ def K(data, title, klines, jxLines, threeLines) -> Kline:
                 link=[{"xAxisIndex": "all"}],
                 label=opts.LabelOpts(background_color="#777"),
             ),
-            brush_opts=opts.BrushOpts(  # 区域选择组件配置项
-                x_axis_index="all",
-                brush_link="all",
-                out_of_brush={"colorAlpha": 0.1},
-                brush_type="lineX",
-            ),
+            # brush_opts=opts.BrushOpts(  # 区域选择组件配置项
+            #     x_axis_index="all",
+            #     brush_link="all",
+            #     out_of_brush={"colorAlpha": 0.1},
+            #     brush_type="lineX",
+            # ),
         )
     )
 
@@ -906,7 +906,7 @@ def plot_line(data, x, y, title) -> Line:
                     range_end=100,       # 初始显示范围
                 ),
                 opts.DataZoomOpts(
-                    is_show=False,
+                    is_show=True,
                     type_="slider",       # 外部滑动缩放
                     range_start=0,       # 初始显示范围
                     range_end=100,        # 初始显示范围
