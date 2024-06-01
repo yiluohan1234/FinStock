@@ -57,7 +57,7 @@ class KLineChart:
           vline: list           #Volume区域显示的数据，Dataframe中的字段名，如['vma5','vma10','vma20','vma60', 'vma120', 'vma250']
           dmalines: list        #线误差的两个均线选择，如['ma5', 'ma10']
           jxLines: list         #绘制多个颈线的坐标，如jxPoints=[[("2024-03-01",38.80), ("2024-04-09",38.80)], [("2024-01-11",18.80), ("2024-01-31",28.80)]])
-          threeLines: list      #绘制三个涨跌幅满足位颈线的坐标，如[jx, max_y, start_date, end_date]
+          threeLines: list      #绘制三个涨跌幅满足位颈线的坐标，如[jx, max_y, is_up, stage, start_date, end_date]
           KLlines: list         #绘制多个K线，如['k60', 'k120']
           KPLlines: list        #绘制多个预测K线，如['kp60', 'kp120']
           is_notebook: bool     #是否在notebook绘制

@@ -406,7 +406,7 @@ def plot_multi_jx(lines_list) -> Line:
     return _line
 
 
-def get_three_stage(jx, max_y, min_y, is_up=True, is_print=False):
+def get_three_stage(jx, max_y, min_y, is_up=True, stage=3, is_print=False):
     '''
     获取三个涨跌幅满足位
     :param jx: 颈线数据值
@@ -417,6 +417,8 @@ def get_three_stage(jx, max_y, min_y, is_up=True, is_print=False):
     :type min_y: float
     :param is_up: 是否向上
     :type is_up: bool
+    :param stage: 返回满足位阶数
+    :type stage: int
     :param is_print: 是否打印结果
     :type is_print: bool
     :return: 返回三个满足位列表
@@ -446,7 +448,12 @@ def get_three_stage(jx, max_y, min_y, is_up=True, is_print=False):
             print("第一涨幅满足位：{} + {} = {} 元".format(jx, h, one_stage))
             print("第二涨幅满足位：{} + {} = {} 元".format(one_stage, h, two_stage))
             print("第三涨幅满足位：{} + {} = {} 元".format(two_stage, h, three_stage))
-    return [stop_line, one_stage, two_stage, three_stage]
+    if stage == 3:
+        return [stop_line, one_stage, two_stage, three_stage]
+    elif stage == 2:
+        return [stop_line, one_stage, two_stage]
+    elif stage == 1:
+        return [stop_line, one_stage]
 
 
 def plot_three_stage(jxLines) -> Line:
@@ -462,10 +469,11 @@ def plot_three_stage(jxLines) -> Line:
     max_y = jxLines[1]
     min_y = jxLines[2]
     is_up = jxLines[3]
-    start_date = jxLines[4]
-    end_date = jxLines[5]
+    stage = jxLines[4]
+    start_date = jxLines[5]
+    end_date = jxLines[6]
     lines_list = []
-    ret_list = get_three_stage(jx, max_y, min_y, is_up)
+    ret_list = get_three_stage(jx, max_y, min_y, is_up, stage)
     for re in ret_list:
         lines_list.append([(start_date, re), (end_date, re)])
 
