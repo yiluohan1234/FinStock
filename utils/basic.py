@@ -325,7 +325,6 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     '''
     df_zcfz = ak.stock_balance_sheet_by_report_em(symbol=get_szsh_code(code))
     # https://blog.csdn.net/a389085918/article/details/80284812
-    print(df_zcfz.columns.tolist())
     dt = {}
     dt['报告日'] = df_zcfz['REPORT_DATE_NAME']
     dt['REPORT_TYPE'] = df_zcfz['REPORT_TYPE']
@@ -367,7 +366,7 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     dt['资产合计'] = round(df_zcfz['TOTAL_ASSETS'] / 100000000, 2)
     # 流动负债
     dt['应付票据及应付账款'] = round(df_zcfz['NOTE_ACCOUNTS_PAYABLE'] / 100000000, 2)
-    dt['应付帐款'] = round(df_zcfz['ACCOUNTS_PAYABLE'] / 100000000, 2)
+    dt['应付账款'] = round(df_zcfz['ACCOUNTS_PAYABLE'] / 100000000, 2)
     dt['合同负债'] = round(df_zcfz['CONTRACT_LIAB'] / 100000000, 2)
     dt['应付职工薪酬'] = round(df_zcfz['STAFF_SALARY_PAYABLE'] / 100000000, 2)
     dt['应缴税费'] = round(df_zcfz['TAX_PAYABLE'] / 100000000, 2)
