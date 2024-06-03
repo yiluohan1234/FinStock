@@ -55,35 +55,15 @@ def get_data(code, start_date, end_date, freq):
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
 
-    df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
-    df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
-    df['ATR3'] = abs(df['close'].shift(1) - df['low'])  # 上一日收盘价-当日最低价
-    df['ATR4'] = df['ATR1']
-    for i in range(len(df)):  # 取价格波动的最大值
-        if df.loc[i, 'ATR4'] < df.loc[i, 'ATR2']:
-            df.loc[i, 'ATR4'] = df.loc[i, 'ATR2']
-        if df.loc[i, 'ATR4'] < df.loc[i, 'ATR3']:
-            df.loc[i, 'ATR4'] = df.loc[i, 'ATR3']
-    df['ATR'] = df.ATR4.rolling(14).mean()  # N=14的ATR值
-    df['stop'] = df['close'].shift(1) - df['ATR'] * 3  # 止损价=(上一日收盘价-3*ATR)
+    df['ATR'], df['stop'] = ATR(df, 14)
 
     # BOLL计算 取N=20，M=2
-    df['boll'] = df.close.rolling(20).mean()
-    df['delta'] = df.close - df.boll
-    df['beta'] = df.delta.rolling(20).std()
-    df['up'] = df['boll'] + 2 * df['beta']
-    df['down'] = df['boll'] - 2 * df['beta']
+    df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
 
     # 计算包络线ENE(10,9,9)
-    # ENE代表中轨。MA(CLOSE,N)代表N日均价
-    # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
-    # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
-    df['ene'] = df.close.rolling(10).mean()
-    df['upper'] = (1 + 9.0 / 100) * df['ene']
-    df['lower'] = (1 - 9.0 / 100) * df['ene']
+    df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
 
     # 计算MACD
-    # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
     df['DIF'], df['DEA'], df['MACD'] = MACD(df)
 
     # 标记买入和卖出信号
@@ -140,43 +120,20 @@ def get_index_data(code, start_date, end_date, freq):
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
 
-    df['ATR1'] = df['high'] - df['low']  # 当日最高价-最低价
-    df['ATR2'] = abs(df['close'].shift(1) - df['high'])  # 上一日收盘价-当日最高价
-    df['ATR3'] = abs(df['close'].shift(1) - df['low'])  # 上一日收盘价-当日最低价
-    df['ATR4'] = df['ATR1']
-    for i in range(len(df)):  # 取价格波动的最大值
-        if df.loc[i, 'ATR4'] < df.loc[i, 'ATR2']:
-            df.loc[i, 'ATR4'] = df.loc[i, 'ATR2']
-        if df.loc[i, 'ATR4'] < df.loc[i, 'ATR3']:
-            df.loc[i, 'ATR4'] = df.loc[i, 'ATR3']
-    df['ATR'] = df.ATR4.rolling(14).mean()  # N=14的ATR值
-    df['stop'] = df['close'].shift(1) - df['ATR'] * 3  # 止损价=(上一日收盘价-3*ATR)
+    df['ATR'], df['stop'] = ATR(df, 14)
 
     # BOLL计算 取N=20，M=2
-    df['boll'] = df.close.rolling(20).mean()
-    df['delta'] = df.close - df.boll
-    df['beta'] = df.delta.rolling(20).std()
-    df['up'] = df['boll'] + 2 * df['beta']
-    df['down'] = df['boll'] - 2 * df['beta']
+    df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
 
     # 计算包络线ENE(10,9,9)
-    # ENE代表中轨。MA(CLOSE,N)代表N日均价
-    # UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
-    # LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
-    df['ene'] = df.close.rolling(10).mean()
-    df['upper'] = (1 + 9.0 / 100) * df['ene']
-    df['lower'] = (1 - 9.0 / 100) * df['ene']
+    df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
 
     # 计算MACD
-    # df['DIF'], df['DEA'], df['MACD'] = self.get_macd_data(df)
     df['DIF'], df['DEA'], df['MACD'] = MACD(df)
 
     # 标记买入和卖出信号
-    # for i in range(len(df)):
-    #     if df.loc[i, 'close'] > df.loc[i, 'up']:
-    #         df.loc[i, 'SELL'] = True
-    #     if df.loc[i, 'close'] < df.loc[i, 'boll']:
-    #         df.loc[i, 'BUY'] = True
+    df = max_min_low_high_strategy(df)
+
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
@@ -224,7 +181,6 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 if __name__ == "__main__":
     time_start = time.time()
     df = get_kline_chart_date(code="000737", start_date='20240101', end_date="20240527", freq='D', zh_index=False)
-    # print(df[(df['BUY'] == True) | (df['SELL'] == True)])
-    print(df[['ATR', 'stop', 'ATR1', 'STOP1']])
+    print(df[(df['BUY'] == True) | (df['SELL'] == True)])
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))

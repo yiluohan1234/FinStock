@@ -324,6 +324,7 @@ def get_zcfz_data(code, n, data_type=0, is_display=True, ret_columns=zcfz_ret_co
     :rtype: pandas.DataFrame
     '''
     df_zcfz = ak.stock_balance_sheet_by_report_em(symbol=get_szsh_code(code))
+    #print(df_zcfz.columns.tolist())
     # https://blog.csdn.net/a389085918/article/details/80284812
     dt = {}
     dt['报告日'] = df_zcfz['REPORT_DATE_NAME']
@@ -588,9 +589,5 @@ def get_zygc_data(code, data_date, indicator="全部"):
 
 if __name__ == "__main__":
     code = "000977"
-    # df = get_basic_info("000737")
-    # print(df)
-    # zygc_em_df = get_zygc_data("000737", "2023-12-31", indicator="按产品分类")
-    # print(zygc_em_df)
-    df_main_display = get_zcfz_data(code="600519", data_type=0, n=10)
-    print(df_main_display)
+    df_display = get_zcfz_data(code="601877", data_type=4, n=8)
+    print(df_display)
