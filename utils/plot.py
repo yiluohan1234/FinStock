@@ -406,7 +406,7 @@ def plot_multi_jx(lines_list) -> Line:
     return _line
 
 
-def get_three_stage(jx, max_y, min_y, is_up=True, stage=3, is_print=False):
+def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=False):
     '''
     获取三个涨跌幅满足位
     :param jx: 颈线数据值
@@ -415,6 +415,8 @@ def get_three_stage(jx, max_y, min_y, is_up=True, stage=3, is_print=False):
     :type max_y: float
     :param min_y: 颈线下最低值或颈线上最高值
     :type min_y: float
+    :param rate: 止损幅度%
+    :type rate: int
     :param is_up: 是否向上
     :type is_up: bool
     :param stage: 返回满足位阶数
@@ -425,25 +427,25 @@ def get_three_stage(jx, max_y, min_y, is_up=True, stage=3, is_print=False):
     :rtype: list
     '''
     if not is_up:
-        stop_line = round(jx * 1.03, 2)
+        stop_line = round(jx * (1 + rate*1.0/100), 2)
         h = round(max_y - min_y, 2)
         one_stage = round(jx - h, 2)
         two_stage = round(jx - 2 * h, 2)
         three_stage = round(jx - 3 * h, 2)
         if is_print:
-            print("止损位：{}x( 1 + 3% )={}".format(jx, stop_line))
+            print("止损位：{}x( 1 + {}% )={}".format(jx, rate, stop_line))
             print("顶点到颈线的距离：{} - {} = {} 元".format(max_y, min_y, h))
             print("第一跌幅满足位：{} - {} = {} 元".format(jx, h, one_stage))
             print("第二跌幅满足位：{} - {} = {} 元".format(one_stage, h, two_stage))
             print("第三跌幅满足位：{} - {} = {} 元".format(two_stage, h, three_stage))
     else:
-        stop_line = round(jx * 0.97, 2)
+        stop_line = round(jx * (1 - rate*1.0/100), 2)
         h = round(max_y - min_y, 2)
         one_stage = round(jx + h, 2)
         two_stage = round(jx + 2 * h, 2)
         three_stage = round(jx + 3 * h, 2)
         if is_print:
-            print("止损位：{}x( 1 - 3% )={}".format(jx, stop_line))
+            print("止损位：{}x( 1 - {}% )={}".format(jx, rate, stop_line))
             print("顶点到颈线的距离：{} - {} = {} 元".format(jx, max_y, h))
             print("第一涨幅满足位：{} + {} = {} 元".format(jx, h, one_stage))
             print("第二涨幅满足位：{} + {} = {} 元".format(one_stage, h, two_stage))
@@ -468,12 +470,13 @@ def plot_three_stage(jxLines) -> Line:
     jx = jxLines[0]
     max_y = jxLines[1]
     min_y = jxLines[2]
-    is_up = jxLines[3]
-    stage = jxLines[4]
-    start_date = jxLines[5]
-    end_date = jxLines[6]
+    rate = jxLines[3]
+    is_up = jxLines[4]
+    stage = jxLines[5]
+    start_date = jxLines[6]
+    end_date = jxLines[7]
     lines_list = []
-    ret_list = get_three_stage(jx, max_y, min_y, is_up, stage)
+    ret_list = get_three_stage(jx, max_y, min_y, rate, is_up, stage)
     for re in ret_list:
         lines_list.append([(start_date, re), (end_date, re)])
 
