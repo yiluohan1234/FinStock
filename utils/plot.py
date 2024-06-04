@@ -406,7 +406,7 @@ def plot_multi_jx(lines_list) -> Line:
     return _line
 
 
-def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=False):
+def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=True):
     '''
     获取三个涨跌幅满足位
     :param jx: 颈线数据值
@@ -433,11 +433,11 @@ def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=Fals
         two_stage = round(jx - 2 * h, 2)
         three_stage = round(jx - 3 * h, 2)
         if is_print:
-            print("止损位：{}x( 1 + {}% )={}".format(jx, rate, stop_line))
-            print("顶点到颈线的距离：{} - {} = {} 元".format(max_y, min_y, h))
-            print("第一跌幅满足位：{} - {} = {} 元".format(jx, h, one_stage))
-            print("第二跌幅满足位：{} - {} = {} 元".format(one_stage, h, two_stage))
-            print("第三跌幅满足位：{} - {} = {} 元".format(two_stage, h, three_stage))
+            print("止损位：{}x(1 + {}%) = {} 元。\n".format(jx, rate, stop_line))
+            print("顶点到颈线的距离：{} - {} = {} 元。\n".format(max_y, min_y, h))
+            print("第一跌幅满足位：{} - {} = {} 元。\n".format(jx, h, one_stage))
+            print("第二跌幅满足位：{} - {} = {} 元。\n".format(one_stage, h, two_stage))
+            print("第三跌幅满足位：{} - {} = {} 元。".format(two_stage, h, three_stage))
     else:
         stop_line = round(jx * (1 - rate*1.0/100), 2)
         h = round(max_y - min_y, 2)
@@ -445,11 +445,11 @@ def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=Fals
         two_stage = round(jx + 2 * h, 2)
         three_stage = round(jx + 3 * h, 2)
         if is_print:
-            print("止损位：{}x( 1 - {}% )={}".format(jx, rate, stop_line))
-            print("顶点到颈线的距离：{} - {} = {} 元".format(jx, max_y, h))
-            print("第一涨幅满足位：{} + {} = {} 元".format(jx, h, one_stage))
-            print("第二涨幅满足位：{} + {} = {} 元".format(one_stage, h, two_stage))
-            print("第三涨幅满足位：{} + {} = {} 元".format(two_stage, h, three_stage))
+            print("止损位：{}x(1 - {}%)=  {} 元。".format(jx, rate, stop_line))
+            print("顶点到颈线的距离：{} - {} = {} 元。\n".format(jx, max_y, h))
+            print("第一涨幅满足位：{} + {} = {} 元。\n".format(jx, h, one_stage))
+            print("第二涨幅满足位：{} + {} = {} 元。\n".format(one_stage, h, two_stage))
+            print("第三涨幅满足位：{} + {} = {} 元。".format(two_stage, h, three_stage))
     if stage == 3:
         return [stop_line, one_stage, two_stage, three_stage]
     elif stage == 2:
