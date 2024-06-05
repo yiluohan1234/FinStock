@@ -7,13 +7,9 @@
 #    > Created Time: 2024年4月26日
 #    > description: 绘制股票K线
 #######################################################################
-from pyecharts.charts import Line, Grid, EffectScatter
-from pyecharts import options as opts
-import webbrowser
-import os
-from utils.func import get_name
+from utils.func import *
 from utils.data import get_kline_chart_date
-from utils.plot import K, V, MACD, DKC, BIAS, KL, DMA, KPL
+from utils.plot import *
 from utils.cons import precision
 
 

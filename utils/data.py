@@ -10,6 +10,7 @@
 import time
 from utils.func import *
 from utils.cons import *
+import re
 
 
 def get_data(code, start_date, end_date, freq):
@@ -93,19 +94,24 @@ def get_index_data(code, start_date, end_date, freq):
     :return: 返回股票综合数据
     :rtype: pandas.DataFrame
     '''
-    if freq == 'D' or freq == 'W' or freq == 'M':
-        df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date).iloc[:, :6]
+    if bool(re.search("[a-zA-Z]", code)):
+        df = ak.stock_zh_index_daily_em(symbol=code, start_date=start_date, end_date=end_date).iloc[:, :6]
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
-    elif freq == 'min':
-        df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
-        df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-        df["date"] = pd.to_datetime(df["date"])
-        df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
-    # else:
-    #     df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
-    #     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-    #     df = transfer_price_freq(df, freq)
+    else:
+        if freq == 'D' or freq == 'W' or freq == 'M':
+            df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date).iloc[:, :6]
+            df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
+            df["date"] = pd.to_datetime(df["date"])
+        elif freq == 'min':
+            df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
+            df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+            df["date"] = pd.to_datetime(df["date"])
+            df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
+        # else:
+        #     df = ak.stock_zh_index_daily(symbol=code).iloc[:, :6]
+        #     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+        #     df = transfer_price_freq(df, freq)
 
     df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
 
@@ -180,7 +186,8 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="000737", start_date='20240101', end_date="20240527", freq='D', zh_index=False)
-    print(df[(df['BUY'] == True) | (df['SELL'] == True)])
+    df = get_kline_chart_date(code="sh000688", start_date='20240101', end_date="20240527", freq='D', zh_index=True)
+    #print(df[(df['BUY'] == True) | (df['SELL'] == True)])
+    print(df)
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))
