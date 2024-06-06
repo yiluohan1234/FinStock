@@ -406,7 +406,7 @@ def plot_multi_jx(lines_list) -> Line:
     return _line
 
 
-def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=True):
+def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=False):
     '''
     获取三个涨跌幅满足位
     :param jx: 颈线数据值
@@ -445,7 +445,7 @@ def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=True
         two_stage = round(jx + 2 * h, 2)
         three_stage = round(jx + 3 * h, 2)
         if is_print:
-            print("止损位：{}x(1 - {}%)=  {} 元。".format(jx, rate, stop_line))
+            print("止损位：{}x(1 - {}%)=  {} 元。\n".format(jx, rate, stop_line))
             print("顶点到颈线的距离：{} - {} = {} 元。\n".format(jx, max_y, h))
             print("第一涨幅满足位：{} + {} = {} 元。\n".format(jx, h, one_stage))
             print("第二涨幅满足位：{} + {} = {} 元。\n".format(one_stage, h, two_stage))
