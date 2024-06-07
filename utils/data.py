@@ -54,7 +54,7 @@ def get_data(code, start_date, end_date, freq):
             (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
             precision)
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x :cal_K_predict(x, pencentage=3))
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x :cal_K_predict(x))
 
     df['ATR'], df['stop'] = ATR(df, 14)
 
