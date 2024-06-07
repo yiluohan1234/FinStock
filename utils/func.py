@@ -120,9 +120,9 @@ def cal_K1(df, precision=2):
     return round(model.coef_[0], precision)
 
 
-def cal_K_predict(df, precision=2):
+def cal_K_predict(df, pencentage=0, precision=2):
     '''
-    对一段数据进行拟合求斜率,将下一天数据作为新的数据进行预测
+    对一段数据进行拟合求斜率,将下一天收盘数据*（1+pencentage）作为新的数据进行预测
     :param df: 需要设置命名的数据框
     :type df: pandas.DataFrame
     :param precision: 默认保留小数位
@@ -132,7 +132,7 @@ def cal_K_predict(df, precision=2):
     '''
     from scipy.stats import linregress
     y = np.array(df).ravel()
-    y = np.append(y, y[-1])[1:]
+    y = np.append(y, y[-1]*(1+pencentage*1.0/100))[1:]
     x = np.array(range(1, len(y) + 1))
 
     slope, intercept, r_value, p_value, std_err = linregress(x, y) #斜率，截距，相关系数，拟合优度，拟合的均方根误差
