@@ -699,21 +699,21 @@ def KPL(data, n, KPLlines) -> Line:
     k_name = "kp{}".format(n)
 
     c = (Line()
-        .add_xaxis(dateindex)  # X轴数据
-        .add_yaxis(
-        series_name="kp{}".format(n),
-        y_axis=data[k_name].values.tolist(),  # Y轴数据
-        xaxis_index=1,
-        yaxis_index=1,
-        label_opts=opts.LabelOpts(is_show=False),
-        itemstyle_opts=opts.ItemStyleOpts(
-            color='#ef232a'  # '#14b143'
-        ),
-        markline_opts=opts.MarkLineOpts(
-            data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
-            linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+            .add_xaxis(dateindex)  # X轴数据
+            .add_yaxis(
+            series_name="kp{}".format(n),
+            y_axis=data[k_name].values.tolist(),  # Y轴数据
+            xaxis_index=1,
+            yaxis_index=1,
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(
+                color='#ef232a'  # '#14b143'
+            ),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
+                linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+            )
         )
-    )
         .set_global_opts(
         xaxis_opts=opts.AxisOpts(
             type_="category",  # 坐标轴类型-离散数据
@@ -731,17 +731,21 @@ def KPL(data, n, KPLlines) -> Line:
     )
     )
     # 叠加多个k线
+    lines_color = ['green', 'blue', 'cyan', 'yellow', 'orange', 'purple']
     if len(KPLlines) != 0:
         klLine = Line().add_xaxis(dateindex)
-        for i in KPLlines:
+        for i, line in enumerate(KPLlines):
             klLine.add_yaxis(
-                series_name=i,
-                y_axis=round(data[i], precision).values.tolist(),
+                series_name=line,
+                y_axis=round(data[line], precision).values.tolist(),
                 is_smooth=True,
                 is_symbol_show=False,
                 is_hover_animation=False,
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
+                itemstyle_opts=opts.ItemStyleOpts(
+                    color=lines_color[i]  # '#14b143'
+                ),
             )
         klLine.set_global_opts(xaxis_opts=opts.AxisOpts(type_="category", is_show=False))
         c.overlap(klLine)
