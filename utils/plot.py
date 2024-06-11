@@ -16,13 +16,12 @@ from pyecharts.globals import CurrentConfig, NotebookType
 # CurrentConfig.NOTEBOOK_TYPE = NotebookType.JUPYTER_LAB
 CurrentConfig.NOTEBOOK_TYPE = NotebookType.JUPYTER_NOTEBOOK
 CurrentConfig.ONLINE_HOST = 'https://assets.pyecharts.org/assets/'
-from utils.data import get_data
 import os
 import webbrowser
-from utils.cons import precision, prices_cols
-from utils.basic import get_main_indicators_sina, get_lrb_data, get_main_indicators_ths
-from utils.fundflow import get_individual_fund_flow
-
+from utils.cons import *
+from utils.basic import *
+from utils.fundflow import *
+from utils.func import *
 
 def K(data, title, klines, jxLines, threeLines) -> Kline:
     '''
@@ -361,23 +360,23 @@ def MACD(data) -> Bar:
     return c
 
 
-def plot_multi_jx(lines_list) -> Line:
+def plot_multi_jx(jxLines) -> Line:
     '''
     绘制多个颈线，每个颈线由一个list组成
-    :param lines_list: 颈线的开始和结束节点的元组列表
-    :type lines_list: list
+    :param jxLines: 颈线的开始和结束节点的元组列表
+    :type jxLines: list
     :return: 返回自定义颈线的Line对象
     :rtype: Line
     '''
     x_data = []
 
-    for line in lines_list:
+    for line in jxLines:
         for point in line:
-            x_data.append(point[0])
+            x_data.append(transfer_date_format(point[0]))
 
-    if len(lines_list) != 0:
+    if len(jxLines) != 0:
         _line = Line().add_xaxis(x_data)
-        for i, line in enumerate(lines_list):
+        for i, line in enumerate(jxLines):
             y_data = [None for a in range(i*2)]
             for point in line:
                 y_data.append(point[1])
@@ -473,8 +472,8 @@ def plot_three_stage(jxLines) -> Line:
     rate = jxLines[3]
     is_up = jxLines[4]
     stage = jxLines[5]
-    start_date = jxLines[6]
-    end_date = jxLines[7]
+    start_date = transfer_date_format(jxLines[6])
+    end_date = transfer_date_format(jxLines[7])
     lines_list = []
     ret_list = get_three_stage(jx, max_y, min_y, rate, is_up, stage)
     for re in ret_list:

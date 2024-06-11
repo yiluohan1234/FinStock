@@ -54,7 +54,17 @@ def get_data(code, start_date, end_date, freq):
             (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
             precision)
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x :cal_K_predict(x))
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+
+    for i in fib_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
 
     df['ATR'], df['stop'] = ATR(df, 14)
 
@@ -125,6 +135,16 @@ def get_index_data(code, start_date, end_date, freq):
             precision)
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
+
+    for i in fib_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
 
     df['ATR'], df['stop'] = ATR(df, 14)
 

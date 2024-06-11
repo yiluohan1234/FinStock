@@ -692,5 +692,21 @@ def AMPD(data):
     # 这个代码再修改一下，还可以找到第二高的点，第三高的点。在AMPD函数最后一行里面，np.where(p_data == max_window_length-top)[0] 其中top分别为0，1，2就可以代表第一高（波峰），第二高、第三高等。
 
 
+def transfer_date_format(date_string, formats="%Y%m%d"):
+    """
+    尝试统一日期字符串格式，返回格式为YYYY-MM-DD的日期格式或无法解析。
+    :param date_string:日期字符串
+    :param formats: 日期字符串可能的格式列表
+    :return: 格式为YYYY-MM-DD的日期格式或
+    """
+    if '-' in date_string:
+        return date_string
+    from datetime import datetime
+    date_string = date_string.rstrip(', ')
+    #  尝试将日期字符串转换为datetime对象
+    date_object = datetime.strptime(date_string, formats)
+    return date_object.strftime("%Y-%m-%d")
+
+
 if __name__ == "__main__":
     print(get_date_month("20240521"))
