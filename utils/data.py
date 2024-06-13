@@ -7,6 +7,7 @@
 #    > Created Time: 2024年5月20日
 #    > description: 数据获取工具
 #######################################################################
+import pandas as pd
 import time
 from utils.func import *
 from utils.cons import *
@@ -66,16 +67,20 @@ def get_data(code, start_date, end_date, freq):
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
 
-    df['ATR'], df['stop'] = ATR(df, 14)
+    # df['ATR'], df['stop'] = ATR(df, 14)
+    df = pd.concat([df, ATR(df, 14)], axis=1)
 
     # BOLL计算 取N=20，M=2
-    df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
+    # df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
+    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
 
     # 计算包络线ENE(10,9,9)
-    df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
+    # df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
+    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
 
     # 计算MACD
-    df['DIF'], df['DEA'], df['MACD'] = MACD(df)
+    # df['DIF'], df['DEA'], df['MACD'] = MACD(df)
+    df = pd.concat([df, MACD(df)], axis=1)
 
     # 标记买入和卖出信号
     df = max_min_low_high_strategy(df)
@@ -146,16 +151,20 @@ def get_index_data(code, start_date, end_date, freq):
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
 
-    df['ATR'], df['stop'] = ATR(df, 14)
+    # df['ATR'], df['stop'] = ATR(df, 14)
+    df = pd.concat([df, ATR(df, 14)], axis=1)
 
     # BOLL计算 取N=20，M=2
-    df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
+    # df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
+    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
 
     # 计算包络线ENE(10,9,9)
-    df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
+    # df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
+    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
 
     # 计算MACD
-    df['DIF'], df['DEA'], df['MACD'] = MACD(df)
+    # df['DIF'], df['DEA'], df['MACD'] = MACD(df)
+    df = pd.concat([df, MACD(df)], axis=1)
 
     # 标记买入和卖出信号
     df = max_min_low_high_strategy(df)
@@ -206,7 +215,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="sh000688", start_date='20240101', end_date="20240527", freq='D', zh_index=True)
+    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240527", freq='min', zh_index=False)
     #print(df[(df['BUY'] == True) | (df['SELL'] == True)])
     print(df)
     time_end = time.time()

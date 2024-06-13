@@ -192,10 +192,13 @@ def MACD(df, short=12, long=26, mid=9):
     :return: 返回MACD指标dif、dea和macd
     :rtype: pandas.DataFrame
     """
+    dt = {}
     dif = EMA(df.close, short) - EMA(df.close, long)
     dea = EMA(dif, mid)
     macd = (dif - dea) * 2
-    return dif, dea, macd
+    dt['DIF'], dt['DEA'], dt['MACD'] = dif, dea, macd
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def KDJ(df, N=9, M1=3, M2=3):
@@ -228,13 +231,16 @@ def KDJ(df, N=9, M1=3, M2=3):
     :return: 返回KDJ指标k、d和j
     :rtype: pandas.DataFrame
     """
+    dt = {}
     llv = df.low.rolling(N).min() # 假设你的low是一个pandas.series的对象
     hhv = df.high.rolling(N).max()
     rsv = (df.close - llv)/(hhv -llv)*100
     k = rsv.ewm(M1-1).mean()
     d = k.ewm(M2-1).mean()
     j = 3*k - 2*d
-    return k, d, j
+    dt['K'], dt['D'], dt['J'] = k, d, j
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def RSI(df, N1=6, N2=12, N3=24):
@@ -263,6 +269,7 @@ def RSI(df, N1=6, N2=12, N3=24):
     :return: 返回KDJ指标k、d和j
     :rtype: pandas.DataFrame
     """
+    dt = {}
     lc = df.close.shift(1)
     # 计算前收盘价
     max_diff = (df.close - lc)
@@ -272,7 +279,9 @@ def RSI(df, N1=6, N2=12, N3=24):
     abs_diff = abs_diff.abs()  # 实现ABS(CLOSE-LC)
 
     RSI1, RSI2, RSI3 = (max_diff.ewm(N-1).mean()/abs_diff.ewm(N-1).mean()*100 for N in [N1, N2, N3])
-    return RSI1, RSI2, RSI3
+    dt['RSI1'], dt['RSI2'], dt['RSI3'] = RSI1, RSI2, RSI3
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def BOLL(df, N=20, M=2):
@@ -287,12 +296,15 @@ def BOLL(df, N=20, M=2):
     :return: 返回BOLL指标boll、up、down
     :rtype: pandas.DataFrame
     """
+    dt = {}
     boll = df.close.rolling(20).mean()
     delta = df.close - boll
     beta = delta.rolling(20).std()
     up = boll + 2 * beta
     down = boll - 2 * beta
-    return boll, up, down
+    dt['boll'], dt['up'], dt['down'] = boll, up, down
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def ENE(df, N=10, M=9.0):
@@ -310,10 +322,13 @@ def ENE(df, N=10, M=9.0):
     :return: 返回BOLL指标boll、up、down
     :rtype: pandas.DataFrame
     """
+    dt = {}
     ene = df.close.rolling(N).mean()
     upper = (1 + M / 100) * ene
     lower = (1 - M / 100) * ene
-    return ene, upper, lower
+    dt['ene'], dt['upper'], dt['lower'] = ene, upper, lower
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def ATR(df, N=14):
@@ -328,6 +343,7 @@ def ATR(df, N=14):
     :return: 返回ATR
     :rtype: pandas.DataFrame
     """
+    dt = {}
     maxx = df['high'] - df['low']
     abs_high = abs(df['close'].shift(1) - df['high'])
     abs_low = abs(df['close'].shift(1) - df['low'])
@@ -338,7 +354,9 @@ def ATR(df, N=14):
     TR = a.max(axis=1)
     ATR = TR.rolling(N).mean()
     STOP = df['close'].shift(1) - ATR * 3  # 止损价=(上一日收盘价-3*ATR)
-    return ATR, STOP
+    dt['ATR'], dt['stop'] = ATR, STOP
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def get_macd_data(df, fastperiod=12, slowperiod=26, signalperiod=9):
