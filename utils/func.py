@@ -552,9 +552,9 @@ def transfer_price_freq(df, freq):
     return period_stock_data
 
 
-def k_cross_strategy(df):
+def k_cross_multi_line_strategy(df):
     """
-    策略：k10、k20和k60为负，k10上穿k20买入；k10、k20和k60为正，k10下穿k20卖出；
+    策略：k10、k20和k60为多头，k10上穿k20买入；k10、k20和k60为空头，k10下穿k20卖出；
     :param df: 数据
     :type df: pandas.DataFrame
     :return: 标记后的数据
@@ -562,18 +562,32 @@ def k_cross_strategy(df):
     """
     dt = {}
     condition_buy = (df['k10'] > df['k20']) & (df['k10'].shift() < df['k20'].shift()) & \
-                 (df['k10'] < 0) & (df['k20'] < 0) & (df['k60'] < 0) & \
                  (df['k10'] > df['k10'].shift()) & (df['k20'] > df['k20'].shift()) & (df['k60'] >= df['k60'].shift())
 
     condition_sell = (df['k10'] < df['k20']) & (df['k10'].shift() > df['k20'].shift()) & \
-                    (df['k10'] > 0) & (df['k20'] > 0) & (df['k60'] > 0) & \
                     (df['k10'] < df['k10'].shift()) & (df['k20'] < df['k20'].shift()) & (df['k60'] <= df['k60'].shift())
     dt['BUY'], dt['SELL'] = condition_buy, condition_sell
     ret = pd.DataFrame(dt)
     return ret
 
 
-def max_min_strategy(df, k_name='k20'):
+def sma_boll_strategy(df):
+    """
+    收盘小于ma10买入，高于boll的up卖出
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 索引值
+    :rtype: pandas.DataFrame
+    """
+    dt = {}
+    condition_buy = (df['close'] < df['ma10'])
+    condition_sell = (df['close'] > df['up'])
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def k_max_min_strategy(df, k_name='k20'):
     """
     策略：k_name最小值买入；k_name最大值卖出；
     :param df: 数据
@@ -615,9 +629,9 @@ def max_min_low_high_strategy(df, k_name='k20'):
     return ret
 
 
-def max_min_low_high_strategy_pre(df, k_name='kp10'):
+def kp_max_min_multi_line_strategy(df, k_name='kp10'):
     """
-    策略：kp10、kp20和k60为负，k_name最小值买入；k10、k20和k60为正，k_name最大值卖出；
+    策略：kp10、kp20和kp60为多头，k_name最小值买入；kp10、kp20和kp60为空头，k_name最大值卖出；
     :param df: 数据
     :type df: pandas.DataFrame
     :param k_name: 斜率名字
@@ -627,10 +641,10 @@ def max_min_low_high_strategy_pre(df, k_name='kp10'):
     """
     dt = {}
     condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2)) & \
-                    (df['kp10'] < 0) & (df['kp20'] < 0) & (df['kp60'] < 0)
+                    (df['kp10'] > df['kp10'].shift()) & (df['kp20'] > df['kp20'].shift()) & (df['kp60'] >= df['kp60'].shift())
 
     condition_sell = (df[k_name] < df[k_name].shift()) & (df[k_name].shift() >= df[k_name].shift(2)) & \
-                     (df['kp10'] > 0) & (df['kp20'] > 0) & (df['kp60'] > 0)
+                     (df['kp10'] < df['kp10'].shift()) & (df['kp20'] < df['kp20'].shift()) & (df['kp60'] <= df['kp60'].shift())
     dt['BUY'], dt['SELL'] = condition_buy, condition_sell
     ret = pd.DataFrame(dt)
     return ret
@@ -656,7 +670,7 @@ def boll_condition(df, name):
     return ret
 
 
-def KDJ_condition(df, name):
+def kdj_condition(df, name):
     # 第三个策略：K线上穿D线,0.2
     dt = {}
     condition = (df['K'] > df['D']) & (df['K'].shift() < df['D'].shift())
@@ -665,7 +679,7 @@ def KDJ_condition(df, name):
     return ret
 
 
-def RSI_condition(df, name):
+def rsi_condition(df, name):
     # 第四个策略：RSI指标信号,0.3
     dt = {}
     condition = (df['RSI14'] > 80) | (df['RSI14'] < 20)
@@ -697,22 +711,6 @@ def find_max_min_point(df, k_name='k20'):
         if (i in peaks.tolist()) and \
             (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0):
             df.loc[i, 'SELL'] = True
-    return df
-
-
-def sma_boll_strategy(df):
-    """
-    收盘小于ma10买入，高于boll的up卖出
-    :param df: 数据
-    :type df: pandas.DataFrame
-    :return: 索引值
-    :rtype: pandas.DataFrame
-    """
-    for i in range(len(df)):
-        if df.loc[i, 'close'] > df.loc[i, 'up']:
-            df.loc[i, 'SELL'] = True
-        if df.loc[i, 'close'] < df.loc[i, 'ma10']:
-            df.loc[i, 'BUY'] = True
     return df
 
 
