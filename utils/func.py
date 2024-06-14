@@ -606,7 +606,7 @@ def k_max_min_strategy(df, k_name='k20'):
     return ret
 
 
-def max_min_low_high_strategy(df, k_name='k20'):
+def k20_max_min_low_high_strategy(df):
     """
     策略：k10、k20和k60为负，k_name最小值买入；k10、k20和k60为正，k_name最大值卖出；
     :param df: 数据
@@ -617,11 +617,11 @@ def max_min_low_high_strategy(df, k_name='k20'):
     :rtype: pandas.DataFrame
     """
     dt = {}
-    condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2)) & \
+    condition_buy = (df['k20'] > df['k20'].shift()) & (df['k20'].shift() <= df['k20'].shift(2)) & \
                     (df['k10'] < 0) & (df['k20'] < 0) & (df['k60'] < 0) & \
                     (df['k10'] > df['k10'].shift()) & (df['k60'] >= df['k60'].shift())
 
-    condition_sell = (df[k_name] < df[k_name].shift()) & (df[k_name].shift() >= df[k_name].shift(2)) & \
+    condition_sell = (df['k20'] < df['k20'].shift()) & (df['k20'].shift() >= df['k20'].shift(2)) & \
                      (df['k10'] > 0) & (df['k20'] > 0) & (df['k60'] > 0) & \
                      (df['k10'] < df['k10'].shift()) & (df['k60'] <= df['k60'].shift())
     dt['BUY'], dt['SELL'] = condition_buy, condition_sell
@@ -655,7 +655,6 @@ def ma_bias_condition(df, name):
     dt = {}
     # 第一个策略：均线和BIAS指标信号
     condition1 = (df['ma5'] > df['ma10']) & (df['ma5'] > df['ma20']) & (df['bias5'] > df['bias10']) & (df['bias5'] > df['bias20'])
-    #signals += 0.2 * condition1.astype(int)
     dt[name] = condition1.apply(lambda x: 1 if x else -1)
     ret = pd.DataFrame(dt)
     return ret
@@ -682,7 +681,7 @@ def kdj_condition(df, name):
 def rsi_condition(df, name):
     # 第四个策略：RSI指标信号,0.3
     dt = {}
-    condition = (df['RSI14'] > 80) | (df['RSI14'] < 20)
+    condition = (df['RSI24'] > 80) | (df['RSI24'] < 20)
     dt[name] = condition.apply(lambda x: 1 if x else -1)
     ret = pd.DataFrame(dt)
     return ret
