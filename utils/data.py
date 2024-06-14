@@ -167,7 +167,7 @@ def get_index_data(code, start_date, end_date, freq):
     df = pd.concat([df, MACD(df)], axis=1)
 
     # 标记买入和卖出信号
-    df = max_min_low_high_strategy(df)
+    df = pd.concat([df, k_cross_multi_line_strategy(df)], axis=1)
 
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
