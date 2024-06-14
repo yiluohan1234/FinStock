@@ -83,7 +83,8 @@ def get_data(code, start_date, end_date, freq):
     df = pd.concat([df, MACD(df)], axis=1)
 
     # 标记买入和卖出信号
-    df = max_min_low_high_strategy(df)
+    # df = max_min_low_high_strategy(df)
+    df = pd.concat([df, max_min_low_high_strategy(df)], axis=1)
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
@@ -215,8 +216,8 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240527", freq='min', zh_index=False)
-    #print(df[(df['BUY'] == True) | (df['SELL'] == True)])
-    print(df)
+    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240613", freq='D', zh_index=False)
+    print(df[(df['BUY'] == True) | (df['SELL'] == True)])
+    # print(df)
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))

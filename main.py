@@ -20,7 +20,7 @@ pd.set_option('display.max_columns', None)
 
 
 def main(code):
-    k = KLineChart(code, start_date="20230101")
+    k = KLineChart(code, start_date="20230601")
     k.plot(n=20, area=['V', 'KL', 'KPL'], width=1600, height=900,
            # klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250', 'ene', 'upper', 'lower'],
            vlines=['vma10', 'vma20'], dmalines=['ma10', 'ma60'],

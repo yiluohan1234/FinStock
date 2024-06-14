@@ -279,7 +279,7 @@ def RSI(df, N1=6, N2=12, N3=24):
     abs_diff = abs_diff.abs()  # 实现ABS(CLOSE-LC)
 
     RSI1, RSI2, RSI3 = (max_diff.ewm(N-1).mean()/abs_diff.ewm(N-1).mean()*100 for N in [N1, N2, N3])
-    dt['RSI1'], dt['RSI2'], dt['RSI3'] = RSI1, RSI2, RSI3
+    dt['RSI{}'.format(N1)], dt['RSI{}'.format(N2)], dt['RSI{}'.format(N3)] = RSI1, RSI2, RSI3
     ret = pd.DataFrame(dt)
     return ret
 
@@ -560,18 +560,17 @@ def k_cross_strategy(df):
     :return: 标记后的数据
     :rtype: pandas.DataFrame
     """
-    for i in range(len(df)):
-        if i == 0:
-            continue
-        if (df.loc[i, 'k10'] > df.loc[i, 'k20'] and df.loc[i-1, 'k10'] < df.loc[i-1, 'k20']) and \
-            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
-            (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k20'] > df.loc[i-1, 'k20'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
-            df.loc[i, 'BUY'] = True
-        if (df.loc[i, 'k10'] < df.loc[i, 'k20'] and df.loc[i-1, 'k10'] > df.loc[i-1, 'k20']) and \
-            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
-            (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k20'] < df.loc[i-1, 'k20'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
-            df.loc[i, 'SELL'] = True
-    return df
+    dt = {}
+    condition_buy = (df['k10'] > df['k20']) & (df['k10'].shift() < df['k20'].shift()) & \
+                 (df['k10'] < 0) & (df['k20'] < 0) & (df['k60'] < 0) & \
+                 (df['k10'] > df['k10'].shift()) & (df['k20'] > df['k20'].shift()) & (df['k60'] >= df['k60'].shift())
+
+    condition_sell = (df['k10'] < df['k20']) & (df['k10'].shift() > df['k20'].shift()) & \
+                    (df['k10'] > 0) & (df['k20'] > 0) & (df['k60'] > 0) & \
+                    (df['k10'] < df['k10'].shift()) & (df['k20'] < df['k20'].shift()) & (df['k60'] <= df['k60'].shift())
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def max_min_strategy(df, k_name='k20'):
@@ -584,14 +583,13 @@ def max_min_strategy(df, k_name='k20'):
     :return: 标记后的数据
     :rtype: pandas.DataFrame
     """
-    for i in range(len(df)):
-        if i < 2:
-            continue
-        if df.loc[i, k_name] > df.loc[i - 1, k_name] and df.loc[i - 1, k_name] <= df.loc[i - 2, k_name]:
-            df.loc[i, 'BUY'] = True
-        if df.loc[i, k_name] < df.loc[i - 1, k_name] and df.loc[i - 1, k_name] >= df.loc[i - 2, k_name]:
-            df.loc[i, 'SELL'] = True
-    return df
+    dt = {}
+    condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2))
+
+    condition_sell = (df[k_name] < df[k_name].shift()) & (df[k_name].shift() >= df[k_name].shift(2))
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def max_min_low_high_strategy(df, k_name='k20'):
@@ -604,18 +602,17 @@ def max_min_low_high_strategy(df, k_name='k20'):
     :return: 标记后的数据
     :rtype: pandas.DataFrame
     """
-    for i in range(len(df)):
-        if i < 2:
-            continue
-        if (df.loc[i, k_name] > df.loc[i-1, k_name] and df.loc[i-1, k_name] <= df.loc[i-2, k_name]) and \
-            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0) and \
-            (df.loc[i, 'k10'] > df.loc[i-1, 'k10'] and df.loc[i, 'k60'] >= df.loc[i-1, 'k60']):
-            df.loc[i, 'BUY'] = True
-        if (df.loc[i, k_name] < df.loc[i-1, k_name] and df.loc[i-1, k_name] >= df.loc[i-2, k_name]) and \
-            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0) and \
-            (df.loc[i, 'k10'] < df.loc[i-1, 'k10'] and df.loc[i, 'k60'] <= df.loc[i-1, 'k60']):
-            df.loc[i, 'SELL'] = True
-    return df
+    dt = {}
+    condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2)) & \
+                    (df['k10'] < 0) & (df['k20'] < 0) & (df['k60'] < 0) & \
+                    (df['k10'] > df['k10'].shift()) & (df['k60'] >= df['k60'].shift())
+
+    condition_sell = (df[k_name] < df[k_name].shift()) & (df[k_name].shift() >= df[k_name].shift(2)) & \
+                     (df['k10'] > 0) & (df['k20'] > 0) & (df['k60'] > 0) & \
+                     (df['k10'] < df['k10'].shift()) & (df['k60'] <= df['k60'].shift())
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def max_min_low_high_strategy_pre(df, k_name='kp10'):
@@ -628,15 +625,53 @@ def max_min_low_high_strategy_pre(df, k_name='kp10'):
     :return: 标记后的数据
     :rtype: pandas.DataFrame
     """
-    for i in range(len(df)):
-        if i < 2:
-            continue
-        if (df.loc[i, k_name] > df.loc[i-1, k_name] and df.loc[i-1, k_name] < df.loc[i-2, k_name]) and \
-            df.loc[i, 'kp10'] < 0 and df.loc[i, 'kp20'] < 0 and df.loc[i, 'kp60'] < 0:
-            df.loc[i, 'BUY'] = True
-        if df.loc[i, k_name] < df.loc[i-1, k_name] and df.loc[i-1, k_name] > df.loc[i-2, k_name]:
-            df.loc[i, 'SELL'] = True
-    return df
+    dt = {}
+    condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2)) & \
+                    (df['kp10'] < 0) & (df['kp20'] < 0) & (df['kp60'] < 0)
+
+    condition_sell = (df[k_name] < df[k_name].shift()) & (df[k_name].shift() >= df[k_name].shift(2)) & \
+                     (df['kp10'] > 0) & (df['kp20'] > 0) & (df['kp60'] > 0)
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def ma_bias_condition(df, name):
+
+    dt = {}
+    # 第一个策略：均线和BIAS指标信号
+    condition1 = (df['ma5'] > df['ma10']) & (df['ma5'] > df['ma20']) & (df['bias5'] > df['bias10']) & (df['bias5'] > df['bias20'])
+    #signals += 0.2 * condition1.astype(int)
+    dt[name] = condition1.apply(lambda x: 1 if x else -1)
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def boll_condition(df, name):
+    # 第二个策略：股价低于BOLL线底,0.3
+    dt = {}
+    condition = (df['close'] < df['down'])
+    dt[name] = condition.apply(lambda x: 1 if x else -1)
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def KDJ_condition(df, name):
+    # 第三个策略：K线上穿D线,0.2
+    dt = {}
+    condition = (df['K'] > df['D']) & (df['K'].shift() < df['D'].shift())
+    dt[name] = condition.apply(lambda x: 1 if x else -1)
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def RSI_condition(df, name):
+    # 第四个策略：RSI指标信号,0.3
+    dt = {}
+    condition = (df['RSI14'] > 80) | (df['RSI14'] < 20)
+    dt[name] = condition.apply(lambda x: 1 if x else -1)
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def find_max_min_point(df, k_name='k20'):
