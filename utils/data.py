@@ -83,7 +83,7 @@ def get_data(code, start_date, end_date, freq):
     df = pd.concat([df, MACD(df)], axis=1)
 
     # 标记买入和卖出信号
-    df = pd.concat([df, k_cross_multi_line_strategy(df)], axis=1)
+    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
     # 过滤日期
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 

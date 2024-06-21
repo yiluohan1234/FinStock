@@ -698,19 +698,16 @@ def find_max_min_point(df, k_name='k20'):
     :rtype: numpy.ndarray
     """
     series = np.array(df[k_name])
-    peaks, _ = find_peaks(series)  # 纵轴局部最高点
-    mins, _ = find_peaks(series*-1)  # 纵轴局部最低点
+    peaks, _ = find_peaks(series, distance=10)  # 纵轴局部最高点
+    mins, _ = find_peaks(series*-1, distance=10)  # 纵轴局部最低点
 
-    for i in range(len(df)):
-        if i == 0:
-            continue
-        if (i in mins.tolist()) and \
-            (df.loc[i, 'k10'] < 0 and df.loc[i, 'k20'] < 0 and df.loc[i, 'k60'] < 0):
-            df.loc[i, 'BUY'] = True
-        if (i in peaks.tolist()) and \
-            (df.loc[i, 'k10'] > 0 and df.loc[i, 'k20'] > 0 and df.loc[i, 'k60'] > 0):
-            df.loc[i, 'SELL'] = True
-    return df
+    dt = {}
+    condition_buy = df[k_name].index.isin(mins.tolist())
+    condition_sell = df[k_name].index.isin(peaks.tolist())
+
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
 
 
 def AMPD(data):
