@@ -801,6 +801,51 @@ def DMA(data, n, dmalines) -> Line:
     return c
 
 
+def MULTI_LINE(data, multiLines) -> Line:
+    '''
+    绘制多条线图
+    :param data: 数据
+    :type data: pandas.DataFrame
+    :param multiLines: 预测斜率列表，['kp5', 'kp10']
+    :type multiLines: list
+    :return: 返回预测斜率Line对象
+    :rtype: Line
+    '''
+    dateindex = data.index.strftime("%Y-%m-%d").tolist()
+    lines_color = ['red', 'green', 'blue', 'cyan', 'yellow', 'orange', 'purple']
+    if len(multiLines) != 0:
+        _line = Line().add_xaxis(dateindex)
+        for i, line in enumerate(multiLines):
+            _line.add_yaxis(
+                series_name=line,
+                y_axis=round(data[line], precision).values.tolist(),
+                is_smooth=True,
+                is_symbol_show=False,
+                is_hover_animation=False,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
+                itemstyle_opts=opts.ItemStyleOpts(
+                    color=lines_color[i]
+                ),
+            )
+            _line.set_global_opts(
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",  # 坐标轴类型-离散数据
+                    grid_index=1,
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                ),
+                legend_opts=opts.LegendOpts(is_show=False),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False), # 不显示刻度线
+                    # splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
+            )
+    return _line
+
+
 def plot_jx(points_list) -> Line:
     '''
     绘制一个颈线

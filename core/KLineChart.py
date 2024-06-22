@@ -34,7 +34,7 @@ class KLineChart:
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
     def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxLines=[],
-             threeLines=[], KLlines=[], KPLlines=[], is_notebook=True):
+             threeLines=[], KLlines=[], KPLlines=[], multiLines=[], is_notebook=True):
         '''
         @params:
         - n:int                 #抵扣差、乖离率、斜率的计算天数
@@ -56,6 +56,7 @@ class KLineChart:
           threeLines: list      #绘制三个涨跌幅满足位颈线的坐标，如[jx, max_y, is_up, stage, start_date, end_date]
           KLlines: list         #绘制多个K线，如['k60', 'k120']
           KPLlines: list        #绘制多个预测K线，如['kp60', 'kp120']
+          multiLines: list      #绘制多个直线，如['kp60', 'kp120']
           is_notebook: bool     #是否在notebook绘制
         - sample:
            chart=data.plot(area=[['V','DKC'],'V'],vlines=['vMA5','vMA10'],klines=['ma5','ma10'])
@@ -122,6 +123,8 @@ class KLineChart:
                 window = KPL(self.data, n, KPLlines)
             elif w == 'DMA':
                 window = DMA(self.data, n, dmalines)
+            elif w == 'MUL':
+                window = MULTI_LINE(self.data, multiLines)
             else:
                 window = Line().add_xaxis(self.dateindex)
                 if isinstance(w, list):

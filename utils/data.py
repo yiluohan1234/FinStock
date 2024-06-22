@@ -82,6 +82,9 @@ def get_data(code, start_date, end_date, freq):
     # df['DIF'], df['DEA'], df['MACD'] = MACD(df)
     df = pd.concat([df, MACD(df)], axis=1)
 
+    # 计算KDJ
+    df = pd.concat([df, KDJ(df)], axis=1)
+
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
     # 过滤日期
