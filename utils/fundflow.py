@@ -216,9 +216,9 @@ def get_gdhs_detail(code):
 
 if __name__ == "__main__":
     code = "000737"
-    # k = get_individual_fund_flow_rank(code, is_display=True)
-    # print(k)
-    k = get_individual_fund_flow(code, 10)
-    print(k)
-    # k = get_north_data(start_date="20240501", end_date="20240520")
-    # print(k)
+    print("----------------------------- 近日资金流动 -----------------------------")
+    df_display = get_individual_fund_flow_rank(code, is_display=True)
+    print(df_display)
+    print("----------------------------- 近13日资金流动 -----------------------------")
+    df_fund_111_display = get_individual_fund_flow(code, 13)
+    print(df_fund_111_display)
