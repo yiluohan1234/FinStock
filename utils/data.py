@@ -71,19 +71,19 @@ def get_data(code, start_date, end_date, freq):
     df = pd.concat([df, ATR(df, 14)], axis=1)
 
     # BOLL计算 取N=20，M=2
-    # df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
     df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
 
     # 计算包络线ENE(10,9,9)
-    # df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
     df = pd.concat([df, ENE(df, 10, 9)], axis=1)
 
     # 计算MACD
-    # df['DIF'], df['DEA'], df['MACD'] = MACD(df)
     df = pd.concat([df, MACD(df)], axis=1)
 
     # 计算KDJ
     df = pd.concat([df, KDJ(df)], axis=1)
+
+    # 计算RSI
+    df = pd.concat([df, RSI(df)], axis=1)
 
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
@@ -158,16 +158,19 @@ def get_index_data(code, start_date, end_date, freq):
     df = pd.concat([df, ATR(df, 14)], axis=1)
 
     # BOLL计算 取N=20，M=2
-    # df['boll'], df['up'], df['down'] = BOLL(df, 20, 2)
     df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
 
     # 计算包络线ENE(10,9,9)
-    # df['ene'], df['upper'], df['lower'] = ENE(df, 10, 9)
     df = pd.concat([df, ENE(df, 10, 9)], axis=1)
 
     # 计算MACD
-    # df['DIF'], df['DEA'], df['MACD'] = MACD(df)
     df = pd.concat([df, MACD(df)], axis=1)
+
+    # 计算KDJ
+    df = pd.concat([df, KDJ(df)], axis=1)
+
+    # 计算RSI
+    df = pd.concat([df, RSI(df)], axis=1)
 
     # 标记买入和卖出信号
     df = pd.concat([df, k_cross_multi_line_strategy(df)], axis=1)
