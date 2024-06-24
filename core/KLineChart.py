@@ -67,7 +67,7 @@ class KLineChart:
             animation_opts=opts.AnimationOpts(animation=False),
         ))
         )
-        c = K(self.data, self.title, klines, jxLines, threeLines, self.dateindex)
+        c = K(self.dateindex, self.data, self.title, klines, jxLines, threeLines)
         iTop = 10
         iButton = 10
         iWindows = len(area)
