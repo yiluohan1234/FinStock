@@ -119,7 +119,7 @@ def get_index_data(code, start_date, end_date, freq):
     else:
         if freq == 'D' or freq == 'W' or freq == 'M':
             df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date).iloc[:, :6]
-            df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+            df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
             df["date"] = pd.to_datetime(df["date"])
         elif freq == 'min':
             df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
@@ -221,7 +221,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240613", freq='min', zh_index=False)
+    df = get_kline_chart_date(code="000001", start_date='20240101', end_date="20240613", freq='D', zh_index=True)
     print(df[(df['BUY'] == True) | (df['SELL'] == True)])
     # print(df)
     time_end = time.time()
