@@ -29,7 +29,7 @@ class KLineChart:
         self.data = df.copy()
 
         if freq == 'min':
-            self.dateindex = df.index.strftime('%Y-%m-%d %H').tolist()
+            self.dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
         else:
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
@@ -67,7 +67,7 @@ class KLineChart:
             animation_opts=opts.AnimationOpts(animation=False),
         ))
         )
-        c = K(self.data, self.title, klines, jxLines, threeLines)
+        c = K(self.data, self.title, klines, jxLines, threeLines, self.dateindex)
         iTop = 10
         iButton = 10
         iWindows = len(area)
@@ -110,21 +110,21 @@ class KLineChart:
 
 
             elif w == 'V':
-                window = V(self.data, vlines)
+                window = V(self.dateindex, self.data, vlines)
             elif w == 'M':
-                window = MACD(self.data)
+                window = MACD(self.dateindex, self.data)
             elif w == 'DKC':
-                window = DKC(self.data, n)
+                window = DKC(self.dateindex, self.data, n)
             elif w == 'BIAS':
-                window = BIAS(self.data, n)
+                window = BIAS(self.dateindex, self.data, n)
             elif w == 'KL':
-                window = KL(self.data, n, KLlines)
+                window = KL(self.dateindex, self.data, n, KLlines)
             elif w == 'KPL':
-                window = KPL(self.data, n, KPLlines)
+                window = KPL(self.dateindex, self.data, n, KPLlines)
             elif w == 'DMA':
-                window = DMA(self.data, n, dmalines)
+                window = DMA(self.dateindex, self.data, dmalines)
             elif w == 'MUL':
-                window = MULTI_LINE(self.data, multiLines)
+                window = MULTI_LINE(self.dateindex, self.data, multiLines)
             else:
                 window = Line().add_xaxis(self.dateindex)
                 if isinstance(w, list):

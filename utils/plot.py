@@ -23,9 +23,11 @@ from utils.basic import *
 from utils.fundflow import *
 from utils.func import *
 
-def K(data, title, klines, jxLines, threeLines) -> Kline:
+def K(dateindex, data, title, klines, jxLines, threeLines) -> Kline:
     '''
     绘制k线图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param title: Kline的标题
@@ -39,7 +41,6 @@ def K(data, title, klines, jxLines, threeLines) -> Kline:
     :return: 返回Kline对象
     :rtype: Kline
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     data_k = data[prices_cols].values.tolist()
     c = (Kline()
         .add_xaxis(dateindex)
@@ -143,7 +144,10 @@ def K(data, title, klines, jxLines, threeLines) -> Kline:
 
     # 叠加买卖标记
     if 'BUY' in data.columns:
-        v1 = data[data['BUY'] == True].index.strftime("%Y-%m-%d").tolist()
+        if len(dateindex[0]) == 10:
+            v1 = data[data['BUY'] == True].index.strftime("%Y-%m-%d").tolist()
+        else:
+            v1 = data[data['BUY'] == True].index.strftime("%Y-%m-%d %H:%M").tolist()
         v2 = data[data['BUY'] == True]['close'].values.tolist()
         es_buy = (
             Scatter()
@@ -165,7 +169,10 @@ def K(data, title, klines, jxLines, threeLines) -> Kline:
         c.overlap(es_buy)
 
     if 'SELL' in data.columns:
-        v1 = data[data['SELL'] == True].index.strftime("%Y-%m-%d").tolist()
+        if len(dateindex[0]) == 10:
+            v1 = data[data['SELL'] == True].index.strftime("%Y-%m-%d").tolist()
+        else:
+            v1 = data[data['SELL'] == True].index.strftime("%Y-%m-%d %H:%M").tolist()
         v2 = data[data['SELL'] == True]['close'].values.tolist()
         es_sell = (
             Scatter()
@@ -190,9 +197,11 @@ def K(data, title, klines, jxLines, threeLines) -> Kline:
     return c
 
 
-def V(data, vlines) -> Bar:
+def V(dateindex, data, vlines) -> Bar:
     '''
     绘制成交量图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param vlines: 成交量均线列表
@@ -200,7 +209,6 @@ def V(data, vlines) -> Bar:
     :return: 返回成交量的Bar对象
     :rtype: Bar
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     db = data[['volume', 'f']].reset_index()
     db['i'] = db.index
     v = (Bar()
@@ -278,15 +286,16 @@ def V(data, vlines) -> Bar:
     return v
 
 
-def MACD(data) -> Bar:
+def MACD(dateindex, data) -> Bar:
     '''
     绘制MACD图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :return: 返回MACD的Bar对象
     :rtype: Bar
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     c = (Bar()
         .add_xaxis(dateindex)
         .add_yaxis(
@@ -517,9 +526,11 @@ def plot_three_stage(jxLines) -> Line:
     return _line
 
 
-def DKC(data, n) -> Line:
+def DKC(dateindex, data, n) -> Line:
     '''
     绘制抵扣差图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param n: 数字级别
@@ -527,7 +538,6 @@ def DKC(data, n) -> Line:
     :return: 返回抵扣差Line对象
     :rtype: Line
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     dkc_name = "dkc{}".format(n)
 
     c = (Line()
@@ -565,17 +575,20 @@ def DKC(data, n) -> Line:
     return c
 
 
-def BIAS(data, n) -> Line:
+def BIAS(dateindex, data, n) -> Line:
     '''
     绘制乖离率图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param n: 数字级别
     :type n: int
+    :param dateindex: x轴
+    :type dateindex: str
     :return: 返回乖离率Line对象
     :rtype: Line
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     bias_name = "bias{}".format(n)
 
     c = (Line()
@@ -613,9 +626,11 @@ def BIAS(data, n) -> Line:
     return c
 
 
-def KL(data, n, KLlines) -> Line:
+def KL(dateindex, data, n, KLlines) -> Line:
     '''
     绘制斜率图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param n: 数字级别
@@ -625,7 +640,6 @@ def KL(data, n, KLlines) -> Line:
     :return: 返回斜率Line对象
     :rtype: Line
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     k_name = "k{}".format(n)
 
     c = (Line()
@@ -682,9 +696,11 @@ def KL(data, n, KLlines) -> Line:
     return c
 
 
-def KPL(data, n, KPLlines) -> Line:
+def KPL(dateindex, data, n, KPLlines) -> Line:
     '''
     绘制斜率图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param n: 数字级别
@@ -694,7 +710,6 @@ def KPL(data, n, KPLlines) -> Line:
     :return: 返回预测斜率Line对象
     :rtype: Line
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     k_name = "kp{}".format(n)
 
     c = (Line()
@@ -751,19 +766,18 @@ def KPL(data, n, KPLlines) -> Line:
     return c
 
 
-def DMA(data, n, dmalines) -> Line:
+def DMA(dateindex, data, dmalines) -> Line:
     '''
     绘制均线差图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
-    :param n: 数字级别
-    :type n: int
     :param dmalines: 均线列表，['ma5', 'ma10']
     :type dmalines: list
     :return: 返回均线差Line对象
     :rtype: Line
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     # 计算均线差
     data['DMA'] = round(data[dmalines[0]] - data[dmalines[1]], precision)
     c = (Line()
@@ -801,9 +815,11 @@ def DMA(data, n, dmalines) -> Line:
     return c
 
 
-def MULTI_LINE(data, multiLines) -> Line:
+def MULTI_LINE(dateindex, data, multiLines) -> Line:
     '''
     绘制多条线图
+    :param dateindex: x轴
+    :type dateindex: str
     :param data: 数据
     :type data: pandas.DataFrame
     :param multiLines: 预测斜率列表，['kp5', 'kp10']
@@ -811,7 +827,6 @@ def MULTI_LINE(data, multiLines) -> Line:
     :return: 返回预测斜率Line对象
     :rtype: Line
     '''
-    dateindex = data.index.strftime("%Y-%m-%d").tolist()
     lines_color = ['red', 'green', 'blue', 'cyan', 'yellow', 'orange', 'purple']
     if len(multiLines) != 0:
         _line = Line().add_xaxis(dateindex)
