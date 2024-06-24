@@ -355,12 +355,18 @@ def MACD(dateindex, data) -> Bar:
                     is_symbol_show=False,
                     label_opts=opts.LabelOpts(is_show=False),
                     linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
+                    itemstyle_opts=opts.ItemStyleOpts(
+                        color='black'  # '#14b143'
+                    ),
                 )
                  .add_yaxis(
                     series_name="DEA",
                     y_axis=dea,
                     is_symbol_show=False,
-                    label_opts=opts.LabelOpts(is_show=False)
+                    label_opts=opts.LabelOpts(is_show=False),
+                    itemstyle_opts=opts.ItemStyleOpts(
+                        color='cyan'  # '#14b143'
+                    ),
                 )
                  .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                  .set_global_opts(datazoom_opts=[opts.DataZoomOpts()],)
