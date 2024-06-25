@@ -35,5 +35,7 @@ def main_a(code):
 
 
 if __name__ == "__main__":
-    main("000977")
-    # main_a("000001")
+    main_a("000001")
+    code_list = ["000737", "000977", "002948", "601877", "600595", "000612"]
+    for code in code_list:
+        main(code)
