@@ -33,9 +33,10 @@ def get_data(code, start_date, end_date, freq):
         # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
-    elif freq == 'min':
+    else:
+        period = int(freq[3:])
         # df = ak.stock_zh_a_hist_min_em(symbol=code, start_date=start_date, end_date=end_date, period="60",  adjust="qfq").iloc[:, [0, 1, 3, 4, 2, 7]]
-        df = ak.stock_zh_a_minute(symbol=get_szsh_code(code), period="60", adjust="qfq")
+        df = ak.stock_zh_a_minute(symbol=get_szsh_code(code), period=period, adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
         df["date"] = pd.to_datetime(df["date"])
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
@@ -122,10 +123,11 @@ def get_index_data(code, start_date, end_date, freq):
             df = ak.index_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date).iloc[:, :6]
             df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
             df["date"] = pd.to_datetime(df["date"])
-        elif freq == 'min':
+        else:
+            period = int(freq[3:])
             # df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
             # df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
-            df = ak.index_zh_a_hist_min_em(symbol=code, period="60", start_date=start_date, end_date=end_date).iloc[:, :6]
+            df = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=start_date, end_date=end_date).iloc[:, :6]
             df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
             df["date"] = pd.to_datetime(df["date"])
             df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
@@ -202,7 +204,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
     if end_date == '20240202':
         now = datetime.datetime.now()
-        if freq == 'min':
+        if freq[0:3] == 'min':
             end_date = (now + datetime.timedelta(days=1)).strftime('%Y%m%d')
         else:
             if now.hour >= 15:
@@ -228,7 +230,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min', zh_index=False)
+    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min60', zh_index=False)
     # print(df[(df['BUY'] == True) | (df['SELL'] == True)])
     print(df)
     time_end = time.time()

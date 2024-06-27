@@ -28,7 +28,7 @@ class KLineChart:
         df = get_kline_chart_date(code, start_date, end_date, freq, zh_index)
         self.data = df.copy()
 
-        if freq == 'min':
+        if freq[0:3] == 'min':
             self.dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
         else:
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
