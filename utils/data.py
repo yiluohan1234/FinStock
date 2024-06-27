@@ -34,7 +34,7 @@ def get_data(code, start_date, end_date, freq):
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
     elif freq == 'min':
-        # stock_zh_a_hist_min_em
+        # df = ak.stock_zh_a_hist_min_em(symbol=code, start_date=start_date, end_date=end_date, period="60",  adjust="qfq").iloc[:, [0, 1, 3, 4, 2, 7]]
         df = ak.stock_zh_a_minute(symbol=get_szsh_code(code), period="60", adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
         df["date"] = pd.to_datetime(df["date"])
@@ -87,8 +87,9 @@ def get_data(code, start_date, end_date, freq):
 
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
+
     # 过滤日期
-    df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
     # 计算volume的标识
     df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
@@ -122,8 +123,10 @@ def get_index_data(code, start_date, end_date, freq):
             df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
             df["date"] = pd.to_datetime(df["date"])
         elif freq == 'min':
-            df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
-            df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+            # df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
+            # df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
+            df = ak.index_zh_a_hist_min_em(symbol=code, period="60", start_date=start_date, end_date=end_date).iloc[:, :6]
+            df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
             df["date"] = pd.to_datetime(df["date"])
             df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
         # else:
@@ -173,10 +176,10 @@ def get_index_data(code, start_date, end_date, freq):
     df = pd.concat([df, RSI(df)], axis=1)
 
     # 标记买入和卖出信号
-    df = pd.concat([df, k_cross_multi_line_strategy(df)], axis=1)
+    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
 
     # 过滤日期
-    df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
     # 计算volume的标识
     df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
@@ -199,11 +202,15 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
     if end_date == '20240202':
         now = datetime.datetime.now()
-        if now.hour >= 15:
-            end_date = now.strftime('%Y%m%d')
+        if freq == 'min':
+            end_date = (now + datetime.timedelta(days=1)).strftime('%Y%m%d')
         else:
-            yesterday = now - datetime.timedelta(days=1)
-            end_date = yesterday.strftime('%Y%m%d')
+            if now.hour >= 15:
+                end_date = now.strftime('%Y%m%d')
+            else:
+                yesterday = now - datetime.timedelta(days=1)
+                end_date = yesterday.strftime('%Y%m%d')
+
     if not zh_index:
         df = get_data(code, start_end_date, end_date, freq)
     else:
@@ -221,8 +228,8 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="000001", start_date='20240101', end_date="20240613", freq='D', zh_index=True)
-    print(df[(df['BUY'] == True) | (df['SELL'] == True)])
-    # print(df)
+    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min', zh_index=False)
+    # print(df[(df['BUY'] == True) | (df['SELL'] == True)])
+    print(df)
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))
