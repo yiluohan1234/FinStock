@@ -33,8 +33,9 @@ class KLineChart:
         else:
             self.dateindex = df.index.strftime("%Y-%m-%d").tolist()
 
-    def plot(self, n=20, area=['V', 'DKC'], width=1000, height=600, klines=[], vlines=[], dmalines=[], jxLines=[],
-             threeLines=[], KLlines=[], KPLlines=[], multiLines=[], is_notebook=True):
+    def plot(self, n=20, area=['V', 'M', 'KPL'], width=1000, height=600, klines=[], vlines=['vma10', 'vma60'],
+             dmalines=['ma10', 'ma60'], KLlines=['k10', 'k60'], KPLlines=['kp10', 'kp60'], multiLines=[],
+             jxLines=[], threeLines=[], is_notebook=True):
         '''
         @params:
         - n:int                 #抵扣差、乖离率、斜率的计算天数
