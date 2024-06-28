@@ -179,6 +179,29 @@ def cal_trend1(df):
         return 0
 
 
+def cal_trend2(df, p=0.05):
+    '''
+    通过统计检验法对数据集进行统计检验来判断数据的升降趋势，需要设定合适的阈值 p
+    通常,如果 p 值小于显著性水平(如0.05),则拒绝零假设,认为两个变量之间存在显著的单调关系。
+    :param df: 数据
+    :type df: pandas.DataFrame
+     :param p: 阈值
+    :type p: float
+    :return: 返回一段数据的趋势，1上升，-1下降，0不明显
+    :rtype: float
+    '''
+    from scipy.stats import spearmanr
+    data = df.tolist()
+    x = np.arange(len(data))  # 等差数列
+    rho, p_value = spearmanr(x, data)
+    if rho > 0 and p_value < p:
+        return 1
+    elif rho < 0 and p_value < p:
+        return -1
+    else:
+        return 0
+
+
 def MA(df, n):
     """
     计算简单移动平均值
