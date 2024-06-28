@@ -7,6 +7,8 @@
 #    > Created Time: 2024年5月20日
 #    > description: 通用帮助函数
 #######################################################################
+import re
+
 import akshare as ak
 import numpy as np
 import pandas as pd
@@ -760,9 +762,10 @@ def find_max_min_point(df, k_name='k20'):
     :return: 索引值
     :rtype: numpy.ndarray
     """
+    mindis = int((''.join(re.findall('\d+', k_name))))
     series = np.array(df[k_name])
-    peaks, _ = find_peaks(series, distance=10)  # 纵轴局部最高点
-    mins, _ = find_peaks(series*-1, distance=10)  # 纵轴局部最低点
+    peaks, _ = find_peaks(series, distance=mindis)
+    mins, _ = find_peaks(series*-1, distance=mindis)
 
     dt = {}
     condition_buy = (df[k_name].index.isin(mins.tolist())) & (df[k_name] < 0)
