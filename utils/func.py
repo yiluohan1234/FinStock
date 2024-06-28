@@ -139,6 +139,47 @@ def cal_K_predict(df, pencentage=0, precision=2):
     return round(slope, precision)
 
 
+def cal_trend(df):
+    '''
+    计算相邻两个数之间的差值的均值，并判断变化趋势。
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 返回一段数据的趋势，1上升，-1下降，0不明显
+    :rtype: float
+    '''
+    df_list = df.tolist()
+    print(df_list)
+    diff = [df_list[i+1] - df_list[i] for i in range(len(df_list)-1)]
+    trend = sum(diff)/len(diff)
+    if trend > 0:
+        return 1
+    elif trend < 0:
+        return -1
+    else:
+        return 0
+
+
+def cal_trend1(df):
+    '''
+    对一段数据判断趋势
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 返回一段数据的趋势，1上升，-1下降，0不明显
+    :rtype: float
+    '''
+    from sklearn.linear_model import LinearRegression
+    y = np.array(df).ravel()
+    x = np.array(range(1, len(y) + 1)).reshape(-1, 1) # 需要将x转换为二维数组
+    model = LinearRegression()
+    model.fit(x, y)
+    if model.coef_ > 0:
+        return 1
+    elif model.coef_ < 0:
+        return -1
+    else:
+        return 0
+
+
 def MA(df, n):
     """
     计算简单移动平均值
@@ -702,8 +743,8 @@ def find_max_min_point(df, k_name='k20'):
     mins, _ = find_peaks(series*-1, distance=10)  # 纵轴局部最低点
 
     dt = {}
-    condition_buy = df[k_name].index.isin(mins.tolist())
-    condition_sell = df[k_name].index.isin(peaks.tolist())
+    condition_buy = (df[k_name].index.isin(mins.tolist())) & (df[k_name] < 0)
+    condition_sell = (df[k_name].index.isin(peaks.tolist())) & (df[k_name] > 0)
 
     dt['BUY'], dt['SELL'] = condition_buy, condition_sell
     ret = pd.DataFrame(dt)
