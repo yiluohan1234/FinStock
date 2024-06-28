@@ -299,7 +299,7 @@ def MACD(dateindex, data) -> Bar:
     c = (Bar()
         .add_xaxis(dateindex)
         .add_yaxis(
-            series_name="macd",
+            series_name="MACD",
             y_axis=round(data.MACD, precision).values.tolist(), stack="v",
             category_gap=2,
             itemstyle_opts=opts.ItemStyleOpts(

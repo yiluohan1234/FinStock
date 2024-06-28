@@ -7,12 +7,16 @@
 #    > Created Time: 2024年5月20日
 #    > description: 数据获取工具
 #######################################################################
-import pandas as pd
 import time
 from utils.func import *
 from utils.cons import *
 import re
-
+# 设置显示全部行，不省略
+import pandas as pd
+pd.set_option('display.max_rows', None)
+# 设置显示全部列，不省略
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 180)
 
 def get_data(code, start_date, end_date, freq):
     '''
@@ -231,7 +235,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 if __name__ == "__main__":
     time_start = time.time()
     df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min60', zh_index=False)
-    # print(df[(df['BUY'] == True) | (df['SELL'] == True)])
-    print(df)
+    print(df[(df['BUY'] == True) | (df['SELL'] == True)][['date', 'MACD', 'DIF', 'DEA', 'BUY', 'SELL']])
+    # print(df)
     time_end = time.time()
     print("运行耗时{}s".format(round(time_end-time_start, 2)))

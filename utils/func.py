@@ -779,8 +779,6 @@ def find_max_min_point(df, k_name='k20'):
 def AMPD(data):
     """
     实现AMPD获取波峰算法
-    :param data: 1-D numpy.ndarray
-    :return:
     :param data: 数据
     :type data: numpy.ndarray
     :return: 波峰所在索引值的列表
@@ -819,6 +817,31 @@ def transfer_date_format(date_string, formats="%Y%m%d"):
     #  尝试将日期字符串转换为datetime对象
     date_object = datetime.strptime(date_string, formats)
     return date_object.strftime("%Y-%m-%d")
+
+
+def get_diff_data(code, current_date, pre_date, zh_index=False):
+    """
+    获取实时分钟级数据
+    :param code: 编码
+    :type code: str
+    :param current_date: 当前日期
+    :type current_date: str
+    :param pre_date: 历史日期
+    :type pre_date: str
+    :param zh_index: 是否是指数
+    :type zh_index: bool
+    :return: 返回分钟级数据
+    :rtype: pandas.DataFrame
+    """
+    if not zh_index:
+        df_pre = ak.stock_zh_a_hist_min_em(symbol=code, start_date=pre_date, end_date=pre_date, period='60', adjust="qfq")
+        df_current = ak.stock_zh_a_hist_min_em(symbol=code, start_date=current_date, end_date=current_date, period='60', adjust="qfq")
+    else:
+        df_pre = ak.index_zh_a_hist_min_em(symbol=code, period="60", start_date=pre_date, end_date=pre_date)
+        df_current = ak.index_zh_a_hist_min_em(symbol=code, period="60", start_date=current_date, end_date=current_date)
+
+    ret_df = pd.concat([df_pre, df_current])
+    return ret_df
 
 
 if __name__ == "__main__":
