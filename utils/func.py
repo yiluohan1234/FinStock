@@ -148,7 +148,6 @@ def cal_trend(df):
     :rtype: float
     '''
     df_list = df.tolist()
-    print(df_list)
     diff = [df_list[i+1] - df_list[i] for i in range(len(df_list)-1)]
     trend = sum(diff)/len(diff)
     if trend > 0:
