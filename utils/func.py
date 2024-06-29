@@ -452,16 +452,16 @@ def get_name(code, zh_index):
     获取股票名称
     :param code: 股票代码
     :type code: str
-    :param zh_index: 是否位指数
-    :type zh_index: bool
+    :param zh_index: 类型，stock：股票，index：指数，industry：行业，concept：概念
+    :type zh_index: str
     :return: 股票名称
     :rtype: str
     '''
-    if not zh_index:
+    if zh_index == 'stock':
         name_code = ak.stock_zh_a_spot_em()
         name = name_code[name_code['代码'] == code]['名称'].values[0]
         return name
-    else:
+    elif zh_index == 'index':
         code_name = {'sh000001': '上证指数', 'sz399001': '深证成指',
                      'sz399006': '创业板指数', 'sh000688': '科创板指数',
                      # 风格指数
@@ -478,6 +478,8 @@ def get_name(code, zh_index):
                      'sh000932': '中证消费', 'sz399808': '中证新能',
                      'sz399989': '中证医疗', '000001': '上证指数'}
         return code_name[code]
+    else:
+        return code
 
 
 def frb(open_value, close_value):

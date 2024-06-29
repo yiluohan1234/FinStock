@@ -363,7 +363,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     - start_date: str                #开始时间, 如'202000101'
     - end_date: str                  #结束时间, 如'20240202'
     - freq : str                     #默认 'D' :日线数据
-    - zh_index :str                  #是否为指数
+    - zh_index :str                  #类型，stock：股票，index：指数，industry：行业，concept：概念
     '''
     date_s = datetime.datetime.strptime(start_date, "%Y%m%d")
     start_end_date = (date_s - datetime.timedelta(days=365)).strftime('%Y%m%d')
@@ -378,10 +378,14 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
                 yesterday = now - datetime.timedelta(days=1)
                 end_date = yesterday.strftime('%Y%m%d')
 
-    if not zh_index:
+    if zh_index == 'stock':
         df = get_data(code, start_end_date, end_date, freq)
-    else:
+    elif zh_index == 'index':
         df = get_index_data(code, start_end_date, end_date, freq)
+    elif zh_index == 'industry':
+        df = get_industry_data(code, start_end_date, end_date, freq)
+    else:
+        df = get_concept_data(code, start_end_date, end_date, freq)
     df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
     return df
 

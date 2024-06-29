@@ -20,7 +20,7 @@ def main(code):
 
 
 def main_a(code):
-    k = KLineChart(code, zh_index=True)
+    k = KLineChart(code, zh_index='index')
     k.plot(n=20, width=1600, height=900,
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
