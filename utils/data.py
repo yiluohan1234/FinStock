@@ -195,6 +195,167 @@ def get_index_data(code, start_date, end_date, freq):
     return df
 
 
+def get_concept_data(symbol, start_date, end_date, freq):
+    '''
+    获取概念板块的综合数据
+    :param symbol: 概念名称
+    :type symbol: str
+    :param start_date: 开始时间
+    :type start_date: str
+    :param end_date: 结束时间
+    :type end_date: str
+    :param freq: 频次，'D': 天, 'min': 分钟
+    :type freq: str
+    :return: 返回股票综合数据
+    :rtype: pandas.DataFrame
+    '''
+    if freq == 'D' or freq == 'W' or freq == 'M':
+        df = ak.stock_board_concept_hist_em(symbol=symbol, start_date=start_date,
+                                             end_date=end_date, period=transfer_date_dic[freq],
+                                             adjust="qfq").iloc[:, [0, 1, 2, 3, 4, 7]]
+        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
+        df["date"] = pd.to_datetime(df["date"])
+    else:
+        period = freq[3:]
+        df = ak.stock_board_concept_hist_min_em(symbol=symbol, period=period).iloc[:, [0, 1, 2, 3, 4, 7]]
+        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
+        df["date"] = pd.to_datetime(df["date"])
+
+    df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+
+    # 计算均线、volume均线、抵扣差、乖离率、k率
+    for i in ema_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+
+    for i in fib_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+
+    # df['ATR'], df['stop'] = ATR(df, 14)
+    df = pd.concat([df, ATR(df, 14)], axis=1)
+
+    # BOLL计算 取N=20，M=2
+    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
+
+    # 计算包络线ENE(10,9,9)
+    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
+
+    # 计算MACD
+    df = pd.concat([df, MACD(df)], axis=1)
+
+    # 计算KDJ
+    df = pd.concat([df, KDJ(df)], axis=1)
+
+    # 计算RSI
+    df = pd.concat([df, RSI(df)], axis=1)
+
+    # 标记买入和卖出信号
+    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
+
+    # 过滤日期
+    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+
+    # 计算volume的标识
+    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+
+    # 把date作为日期索引
+    df.index = df.date
+    return df
+
+
+def get_industry_data(symbol, start_date, end_date, freq):
+    '''
+    获取行业板块的综合数据
+    :param symbol: 行业名称
+    :type symbol: str
+    :param start_date: 开始时间
+    :type start_date: str
+    :param end_date: 结束时间
+    :type end_date: str
+    :param freq: 频次，'D': 天, 'min': 分钟
+    :type freq: str
+    :return: 返回股票综合数据
+    :rtype: pandas.DataFrame
+    '''
+    if freq == 'D' or freq == 'W' or freq == 'M':
+        df = ak.stock_board_industry_hist_em(symbol=symbol, period=transfer_date_dic_zh[freq], start_date=start_date, end_date=end_date,
+                                            adjust="qfq").iloc[:, [0, 1, 2, 3, 4, 7]]
+        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
+        df["date"] = pd.to_datetime(df["date"])
+    else:
+        period = freq[3:]
+        df = ak.stock_board_industry_hist_min_em(symbol=symbol, period=period).iloc[:, [0, 1, 2, 3, 4, 7]]
+        df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
+        df["date"] = pd.to_datetime(df["date"])
+
+    df['volume'] = round(df['volume'].astype('float') / 10000, 2)
+
+    # 计算均线、volume均线、抵扣差、乖离率、k率
+    for i in ema_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+
+    for i in fib_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+
+    # df['ATR'], df['stop'] = ATR(df, 14)
+    df = pd.concat([df, ATR(df, 14)], axis=1)
+
+    # BOLL计算 取N=20，M=2
+    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
+
+    # 计算包络线ENE(10,9,9)
+    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
+
+    # 计算MACD
+    df = pd.concat([df, MACD(df)], axis=1)
+
+    # 计算KDJ
+    df = pd.concat([df, KDJ(df)], axis=1)
+
+    # 计算RSI
+    df = pd.concat([df, RSI(df)], axis=1)
+
+    # 标记买入和卖出信号
+    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
+
+    # 过滤日期
+    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+
+    # 计算volume的标识
+    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+
+    # 把date作为日期索引
+    df.index = df.date
+    return df
+
+
 def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     '''
     @params:

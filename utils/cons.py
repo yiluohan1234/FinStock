@@ -14,6 +14,7 @@ fib_list = [8, 13, 21, 34, 55, 89, 144]
 precision = 2
 prices_cols = ['open', 'close', 'low', 'high']
 transfer_date_dic = {'D': 'daily', 'W': 'weekly', 'M': 'monthly'}
+transfer_date_dic_zh = {'D': '日k', 'W': '周k', 'M': '月k'}
 lrb_ret_columns = ['报告日', '营业总收入', '营业总收入同比',
                '营业总成本', '营业总成本同比',
                '营业利润', '营业利润同比',
