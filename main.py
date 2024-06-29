@@ -19,6 +19,24 @@ def main(code):
     k.web()
 
 
+def main_concept(symbol):
+    k = KLineChart(symbol, start_date="20230601", zh_index='concept')
+    k.plot(n=20, width=1600, height=900,
+           klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
+           is_notebook=False
+           )
+    k.web()
+
+
+def main_industry(symbol):
+    k = KLineChart(symbol, start_date="20230601", zh_index='industry')
+    k.plot(n=20, width=1600, height=900,
+           klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
+           is_notebook=False
+           )
+    k.web()
+
+
 def main_a(code):
     k = KLineChart(code, zh_index='index')
     k.plot(n=20, width=1600, height=900,
@@ -30,6 +48,8 @@ def main_a(code):
 
 if __name__ == "__main__":
     main("000977")
+    # main_concept("液冷服务器") # 人工智能
+    # main_industry("房地产开发") # 有色金属、计算机设备
     # main_a("000001")
     # code_list = ["000737", "000977", "002948", "601877", "600595", "000612"]
     # for code in code_list:
