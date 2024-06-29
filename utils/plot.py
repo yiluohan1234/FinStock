@@ -848,6 +848,10 @@ def MULTI_LINE(dateindex, data, multiLines) -> Line:
                 itemstyle_opts=opts.ItemStyleOpts(
                     color=lines_color[i]
                 ),
+                markline_opts=opts.MarkLineOpts(
+                    data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+                )
             )
             _line.set_global_opts(
                 xaxis_opts=opts.AxisOpts(
