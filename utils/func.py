@@ -14,7 +14,8 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 import datetime
-from utils.cons import precision
+from utils.cons import *
+
 
 def get_df_markdown_table(df):
     '''
@@ -234,6 +235,39 @@ def EMA(df_close, n):
     return ema_n
 
 
+def BASIC_INDICATOR(df):
+    """
+    计算基本的指标数据，包括均线、volume均线、抵扣差、乖离率、k率
+    :param df: 基础数据
+    :type df: pandas.DataFrame
+    :return: 返回指标数据
+    :rtype: pandas.DataFrame
+    """
+    # 计算均线、volume均线、抵扣差、乖离率、k率
+    dt = {}
+    for i in ema_list:
+        dt['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        dt['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        dt['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        dt['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        dt['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        dt['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
+
+    for i in fib_list:
+        dt['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        dt['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        dt['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        dt['bias{}'.format(i)] = round(
+            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
+            precision)
+        dt['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        dt['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+    ret = pd.DataFrame(dt)
+    return ret
+
+
 def MACD(df, short=12, long=26, mid=9):
     """
     计算MACD指标
@@ -420,6 +454,87 @@ def ATR(df, N=14):
     ATR = TR.rolling(N).mean()
     STOP = df['close'].shift(1) - ATR * 3  # 止损价=(上一日收盘价-3*ATR)
     dt['ATR'], dt['stop'] = ATR, STOP
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def CCI(df, n=14):
+    """
+    计算CCI指标
+    1.CCI 为正值时，视为多头市场；为负值时，视为空头市场；
+    2.常态行情时，CCI 波动于±100 的间；强势行情，CCI 会超出±100 ；
+    3.CCI>100 时，买进，直到CCI<100 时，卖出；
+    4.CCI<-100 时，放空，直到CCI>-100 时，回补。
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param n: N值
+    :type n: int
+    :return: 返回CCI
+    :rtype: pandas.DataFrame
+    """
+    dt = {}
+    typ = (df['high'] + df['low'] + df['close']) / 3
+    typ_ma = typ.rolling(window=n).mean()
+    mean_deviation = typ.rolling(window=n).apply(lambda x: (x - x.mean()).abs().mean())
+    cci = (typ - typ_ma) / (0.015 * mean_deviation)
+    dt['CCI'] = cci
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def ADTM(df, N=23, M=8):
+    """
+    计算ADTM指标
+    1、该指标在+1到-1之间波动；
+    2、低于-0.5时为很好的买入点，高于+0.5时需注意风险。
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N: DTM和DBM的窗口大小
+    :type N: int
+    :param M: MAADTM的窗口大小
+    :type M: int
+    :return: 返回ADTM
+    :rtype: pandas.DataFrame
+    """
+    dt = {}
+    DTM = np.where(df['open'] <= df['open'].shift(1), 0,
+                   np.maximum(df['high'] - df['open'], df['open'] - df['open'].shift(1)))
+    DBM = np.where(df['open'] >= df['open'].shift(1), 0,
+                   np.maximum(df['open'] - df['low'], df['open'] - df['open'].shift(1)))
+    STM = pd.Series(DTM).rolling(window=N, min_periods=1).sum()
+    SBM = pd.Series(DBM).rolling(window=N, min_periods=1).sum()
+    ADTM = np.where(STM > SBM, (STM - SBM) / STM, np.where(STM == SBM, 0, (STM - SBM) / SBM))
+    MAADTM = pd.Series(ADTM).rolling(window=M, min_periods=1).mean()
+    dt['ADTM'] = ADTM
+    dt['MAADTM'] = MAADTM
+    ret = pd.DataFrame(dt)
+    return ret
+
+
+def CHO(df, N1=10, N2=20, M=6):
+    """
+    计算CHO指标
+    :param df: datframe数据
+    :type df: pandas.DataFrame
+    :param N1: N1窗口大小
+    :type N1: int
+    :param N2: N2的窗口大小
+    :type N2: int
+    :param M: MACHO的窗口大小
+    :type M: int
+    :return: 返回CHO
+    :rtype: pandas.DataFrame
+    """
+    dt = {}
+    # 计算 MID
+    MID = df.apply(lambda row: row['volume'] * (2 * row['close'] - row['high'] - row['low']) / (row['high'] + row['low']),
+                   axis=1)
+    # 计算 CHO
+    CHO = MID.rolling(window=N1).mean() - MID.rolling(window=N2).mean()
+    # 计算 MACHO
+    MACHO = CHO.rolling(window=M).mean()
+    dt['CHO'] = CHO
+    dt['MACHO'] = MACHO
     ret = pd.DataFrame(dt)
     return ret
 
