@@ -90,6 +90,9 @@ def get_data(code, start_date, end_date, freq):
     # 计算RSI
     df = pd.concat([df, RSI(df)], axis=1)
 
+    # 计算CCI
+    df = pd.concat([df, CCI(df)], axis=1)
+
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
 
@@ -181,6 +184,9 @@ def get_index_data(code, start_date, end_date, freq):
     # 计算RSI
     df = pd.concat([df, RSI(df)], axis=1)
 
+    # 计算CCI
+    df = pd.concat([df, CCI(df)], axis=1)
+
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
 
@@ -262,6 +268,9 @@ def get_concept_data(symbol, start_date, end_date, freq):
     # 计算RSI
     df = pd.concat([df, RSI(df)], axis=1)
 
+    # 计算CCI
+    df = pd.concat([df, CCI(df)], axis=1)
+
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
 
@@ -341,6 +350,9 @@ def get_industry_data(symbol, start_date, end_date, freq):
 
     # 计算RSI
     df = pd.concat([df, RSI(df)], axis=1)
+
+    # 计算CCI
+    df = pd.concat([df, CCI(df)], axis=1)
 
     # 标记买入和卖出信号
     df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
