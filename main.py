@@ -11,8 +11,8 @@ from core.KLineChart import KLineChart
 
 
 def main(code):
-    k = KLineChart(code, start_date="20230601", freq='min60')
-    k.plot(n=20, width=1600, height=800, area=['V', 'M', 'KPL', 'MUL'], multiLines=['K', 'D', 'J'],
+    k = KLineChart(code, start_date="20240101", freq='min60')
+    k.plot(n=20, width=1600, height=800, area=['V', 'M', 'KPL', 'KDJ'], multiLines=['CCI'],
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
            )
