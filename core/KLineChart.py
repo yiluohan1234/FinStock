@@ -124,6 +124,8 @@ class KLineChart:
                 window = KPL(self.dateindex, self.data, n, KPLlines)
             elif w == 'DMA':
                 window = DMA(self.dateindex, self.data, dmalines)
+            elif w == 'KDJ':
+                window = PKDJ(self.dateindex, self.data)
             elif w == 'MUL':
                 window = MULTI_LINE(self.dateindex, self.data, multiLines)
             else:
