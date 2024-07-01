@@ -912,8 +912,7 @@ def find_max_min_point(df, k_name='k20'):
 
     dt = {}
     condition_buy = (df[k_name].index.isin(mins.tolist())) & (df[k_name] < 0) & (df['MACD'] < 0) & \
-                    ~((df['DIF'] > 0) & (df['DEA'] > 0)) & \
-                    ~((df['kp20'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) & (df['kp60'].rolling(5).apply(lambda x: cal_trend2(x))<0) & (df['DIF'].rolling(5).apply(lambda x: cal_trend2(x))<0) & (df['DEA'].rolling(5).apply(lambda x: cal_trend2(x))<0))
+                    ~((df['DIF'] > 0) & (df['DEA'] > 0))
     condition_sell = (df[k_name].index.isin(peaks.tolist())) & (df[k_name] > 0) & (df['MACD'] > 0)
 
     dt['BUY'], dt['SELL'] = condition_buy, condition_sell

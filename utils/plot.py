@@ -1285,6 +1285,16 @@ def plot_df_line(df, x, y_list):
     return _line
 
 
+def plot_bond_zh_us_rate():
+    '''
+    10年国债收益率
+    '''
+    bond_zh_us_rate_df = ak.bond_zh_us_rate(start_date="19901219")
+    bar = plot_df_line(bond_zh_us_rate_df, '日期', ['中国国债收益率10年', "美国国债收益率10年"])
+    bar.render("./bond_zh_us_rate.html")
+    webbrowser.open_new_tab('file://' + os.path.realpath('bond_zh_us_rate.html'))
+
+
 def plot_table(data, headers, title):
     table = Table()
 
