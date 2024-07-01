@@ -895,6 +895,26 @@ def not_down_trend_condition(df):
     return condition
 
 
+def kdj_not_down_trend_condition(df):
+    """
+    K、D、J指标信号不能处于下降趋势
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 是否满足条件
+    :rtype: pandas.DataFrame
+    """
+    condition = ~((df['K'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
+                  (df['D'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
+                  (df['J'].rolling(5).apply(lambda x: cal_trend2(x)) < 0))
+    return condition
+
+
+def crossdown(data0, data1, n=5):
+    condition = (data0 < data1) & (data0.shift() > data1)
+    ret = condition.rolling(min_periods=1, window=n).apply(lambda x: 1 if 1 in np.array(x) else 0).apply(lambda x: True if x==1 else False)
+    return ret
+
+
 def find_max_min_point(df, k_name='k20'):
     """
     获取数据的局部最大值和最小值的索引
