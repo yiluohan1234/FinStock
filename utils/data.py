@@ -399,7 +399,7 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
 
 if __name__ == "__main__":
     time_start = time.time()
-    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min60', zh_index=False)
+    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min60', zh_index='stock')
     print(df[(df['BUY'] == True) | (df['SELL'] == True)][['date', 'MACD', 'DIF', 'DEA', 'BUY', 'SELL']])
     # print(df)
     time_end = time.time()
