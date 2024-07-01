@@ -11,8 +11,8 @@ from core.KLineChart import KLineChart
 
 
 def main(code):
-    k = KLineChart(code, start_date="20230601")
-    k.plot(n=20, width=1600, height=900,
+    k = KLineChart(code, start_date="20230501", freq='min60')
+    k.plot(n=20, width=1600, height=800, area=['V', 'M', 'KPL', 'MUL'], multiLines=['K', 'D', 'J'],
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
            )
@@ -21,7 +21,7 @@ def main(code):
 
 def main_concept(symbol):
     k = KLineChart(symbol, start_date="20230601", zh_index='concept')
-    k.plot(n=20, width=1600, height=900,
+    k.plot(n=20, width=1600, height=800,
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
            )
@@ -30,7 +30,7 @@ def main_concept(symbol):
 
 def main_industry(symbol):
     k = KLineChart(symbol, start_date="20230601", zh_index='industry')
-    k.plot(n=20, width=1600, height=900,
+    k.plot(n=20, width=1600, height=800,
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
            )
@@ -39,7 +39,7 @@ def main_industry(symbol):
 
 def main_a(code):
     k = KLineChart(code, zh_index='index')
-    k.plot(n=20, width=1600, height=900,
+    k.plot(n=20, width=1600, height=800,
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
            )
