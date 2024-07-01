@@ -832,41 +832,67 @@ def kp_max_min_multi_line_strategy(df, k_name='kp10'):
     return ret
 
 
-def ma_bias_condition(df, name):
-
-    dt = {}
-    # 第一个策略：均线和BIAS指标信号
-    condition1 = (df['ma5'] > df['ma10']) & (df['ma5'] > df['ma20']) & (df['bias5'] > df['bias10']) & (df['bias5'] > df['bias20'])
-    dt[name] = condition1.apply(lambda x: 1 if x else -1)
-    ret = pd.DataFrame(dt)
-    return ret
+def ma_bias_condition(df):
+    """
+    均线和BIAS指标信号
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 是否满足条件
+    :rtype: pandas.DataFrame
+    """
+    condition = (df['ma5'] > df['ma10']) & (df['ma5'] > df['ma20']) & (df['bias5'] > df['bias10']) & (df['bias5'] > df['bias20'])
+    return condition
 
 
 def boll_condition(df, name):
-    # 第二个策略：股价低于BOLL线底,0.3
-    dt = {}
+    """
+    股价低于BOLL线底
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 是否满足条件
+    :rtype: pandas.DataFrame
+    """
     condition = (df['close'] < df['down'])
-    dt[name] = condition.apply(lambda x: 1 if x else -1)
-    ret = pd.DataFrame(dt)
-    return ret
+    return condition
 
 
-def kdj_condition(df, name):
-    # 第三个策略：K线上穿D线,0.2
-    dt = {}
+def kdj_condition(df):
+    """
+    K线上穿D线
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 是否满足条件
+    :rtype: pandas.DataFrame
+    """
     condition = (df['K'] > df['D']) & (df['K'].shift() < df['D'].shift())
-    dt[name] = condition.apply(lambda x: 1 if x else -1)
-    ret = pd.DataFrame(dt)
-    return ret
+    return condition
 
 
-def rsi_condition(df, name):
-    # 第四个策略：RSI指标信号,0.3
-    dt = {}
+def rsi_condition(df):
+    """
+    RSI指标信号
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 是否满足条件
+    :rtype: pandas.DataFrame
+    """
     condition = (df['RSI24'] > 80) | (df['RSI24'] < 20)
-    dt[name] = condition.apply(lambda x: 1 if x else -1)
-    ret = pd.DataFrame(dt)
-    return ret
+    return condition
+
+
+def not_down_trend_condition(df):
+    """
+    kp20、kp60、DIF和DEA指标信号不能处于下降趋势
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :return: 是否满足条件
+    :rtype: pandas.DataFrame
+    """
+    condition = ~((df['kp20'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
+                  (df['kp60'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
+                  (df['DIF'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
+                  (df['DEA'].rolling(5).apply(lambda x: cal_trend2(x)) < 0))
+    return condition
 
 
 def find_max_min_point(df, k_name='k20'):
@@ -886,7 +912,8 @@ def find_max_min_point(df, k_name='k20'):
 
     dt = {}
     condition_buy = (df[k_name].index.isin(mins.tolist())) & (df[k_name] < 0) & (df['MACD'] < 0) & \
-                    ~((df['DIF'] > 0) & (df['DEA'] > 0))
+                    ~((df['DIF'] > 0) & (df['DEA'] > 0)) & \
+                    ~((df['kp20'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) & (df['kp60'].rolling(5).apply(lambda x: cal_trend2(x))<0) & (df['DIF'].rolling(5).apply(lambda x: cal_trend2(x))<0) & (df['DEA'].rolling(5).apply(lambda x: cal_trend2(x))<0))
     condition_sell = (df[k_name].index.isin(peaks.tolist())) & (df[k_name] > 0) & (df['MACD'] > 0)
 
     dt['BUY'], dt['SELL'] = condition_buy, condition_sell
