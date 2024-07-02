@@ -985,7 +985,7 @@ def transfer_date_format(date_string, formats="%Y%m%d"):
 
 def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
                   pre_date=(datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d'),
-                  zh_index='stock'):
+                  zh_index=False):
     """
     获取实时分钟级数据
     :param code: 编码
@@ -995,7 +995,7 @@ def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
     :param pre_date: 历史日期
     :type pre_date: str
     :param zh_index: 是否是指数
-    :type zh_index: str
+    :type zh_index: bool
     :return: 返回分钟级数据
     :rtype: pandas.DataFrame
     """
