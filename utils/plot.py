@@ -1717,13 +1717,13 @@ def plot_main(symbol, start_date='20240101', end_date="20240202", frep='min60', 
     grid_chart.add_js_funcs("var barData = {}".format(df[['open', 'close', 'low', 'high']].values.tolist()))
     grid_chart.add(
         macd,
-        grid_opts=opts.GridOpts( pos_left="3%", pos_right="1%", pos_top="0%", height="30%"),
+        grid_opts=opts.GridOpts(pos_top="0%", height="30%"),
     )
     grid_chart.add(
-        kpl, grid_opts=opts.GridOpts(pos_left="3%", pos_right="1%", pos_top="30%", height="30%"),
+        kpl, grid_opts=opts.GridOpts(pos_top="30%", height="30%"),
     )
     grid_chart.add(
-        kdj, grid_opts=opts.GridOpts(pos_left="3%", pos_right="1%", pos_top="60%", height="30%"),
+        kdj, grid_opts=opts.GridOpts(pos_top="60%", height="30%"),
     )
     if is_notebook:
         return grid_chart.render_notebook()
