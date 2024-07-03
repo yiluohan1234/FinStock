@@ -1431,8 +1431,8 @@ def plot_page(self):
     webbrowser.open_new_tab('file://' + os.path.realpath('visual.html'))
 
 
-def plot_main(symbol, start_date='20240101', end_date="20240202", frep='min60', is_notebook=True):
-    df = get_kline_chart_date(code=symbol, start_date=start_date, end_date=end_date, freq=frep, zh_index='stock')
+def plot_main(symbol, start_date='20240101', end_date="20240202", freq='min60', is_notebook=True):
+    df = get_kline_chart_date(code=symbol, start_date=start_date, end_date=end_date, freq=freq, zh_index='stock')
     dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
     # volume
     volume = (
