@@ -1558,12 +1558,14 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 y_axis=round(df["DIF"], 2).values.tolist(),
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts( color='green'),
             )
             .add_yaxis(
                 series_name="DEA",
                 y_axis=round(df["DEA"], 2).values.tolist(),
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts( color='red'),
             )
     )
     macd = bar.overlap(line)
