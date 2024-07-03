@@ -1431,8 +1431,8 @@ def plot_page(self):
     webbrowser.open_new_tab('file://' + os.path.realpath('visual.html'))
 
 
-def plot_main(is_notebook=True):
-    df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min60', zh_index='stock')
+def plot_main(symbol, start_date='20240101', end_date="20240202", frep='min60', is_notebook=True):
+    df = get_kline_chart_date(code=symbol, start_date=start_date, end_date=end_date, freq=frep, zh_index='stock')
     dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
     # volume
     volume = (
@@ -1483,7 +1483,7 @@ def plot_main(is_notebook=True):
                 background_color="rgba(245, 245, 245, 0.8)",
                 border_width=2,
                 border_color="#ccc",
-                textstyle_opts=opts.TextStyleOpts(color="#000"),
+                textstyle_opts=opts.TextStyleOpts(color="#000", font_size=10),
             ),
             axispointer_opts=opts.AxisPointerOpts(
                 is_show=True,
@@ -1532,8 +1532,8 @@ def plot_main(is_notebook=True):
             legend_opts=opts.LegendOpts(is_show=False),
             # 第一个图
             datazoom_opts=[
-                opts.DataZoomOpts(is_show=False, type_="inside", xaxis_index=[0, 1, 2], range_start=0, range_end=100),
-                opts.DataZoomOpts(is_show=False, type_="slider", xaxis_index=[0, 1, 2], pos_top="90%", range_start=0, range_end=100),
+                opts.DataZoomOpts(is_show=False, type_="inside", xaxis_index=[0, 1, 2], range_end=100),
+                opts.DataZoomOpts(is_show=False, type_="slider", xaxis_index=[0, 1, 2], pos_top="90%", range_end=100),
             ],
             tooltip_opts=opts.TooltipOpts(
                 trigger="axis",
@@ -1541,7 +1541,7 @@ def plot_main(is_notebook=True):
                 background_color="rgba(245, 245, 245, 0.8)",
                 border_width=2,
                 border_color="#ccc",
-                textstyle_opts=opts.TextStyleOpts(color="#000"),
+                textstyle_opts=opts.TextStyleOpts(color="#000", font_size=10),
             ),
             axispointer_opts=opts.AxisPointerOpts(
                 is_show=True,
@@ -1554,17 +1554,17 @@ def plot_main(is_notebook=True):
         Line()
             .add_xaxis(dateindex)
             .add_yaxis(
-            series_name="DIF",
-            y_axis=round(df["DIF"], 2).values.tolist(),
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-        )
+                series_name="DIF",
+                y_axis=round(df["DIF"], 2).values.tolist(),
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            )
             .add_yaxis(
-            series_name="DEA",
-            y_axis=round(df["DEA"], 2).values.tolist(),
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-        )
+                series_name="DEA",
+                y_axis=round(df["DEA"], 2).values.tolist(),
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            )
     )
     macd = bar.overlap(line)
     # 叠加多个k线
@@ -1572,47 +1572,47 @@ def plot_main(is_notebook=True):
         Line()
             .add_xaxis(xaxis_data=dateindex)
             .add_yaxis(
-            series_name="kp10",
-            y_axis=round(df["kp10"], 2).values.tolist(),
-            is_smooth=True,
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-            itemstyle_opts=opts.ItemStyleOpts( color='red'),
-            markline_opts=opts.MarkLineOpts(
-                data=[opts.MarkLineItem(name='0', y=0, symbol='none', ),],
-                linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+                series_name="kp10",
+                y_axis=round(df["kp10"], 2).values.tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts(color='red'),
+                markline_opts=opts.MarkLineOpts(
+                    data=[opts.MarkLineItem(name='0', y=0, symbol='none', )],
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+                )
             )
-        )
             .add_yaxis(
-            series_name="kp20",
-            y_axis=round(df["kp20"], 2).values.tolist(),
-            is_smooth=True,
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-            itemstyle_opts=opts.ItemStyleOpts( color='green'),
-        )
+                series_name="kp20",
+                y_axis=round(df["kp20"], 2).values.tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts( color='green'),
+            )
             .add_yaxis(
-            series_name="kp60",
-            y_axis=round(df["kp60"], 2).values.tolist(),
-            is_smooth=True,
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-            itemstyle_opts=opts.ItemStyleOpts( color='blue'),
-        )
+                series_name="kp60",
+                y_axis=round(df["kp60"], 2).values.tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts( color='blue'),
+            )
             .set_global_opts(
-            xaxis_opts=opts.AxisOpts(
-                type_="category",
-                splitline_opts=opts.SplitLineOpts(is_show=False),
-                axislabel_opts=opts.LabelOpts(is_show=False),
-            ),
-            yaxis_opts=opts.AxisOpts(
-                axislabel_opts=opts.LabelOpts(is_show=False),
-                axisline_opts=opts.AxisLineOpts(is_show=True),
-                axistick_opts=opts.AxisTickOpts(is_show=False),
-                splitline_opts=opts.SplitLineOpts(is_show=False),
-            ),
-            legend_opts=opts.LegendOpts(is_show=False),
-        )
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",
+                    splitline_opts=opts.SplitLineOpts(is_show=False),
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                ),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False),
+                    splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
+                legend_opts=opts.LegendOpts(is_show=False),
+            )
     )
     # 叠加买卖标记
     if 'BUY' in df.columns:
@@ -1625,19 +1625,19 @@ def plot_main(is_notebook=True):
             Scatter()
                 .add_xaxis(v1)
                 .add_yaxis(
-                series_name='',
-                y_axis=v2,
-                xaxis_index=0,
-                symbol='triangle',
-                symbol_size=10,  # 设置散点的大小
-            )
+                    series_name='',
+                    y_axis=v2,
+                    xaxis_index=0,
+                    symbol='triangle',
+                    symbol_size=10,  # 设置散点的大小
+                )
                 .set_series_opts(
-                label_opts=opts.LabelOpts(is_show=False),
-                itemstyle_opts=opts.ItemStyleOpts(color="red")
-            )
+                    label_opts=opts.LabelOpts(is_show=False),
+                    itemstyle_opts=opts.ItemStyleOpts(color="red")
+                )
                 .set_global_opts(legend_opts=opts.LegendOpts(is_show=False))
                 .set_global_opts(visualmap_opts=opts.VisualMapOpts(is_show=False))
-        )
+            )
         kpl.overlap(es_buy)
 
     if 'SELL' in df.columns:
@@ -1650,17 +1650,17 @@ def plot_main(is_notebook=True):
             Scatter()
                 .add_xaxis(v1)
                 .add_yaxis(
-                series_name='',
-                y_axis=v2,
-                xaxis_index=0,
-                symbol='triangle',
-                symbol_size=10,  # 设置散点的大小
-                symbol_rotate=180,
-            )
+                    series_name='',
+                    y_axis=v2,
+                    xaxis_index=0,
+                    symbol='triangle',
+                    symbol_size=10,  # 设置散点的大小
+                    symbol_rotate=180,
+                )
                 .set_series_opts(
-                label_opts=opts.LabelOpts(is_show=False),
-                itemstyle_opts=opts.ItemStyleOpts(color="green")
-            )
+                    label_opts=opts.LabelOpts(is_show=False),
+                    itemstyle_opts=opts.ItemStyleOpts(color="green")
+                )
                 .set_global_opts(legend_opts=opts.LegendOpts(is_show=False))
                 .set_global_opts(visualmap_opts=opts.VisualMapOpts(is_show=False))
         )
@@ -1669,48 +1669,48 @@ def plot_main(is_notebook=True):
         Line()
             .add_xaxis(xaxis_data=dateindex)
             .add_yaxis(
-            series_name="K",
-            y_axis=round(df["K"], 2).values.tolist(),
-            is_smooth=True,
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-            itemstyle_opts=opts.ItemStyleOpts( color='red'),
-            markline_opts=opts.MarkLineOpts(
-                data=[opts.MarkLineItem(name='20', y=20, symbol='none', ),
-                      opts.MarkLineItem(name='100', y=80, symbol='none')],
-                linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+                series_name="K",
+                y_axis=round(df["K"], 2).values.tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts( color='red'),
+                markline_opts=opts.MarkLineOpts(
+                    data=[opts.MarkLineItem(name='20', y=20, symbol='none', ),
+                          opts.MarkLineItem(name='100', y=80, symbol='none')],
+                    linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+                )
             )
-        )
             .add_yaxis(
-            series_name="D",
-            y_axis=round(df["D"], 2).values.tolist(),
-            is_smooth=True,
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-            itemstyle_opts=opts.ItemStyleOpts( color='green'),
-        )
+                series_name="D",
+                y_axis=round(df["D"], 2).values.tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts(color='green'),
+            )
             .add_yaxis(
-            series_name="J",
-            y_axis=round(df["J"], 2).values.tolist(),
-            is_smooth=True,
-            label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-            itemstyle_opts=opts.ItemStyleOpts( color='blue'),
-        )
+                series_name="J",
+                y_axis=round(df["J"], 2).values.tolist(),
+                is_smooth=True,
+                label_opts=opts.LabelOpts(is_show=False),
+                linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+                itemstyle_opts=opts.ItemStyleOpts(color='blue'),
+            )
             .set_global_opts(
-            xaxis_opts=opts.AxisOpts(
-                type_="category",
-                splitline_opts=opts.SplitLineOpts(is_show=False),
-                axislabel_opts=opts.LabelOpts(is_show=False),
-            ),
-            yaxis_opts=opts.AxisOpts(
-                axislabel_opts=opts.LabelOpts(is_show=False),
-                axisline_opts=opts.AxisLineOpts(is_show=True),
-                axistick_opts=opts.AxisTickOpts(is_show=False),
-                splitline_opts=opts.SplitLineOpts(is_show=False),
-            ),
-            legend_opts=opts.LegendOpts(is_show=False),
-        )
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",
+                    splitline_opts=opts.SplitLineOpts(is_show=False),
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                ),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    axisline_opts=opts.AxisLineOpts(is_show=True),
+                    axistick_opts=opts.AxisTickOpts(is_show=False),
+                    splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
+                legend_opts=opts.LegendOpts(is_show=False),
+            )
     )
 
     grid_chart = Grid(init_opts=opts.InitOpts(width="1000px", height="300px",))
@@ -1728,7 +1728,6 @@ def plot_main(is_notebook=True):
     if is_notebook:
         return grid_chart.render_notebook()
     else:
-        grid_chart.render("./main.html")
         return grid_chart
 
 
