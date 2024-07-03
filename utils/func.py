@@ -1002,14 +1002,24 @@ def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
     :rtype: pandas.DataFrame
     """
     if not zh_index:
-        df_pre = ak.stock_zh_a_hist_min_em(symbol=code, start_date=pre_date, end_date=pre_date, period=period, adjust="qfq")
-        df_current = ak.stock_zh_a_hist_min_em(symbol=code, start_date=current_date, end_date=current_date, period=period, adjust="qfq")
+        df_pre = ak.stock_zh_a_hist_min_em(symbol=code, start_date=pre_date, end_date=pre_date, period=period, adjust="qfq").iloc[:, [0, 1, 2, 3, 4, 7, 10]]
+        df_pre.columns = ['date', 'open', 'close', 'high', 'low', 'volume', 'change']
+        df_pre["date"] = pd.to_datetime(df_pre["date"]).apply(lambda x: datetime.datetime.strftime(x, '%H:%M'))
+        df_current = ak.stock_zh_a_hist_min_em(symbol=code, start_date=current_date, end_date=current_date, period=period, adjust="qfq").iloc[:, [0, 1, 2, 3, 4, 7, 10]]
+        df_current.columns = ['date', 'open', 'close', 'high', 'low', 'volume', 'change']
+        df_current["date"] = pd.to_datetime(df_current["date"]).apply(lambda x: datetime.datetime.strftime(x, '%H:%M'))
     else:
-        df_pre = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=pre_date, end_date=pre_date)
-        df_current = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=current_date, end_date=current_date)
+        df_pre = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=pre_date, end_date=pre_date).iloc[:, [0, 1, 2, 3, 4, 7, 10]]
+        df_pre.columns = ['date', 'open', 'close', 'high', 'low', 'volume', 'change']
+        df_pre["date"] = pd.to_datetime(df_pre["date"]).apply(lambda x: datetime.datetime.strftime(x, '%H:%M'))
+        df_current = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=current_date, end_date=current_date).iloc[:, [0, 1, 2, 3, 4, 7, 10]]
+        df_current.columns = ['date', 'open', 'close', 'high', 'low', 'volume', 'change']
+        df_current["date"] = pd.to_datetime(df_current["date"]).apply(lambda x: datetime.datetime.strftime(x, '%H:%M'))
 
-    ret_df = pd.concat([df_pre, df_current])
-    return ret_df
+    # ret_df = pd.concat([df_pre, df_current])
+    ret_df = pd.merge(df_current, df_pre, how='left', on='date', suffixes=('', '_pre'))
+    ret_df['volume_yoy'] = ret_df['volume'] - ret_df['volume_pre']
+    return ret_df[['date', 'open', 'close', 'high', 'low', 'volume', 'volume_yoy', 'change', 'change_pre']]
 
 
 if __name__ == "__main__":
