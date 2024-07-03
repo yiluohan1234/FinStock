@@ -243,7 +243,7 @@ def MAIN_INDICATOR(df):
     :return: 返回指标数据
     :rtype: pandas.DataFrame
     """
-    df = pd.concat([df, basic_indicator(df)], axis=1)
+    df = basic_indicator(df)
 
     # df['ATR'], df['stop'] = ATR(df, 14)
     df = pd.concat([df, ATR(df, 14)], axis=1)
@@ -287,28 +287,27 @@ def basic_indicator(df):
     :rtype: pandas.DataFrame
     """
     # 计算均线、volume均线、抵扣差、乖离率、k率
-    dt = {}
     for i in ema_list:
-        dt['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        dt['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        dt['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        dt['bias{}'.format(i)] = round(
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
             (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
             precision)
-        dt['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        dt['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
 
     for i in fib_list:
-        dt['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        dt['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        dt['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        dt['bias{}'.format(i)] = round(
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
+        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
+        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
+        df['bias{}'.format(i)] = round(
             (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
             precision)
-        dt['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        dt['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-    ret = pd.DataFrame(dt)
-    return ret
+        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
+
+    return df
 
 
 def MACD(df, short=12, long=26, mid=9):
