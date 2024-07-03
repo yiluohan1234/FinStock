@@ -235,7 +235,50 @@ def EMA(df_close, n):
     return ema_n
 
 
-def BASIC_INDICATOR(df):
+def MAIN_INDICATOR(df):
+    """
+    计算主要的指标数据，包括均线、volume均线、抵扣差、乖离率、k率
+    :param df: 基础数据
+    :type df: pandas.DataFrame
+    :return: 返回指标数据
+    :rtype: pandas.DataFrame
+    """
+    df = pd.concat([df, basic_indicator(df)], axis=1)
+
+    # df['ATR'], df['stop'] = ATR(df, 14)
+    df = pd.concat([df, ATR(df, 14)], axis=1)
+
+    # BOLL计算 取N=20，M=2
+    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
+
+    # 计算包络线ENE(10,9,9)
+    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
+
+    # 计算MACD
+    df = pd.concat([df, MACD(df)], axis=1)
+
+    # 计算KDJ
+    df = pd.concat([df, KDJ(df)], axis=1)
+
+    # 计算RSI
+    df = pd.concat([df, RSI(df)], axis=1)
+
+    # 计算CCI
+    df = pd.concat([df, CCI(df)], axis=1)
+
+    # 标记买入和卖出信号
+    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
+
+    # 过滤日期
+    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
+
+    # 计算volume的标识
+    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+
+    return df
+
+
+def basic_indicator(df):
     """
     计算基本的指标数据，包括均线、volume均线、抵扣差、乖离率、k率
     :param df: 基础数据
