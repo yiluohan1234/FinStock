@@ -734,7 +734,8 @@ def KPL(dateindex, data, n, KPLlines) -> Line:
             markline_opts=opts.MarkLineOpts(
                 data=[opts.MarkLineItem(name='0值', y=0, symbol='none', )],
                 linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
-            )
+            ),
+            is_symbol_show=False, symbol_size=1
         )
         .set_global_opts(
         xaxis_opts=opts.AxisOpts(
