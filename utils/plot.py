@@ -1558,14 +1558,16 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 y_axis=round(df["DIF"], 2).values.tolist(),
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-                itemstyle_opts=opts.ItemStyleOpts( color='green'),
+                itemstyle_opts=opts.ItemStyleOpts(color='green'),
+                is_symbol_show=False, symbol_size=1
             )
             .add_yaxis(
                 series_name="DEA",
                 y_axis=round(df["DEA"], 2).values.tolist(),
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-                itemstyle_opts=opts.ItemStyleOpts( color='red'),
+                itemstyle_opts=opts.ItemStyleOpts(color='red'),
+                is_symbol_show=False, symbol_size=1
             )
     )
     macd = bar.overlap(line)
@@ -1583,7 +1585,8 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 markline_opts=opts.MarkLineOpts(
                     data=[opts.MarkLineItem(name='0', y=0, symbol='none', )],
                     linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
-                )
+                ),
+                is_symbol_show=False, symbol_size=1
             )
             .add_yaxis(
                 series_name="kp20",
@@ -1591,7 +1594,8 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 is_smooth=True,
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-                itemstyle_opts=opts.ItemStyleOpts( color='red'),
+                itemstyle_opts=opts.ItemStyleOpts(color='red'),
+                is_symbol_show=False, symbol_size=1
             )
             .add_yaxis(
                 series_name="kp60",
@@ -1599,7 +1603,8 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 is_smooth=True,
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
-                itemstyle_opts=opts.ItemStyleOpts( color='blue'),
+                itemstyle_opts=opts.ItemStyleOpts(color='blue'),
+                is_symbol_show=False, symbol_size=1
             )
             .set_global_opts(
                 xaxis_opts=opts.AxisOpts(
@@ -1681,7 +1686,8 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                     data=[opts.MarkLineItem(name='20', y=20, symbol='none', ),
                           opts.MarkLineItem(name='100', y=80, symbol='none')],
                     linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
-                )
+                ),
+                is_symbol_show=False, symbol_size=1
             )
             .add_yaxis(
                 series_name="D",
@@ -1690,6 +1696,7 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
                 itemstyle_opts=opts.ItemStyleOpts(color='green'),
+                is_symbol_show=False, symbol_size=1
             )
             .add_yaxis(
                 series_name="J",
@@ -1698,6 +1705,7 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
                 label_opts=opts.LabelOpts(is_show=False),
                 linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
                 itemstyle_opts=opts.ItemStyleOpts(color='blue'),
+                is_symbol_show=False, symbol_size=1
             )
             .set_global_opts(
                 xaxis_opts=opts.AxisOpts(
