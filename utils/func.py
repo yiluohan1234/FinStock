@@ -985,7 +985,7 @@ def transfer_date_format(date_string, formats="%Y%m%d"):
 
 def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
                   pre_date=(datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d'),
-                  zh_index=False):
+                  period='60', zh_index=False):
     """
     获取实时分钟级数据
     :param code: 编码
@@ -994,17 +994,19 @@ def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
     :type current_date: str
     :param pre_date: 历史日期
     :type pre_date: str
+    :param period: 周期，{'1', '5', '15', '30', '60'}
+    :type period: str
     :param zh_index: 是否是指数
     :type zh_index: bool
     :return: 返回分钟级数据
     :rtype: pandas.DataFrame
     """
     if not zh_index:
-        df_pre = ak.stock_zh_a_hist_min_em(symbol=code, start_date=pre_date, end_date=pre_date, period='60', adjust="qfq")
-        df_current = ak.stock_zh_a_hist_min_em(symbol=code, start_date=current_date, end_date=current_date, period='60', adjust="qfq")
+        df_pre = ak.stock_zh_a_hist_min_em(symbol=code, start_date=pre_date, end_date=pre_date, period=period, adjust="qfq")
+        df_current = ak.stock_zh_a_hist_min_em(symbol=code, start_date=current_date, end_date=current_date, period=period, adjust="qfq")
     else:
-        df_pre = ak.index_zh_a_hist_min_em(symbol=code, period="60", start_date=pre_date, end_date=pre_date)
-        df_current = ak.index_zh_a_hist_min_em(symbol=code, period="60", start_date=current_date, end_date=current_date)
+        df_pre = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=pre_date, end_date=pre_date)
+        df_current = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=current_date, end_date=current_date)
 
     ret_df = pd.concat([df_pre, df_current])
     return ret_df
