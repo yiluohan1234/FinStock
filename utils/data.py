@@ -38,69 +38,17 @@ def get_data(code, start_date, end_date, freq):
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
     else:
-        period = int(freq[3:])
+        period = freq[3:]
         # df = ak.stock_zh_a_hist_min_em(symbol=code, start_date=start_date, end_date=end_date, period="60",  adjust="qfq").iloc[:, [0, 1, 3, 4, 2, 7]]
         df = ak.stock_zh_a_minute(symbol=get_szsh_code(code), period=period, adjust="qfq")
         df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
         df["date"] = pd.to_datetime(df["date"])
         df[df.columns.tolist()[1:]] = pd.DataFrame(df[df.columns.tolist()[1:]], dtype=float)
-    # else:
-    #     df = ak.stock_zh_a_hist(symbol=code, start_date=start_end_date, end_date=end_date, adjust="qfq").iloc[:, :6]
-    #     df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
-    #     df = transfer_price_freq(df, freq)
 
     df['volume'] = round(df['volume'].astype('float') / 10000, 2)
 
-    # 计算均线、volume均线、抵扣差、乖离率、k率
-    for i in ema_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    for i in fib_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    # df['ATR'], df['stop'] = ATR(df, 14)
-    df = pd.concat([df, ATR(df, 14)], axis=1)
-
-    # BOLL计算 取N=20，M=2
-    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
-
-    # 计算包络线ENE(10,9,9)
-    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
-
-    # 计算MACD
-    df = pd.concat([df, MACD(df)], axis=1)
-
-    # 计算KDJ
-    df = pd.concat([df, KDJ(df)], axis=1)
-
-    # 计算RSI
-    df = pd.concat([df, RSI(df)], axis=1)
-
-    # 计算CCI
-    df = pd.concat([df, CCI(df)], axis=1)
-
-    # 标记买入和卖出信号
-    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
-
-    # 过滤日期
-    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
-
-    # 计算volume的标识
-    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+    # 计算主要指标
+    df = MAIN_INDICATOR(df)
 
     # 把date作为日期索引
     df.index = df.date
@@ -131,7 +79,7 @@ def get_index_data(code, start_date, end_date, freq):
             df.columns = ['date', 'open', 'close', 'high', 'low', 'volume']
             df["date"] = pd.to_datetime(df["date"])
         else:
-            period = int(freq[3:])
+            period = freq[3:]
             # df = ak.stock_zh_a_minute(symbol=code, period="60", adjust="qfq")
             # df.columns = ['date', 'open', 'high', 'low', 'close', 'volume', ]
             df = ak.index_zh_a_hist_min_em(symbol=code, period=period, start_date=start_date, end_date=end_date).iloc[:, :6]
@@ -145,56 +93,8 @@ def get_index_data(code, start_date, end_date, freq):
 
     df['volume'] = round(df['volume'].astype('float') / 100000000, 2)
 
-    # 计算均线、volume均线、抵扣差、乖离率、k率
-    for i in ema_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
-
-    for i in fib_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    # df['ATR'], df['stop'] = ATR(df, 14)
-    df = pd.concat([df, ATR(df, 14)], axis=1)
-
-    # BOLL计算 取N=20，M=2
-    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
-
-    # 计算包络线ENE(10,9,9)
-    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
-
-    # 计算MACD
-    df = pd.concat([df, MACD(df)], axis=1)
-
-    # 计算KDJ
-    df = pd.concat([df, KDJ(df)], axis=1)
-
-    # 计算RSI
-    df = pd.concat([df, RSI(df)], axis=1)
-
-    # 计算CCI
-    df = pd.concat([df, CCI(df)], axis=1)
-
-    # 标记买入和卖出信号
-    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
-
-    # 过滤日期
-    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
-
-    # 计算volume的标识
-    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+    # 计算主要指标
+    df = MAIN_INDICATOR(df)
 
     # 把date作为日期索引
     df.index = df.date
@@ -229,56 +129,8 @@ def get_concept_data(symbol, start_date, end_date, freq):
 
     df['volume'] = round(df['volume'].astype('float') / 10000, 2)
 
-    # 计算均线、volume均线、抵扣差、乖离率、k率
-    for i in ema_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    for i in fib_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    # df['ATR'], df['stop'] = ATR(df, 14)
-    df = pd.concat([df, ATR(df, 14)], axis=1)
-
-    # BOLL计算 取N=20，M=2
-    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
-
-    # 计算包络线ENE(10,9,9)
-    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
-
-    # 计算MACD
-    df = pd.concat([df, MACD(df)], axis=1)
-
-    # 计算KDJ
-    df = pd.concat([df, KDJ(df)], axis=1)
-
-    # 计算RSI
-    df = pd.concat([df, RSI(df)], axis=1)
-
-    # 计算CCI
-    df = pd.concat([df, CCI(df)], axis=1)
-
-    # 标记买入和卖出信号
-    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
-
-    # 过滤日期
-    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
-
-    # 计算volume的标识
-    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+    # 计算主要指标
+    df = MAIN_INDICATOR(df)
 
     # 把date作为日期索引
     df.index = df.date
@@ -312,56 +164,8 @@ def get_industry_data(symbol, start_date, end_date, freq):
 
     df['volume'] = round(df['volume'].astype('float') / 10000, 2)
 
-    # 计算均线、volume均线、抵扣差、乖离率、k率
-    for i in ema_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    for i in fib_list:
-        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
-        df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
-        df['dkc{}'.format(i)] = round(df["close"] - df["close"].shift(i - 1), precision)
-        df['bias{}'.format(i)] = round(
-            (df["close"] - df["ma{}".format(i)]) * 100 / df["ma{}".format(i)],
-            precision)
-        df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
-        df['kp{}'.format(i)] = df.close.rolling(i).apply(lambda x: cal_K_predict(x))
-
-    # df['ATR'], df['stop'] = ATR(df, 14)
-    df = pd.concat([df, ATR(df, 14)], axis=1)
-
-    # BOLL计算 取N=20，M=2
-    df = pd.concat([df, BOLL(df, 20, 2)], axis=1)
-
-    # 计算包络线ENE(10,9,9)
-    df = pd.concat([df, ENE(df, 10, 9)], axis=1)
-
-    # 计算MACD
-    df = pd.concat([df, MACD(df)], axis=1)
-
-    # 计算KDJ
-    df = pd.concat([df, KDJ(df)], axis=1)
-
-    # 计算RSI
-    df = pd.concat([df, RSI(df)], axis=1)
-
-    # 计算CCI
-    df = pd.concat([df, CCI(df)], axis=1)
-
-    # 标记买入和卖出信号
-    df = pd.concat([df, find_max_min_point(df, 'kp10')], axis=1)
-
-    # 过滤日期
-    # df = df.loc[(df['date'] >= start_date) & (df['date'] <= end_date)]
-
-    # 计算volume的标识
-    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+    # 计算主要指标
+    df = MAIN_INDICATOR(df)
 
     # 把date作为日期索引
     df.index = df.date
