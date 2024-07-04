@@ -680,6 +680,20 @@ def get_szsh_code(code):
     return gp_type
 
 
+def code2symbol(code, kind="shcode"):
+    '''根据code代码开头数字转为为标准的symbol'''
+    xcode = ''.join(c for c in code if c.isdigit())
+    kind_list = ['shcode','sh.code','code.sh','codesh']
+    # kind转为小写，在以上列表内，则自动按相应格式进行转换；否则只反馈6位数字代码。
+    if kind.lower() in kind_list:
+        prefix = ''.join(c for c in kind.replace('code','') if c.isalpha())
+        char   = '.' if '.' in kind else ''
+        if   kind.lower() == "shcode" or kind.lower() == "sh.code": symbol = f'sh{char}{xcode}' if (xcode[0] == "6" or xcode[:3] == "900")  else f'sz{char}{xcode}' if (xcode[0] == "0" or xcode[0] == "3" or xcode[0] == "2")  else f'bj{char}{xcode}' if (xcode[0] == "4" or xcode[0] == "8" or xcode[:3] == "920") else code
+        elif kind.lower() == "codesh" or kind.lower() == "code.sh": symbol = f'{xcode}{char}sh' if (xcode[0] == "6" or xcode[:3] == "900")  else f'{xcode}{char}sz' if (xcode[0] == "0" or xcode[0] == "3" or xcode[0] == "2")  else f'{xcode}{char}bj' if (xcode[0] == "4" or xcode[0] == "8" or xcode[:3] == "920") else code
+        return symbol if prefix[0].islower() else symbol.upper()
+    else:return xcode
+
+
 def num2str(num):
     '''
     实现数值转换为万，亿单位，保留2位小数
