@@ -206,6 +206,44 @@ def get_kline_chart_date(code, start_date, end_date, freq, zh_index):
     return df
 
 
+def get_stock(code, start_date, end_date, freq, count):
+    '''
+    @params:
+    - code: str                      #股票代码
+    - start_date: str                #开始时间, 如'202000101'
+    - end_date: str                  #结束时间, 如'20240202'
+    - freq : str                     #支持'1d'日, '1w'周, '1M'月, '1m','5m','15m','30m','60m'
+    - count :int                     #类型，stock：股票，index：指数，industry：行业，concept：概念
+    '''
+    from utils.Ashare import get_price
+    from utils.MyTT import KDJ, MACD, BIAS
+    from utils.func import frb, cal_K_predict
+    from scipy.signal import find_peaks
+    import datetime
+    start_date = pd.to_datetime(start_date)+datetime.timedelta(days=-1)
+    end_date = pd.to_datetime(end_date)+datetime.timedelta(days=+1)
+
+    df = get_price(code,frequency=freq,count=count)
+    df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
+    for i in [10, 20, 60]:
+        df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
+    df['K'], df['D'], df['J'] = KDJ(df['close'], df['high'], df['low'])
+    df['DIF'], df['DEA'], df['MACD'] = MACD(df['close'])
+    df['BIAS1'], df['BIAS2'], df['BIAS3'] = BIAS(df['close'])
+    # 获取最高最低点
+    series = np.array(df['kp10'])
+    peaks, _ = find_peaks(series, distance=10)
+    mins, _ = find_peaks(series*-1, distance=10)
+
+    buy = (df['kp10'].reset_index().index.isin(mins.tolist())) & (df['kp10'] < 0) & (df['MACD'] < 0) & \
+          ~((df['DIF'] > 0) & (df['DEA'] > 0))
+    sell = (df['kp10'].reset_index().index.isin(peaks.tolist())) & (df['kp10'] > 0) & (df['MACD'] > 0)
+    df['BUY'], df['SELL'] = buy, sell
+    # 过滤日期
+    df = df.loc[(df.index >= start_date) & (df.index <= end_date)]
+    return df
+
+
 if __name__ == "__main__":
     time_start = time.time()
     df = get_kline_chart_date(code="000977", start_date='20240101', end_date="20240202", freq='min60', zh_index='stock')
