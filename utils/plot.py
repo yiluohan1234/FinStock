@@ -1742,6 +1742,315 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
         return grid_chart
 
 
+def plot_main_tx(df, is_notebook=True):
+    dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
+    # volume
+    volume = (
+        Bar()
+            .add_xaxis(dateindex)
+            .add_yaxis(
+            series_name="volume",
+            y_axis=round(df["volume"], 2).values.tolist(),
+            label_opts=opts.LabelOpts(is_show=False),
+            itemstyle_opts=opts.ItemStyleOpts(
+                color=JsCode(
+                    """
+                    function(params) {
+                        var colorList;
+                        if (barData[params.dataIndex][1] > barData[params.dataIndex][0]) {
+                            colorList = '#ef232a';
+                        } else {
+                            colorList = '#14b143';
+                        }
+                        return colorList;
+                    }
+                    """
+                )
+            ),
+        )
+            .set_global_opts(
+            # title_opts=opts.TitleOpts(title="测试", pos_left="0"),
+            xaxis_opts=opts.AxisOpts(
+                type_="category",
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+                axislabel_opts=opts.LabelOpts(is_show=False),
+            ),
+            yaxis_opts=opts.AxisOpts(
+                is_scale=True,
+                axislabel_opts=opts.LabelOpts(is_show=False),
+                axistick_opts=opts.AxisTickOpts(is_show=False),
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+            ),
+            legend_opts=opts.LegendOpts(is_show=False),
+            # 第一个图
+            datazoom_opts=[
+                opts.DataZoomOpts(is_show=False, type_="inside", xaxis_index=[0, 1, 2], range_start=0, range_end=100),
+                opts.DataZoomOpts(is_show=True, type_="slider", xaxis_index=[0, 1, 2], pos_top="90%", range_start=0, range_end=100),
+            ],
+            tooltip_opts=opts.TooltipOpts(
+                trigger="axis",
+                axis_pointer_type="cross",
+                background_color="rgba(245, 245, 245, 0.8)",
+                border_width=2,
+                border_color="#ccc",
+                textstyle_opts=opts.TextStyleOpts(color="#000", font_size=10),
+            ),
+            axispointer_opts=opts.AxisPointerOpts(
+                is_show=True,
+                link=[{"xAxisIndex": "all"}],
+                label=opts.LabelOpts(background_color="#777"),
+            ),
+        )
+    )
+    # macd
+    bar = (
+        Bar()
+            .add_xaxis(dateindex)
+            .add_yaxis(series_name="MACD", y_axis=round(df["MACD"], 2).values.tolist(),
+                       label_opts=opts.LabelOpts(is_show=False),
+                       itemstyle_opts=opts.ItemStyleOpts(
+                           color=JsCode(
+                               """
+                               function(params) {
+                                   var colorList;
+                                   if (params.data >= 0) {
+                                       colorList = '#ef232a';
+                                   } else {
+                                       colorList = '#14b143';
+                                   }
+                                   return colorList;
+                               }
+                               """
+                           )
+                       ),
+                       markline_opts=opts.MarkLineOpts(
+                           data=[opts.MarkLineItem(name='0', y=0, symbol='none', ),],
+                           linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+                       )
+                       )
+            .set_global_opts(
+            xaxis_opts=opts.AxisOpts(
+                type_="category",
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+                axislabel_opts=opts.LabelOpts(is_show=False),
+            ),
+            yaxis_opts=opts.AxisOpts(
+                axislabel_opts=opts.LabelOpts(is_show=False),
+                axistick_opts=opts.AxisTickOpts(is_show=False),
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+            ),
+            legend_opts=opts.LegendOpts(is_show=False),
+            # 第一个图
+            datazoom_opts=[
+                opts.DataZoomOpts(is_show=False, type_="inside", xaxis_index=[0, 1, 2], range_end=100),
+                opts.DataZoomOpts(is_show=False, type_="slider", xaxis_index=[0, 1, 2], pos_top="90%", range_end=100),
+            ],
+            tooltip_opts=opts.TooltipOpts(
+                trigger="axis",
+                axis_pointer_type="cross",
+                background_color="rgba(245, 245, 245, 0.8)",
+                border_width=2,
+                border_color="#ccc",
+                textstyle_opts=opts.TextStyleOpts(color="#000", font_size=10),
+            ),
+            axispointer_opts=opts.AxisPointerOpts(
+                is_show=True,
+                link=[{"xAxisIndex": "all"}],
+                label=opts.LabelOpts(background_color="#777"),
+            ),
+        )
+    )
+    line = (
+        Line()
+            .add_xaxis(dateindex)
+            .add_yaxis(
+            series_name="DIF",
+            y_axis=round(df["DIF"], 2).values.tolist(),
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='green'),
+            is_symbol_show=False, symbol_size=1
+        )
+            .add_yaxis(
+            series_name="DEA",
+            y_axis=round(df["DEA"], 2).values.tolist(),
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='red'),
+            is_symbol_show=False, symbol_size=1
+        )
+    )
+    macd = bar.overlap(line)
+    # 叠加多个k线
+    kpl = (
+        Line()
+            .add_xaxis(xaxis_data=dateindex)
+            .add_yaxis(
+            series_name="kp10",
+            y_axis=round(df["kp10"], 2).values.tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='green'),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(name='0', y=0, symbol='none', )],
+                linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+            ),
+            is_symbol_show=False, symbol_size=1
+        )
+            .add_yaxis(
+            series_name="kp20",
+            y_axis=round(df["kp20"], 2).values.tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='red'),
+            is_symbol_show=False, symbol_size=1
+        )
+            .add_yaxis(
+            series_name="kp60",
+            y_axis=round(df["kp60"], 2).values.tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='blue'),
+            is_symbol_show=False, symbol_size=1
+        )
+            .set_global_opts(
+            xaxis_opts=opts.AxisOpts(
+                type_="category",
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+                axislabel_opts=opts.LabelOpts(is_show=False),
+            ),
+            yaxis_opts=opts.AxisOpts(
+                axislabel_opts=opts.LabelOpts(is_show=False),
+                axisline_opts=opts.AxisLineOpts(is_show=True),
+                axistick_opts=opts.AxisTickOpts(is_show=False),
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+            ),
+            legend_opts=opts.LegendOpts(is_show=False),
+        )
+    )
+    # 叠加买卖标记
+    if 'BUY' in df.columns:
+        if len(dateindex[0]) == 10:
+            v1 = df[df['BUY'] == True].index.strftime("%Y-%m-%d").tolist()
+        else:
+            v1 = df[df['BUY'] == True].index.strftime("%Y-%m-%d %H:%M").tolist()
+        v2 = df[df['BUY'] == True]['kp10'].values.tolist()
+        es_buy = (
+            Scatter()
+                .add_xaxis(v1)
+                .add_yaxis(
+                series_name='',
+                y_axis=v2,
+                xaxis_index=0,
+                symbol='triangle',
+                symbol_size=10,  # 设置散点的大小
+            )
+                .set_series_opts(
+                label_opts=opts.LabelOpts(is_show=False),
+                itemstyle_opts=opts.ItemStyleOpts(color="red")
+            )
+                .set_global_opts(legend_opts=opts.LegendOpts(is_show=False))
+                .set_global_opts(visualmap_opts=opts.VisualMapOpts(is_show=False))
+        )
+        kpl.overlap(es_buy)
+
+    if 'SELL' in df.columns:
+        if len(dateindex[0]) == 10:
+            v1 = df[df['SELL'] == True].index.strftime("%Y-%m-%d").tolist()
+        else:
+            v1 = df[df['SELL'] == True].index.strftime("%Y-%m-%d %H:%M").tolist()
+        v2 = df[df['SELL'] == True]['kp10'].values.tolist()
+        es_sell = (
+            Scatter()
+                .add_xaxis(v1)
+                .add_yaxis(
+                series_name='',
+                y_axis=v2,
+                xaxis_index=0,
+                symbol='triangle',
+                symbol_size=10,  # 设置散点的大小
+                symbol_rotate=180,
+            )
+                .set_series_opts(
+                label_opts=opts.LabelOpts(is_show=False),
+                itemstyle_opts=opts.ItemStyleOpts(color="green")
+            )
+                .set_global_opts(legend_opts=opts.LegendOpts(is_show=False))
+                .set_global_opts(visualmap_opts=opts.VisualMapOpts(is_show=False))
+        )
+        kpl.overlap(es_sell)
+    kdj = (
+        Line()
+            .add_xaxis(xaxis_data=dateindex)
+            .add_yaxis(
+            series_name="K",
+            y_axis=round(df["K"], 2).values.tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='red'),
+            markline_opts=opts.MarkLineOpts(
+                data=[opts.MarkLineItem(name='20', y=20, symbol='none', ),
+                      opts.MarkLineItem(name='100', y=80, symbol='none')],
+                linestyle_opts=opts.LineStyleOpts(width=1, color='#301934', ),
+            ),
+            is_symbol_show=False, symbol_size=1
+        )
+            .add_yaxis(
+            series_name="D",
+            y_axis=round(df["D"], 2).values.tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='green'),
+            is_symbol_show=False, symbol_size=1
+        )
+            .add_yaxis(
+            series_name="J",
+            y_axis=round(df["J"], 2).values.tolist(),
+            is_smooth=True,
+            label_opts=opts.LabelOpts(is_show=False),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            itemstyle_opts=opts.ItemStyleOpts(color='blue'),
+            is_symbol_show=False, symbol_size=1
+        )
+            .set_global_opts(
+            xaxis_opts=opts.AxisOpts(
+                type_="category",
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+                axislabel_opts=opts.LabelOpts(is_show=False),
+            ),
+            yaxis_opts=opts.AxisOpts(
+                axislabel_opts=opts.LabelOpts(is_show=False),
+                axisline_opts=opts.AxisLineOpts(is_show=True),
+                axistick_opts=opts.AxisTickOpts(is_show=False),
+                splitline_opts=opts.SplitLineOpts(is_show=False),
+            ),
+            legend_opts=opts.LegendOpts(is_show=False),
+        )
+    )
+
+    grid_chart = Grid(init_opts=opts.InitOpts(width="1000px", height="300px",))
+    grid_chart.add_js_funcs("var barData = {}".format(df[['open', 'close', 'low', 'high']].values.tolist()))
+    grid_chart.add(
+        macd,
+        grid_opts=opts.GridOpts(pos_top="0%", height="30%"),
+    )
+    grid_chart.add(
+        kpl, grid_opts=opts.GridOpts(pos_top="30%", height="30%"),
+    )
+    grid_chart.add(
+        kdj, grid_opts=opts.GridOpts(pos_top="60%", height="30%"),
+    )
+    if is_notebook:
+        return grid_chart.render_notebook()
+    else:
+        return grid_chart
+
+
 if __name__ == "__main__":
     df_main = get_main_indicators_sina("000977", 5, is_display=False)
     plot_line(df_main, '报告期', '总资产周转率', '总资产周转率').render('visual.html')
