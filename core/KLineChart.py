@@ -65,8 +65,7 @@ class KLineChart:
         grid = (Grid(init_opts=opts.InitOpts(
             width=str(width) + "px",
             height=str(height) + "px",
-            animation_opts=opts.AnimationOpts(animation=False),
-        ))
+            animation_opts=opts.AnimationOpts(animation=False),))
         )
         c = K(self.dateindex, self.data, self.title, klines, jxLines, threeLines)
         iButton = 10
