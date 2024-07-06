@@ -69,7 +69,6 @@ class KLineChart:
         ))
         )
         c = K(self.dateindex, self.data, self.title, klines, jxLines, threeLines)
-        iTop = 10
         iButton = 10
         iWindows = len(area)
         iStep = 0
@@ -86,31 +85,7 @@ class KLineChart:
         icount = 0
 
         for w in area:
-            # print(iStep)
-            if type(w) == list:
-                window = Line().add_xaxis(self.dateindex)
-                for l in w:
-                    window.add_yaxis(
-                        series_name=l,
-                        y_axis=round(self.data[l], self.precision).values.tolist(),
-                        is_smooth=True,
-                        is_symbol_show=False,
-                        is_hover_animation=False,
-                        label_opts=opts.LabelOpts(is_show=False),
-                        linestyle_opts=opts.LineStyleOpts(type_='solid', width=2)
-                    )
-                window.axislabel_opts = opts.LabelOpts(is_show=False),
-                window.set_global_opts(
-                    datazoom_opts=[opts.DataZoomOpts()],
-                    xaxis_opts=opts.AxisOpts(
-                        type_="category",
-                        axislabel_opts=opts.LabelOpts(is_show=False),
-                    ),
-                    legend_opts=opts.LegendOpts(orient='vertical', pos_left="top", pos_top=str(iButton) + "%"),
-                )
-
-
-            elif w == 'V':
+            if w == 'V':
                 window = V(self.dateindex, self.data, vlines)
             elif w == 'M':
                 window = PMACD(self.data, x_splitline=True)
@@ -129,57 +104,17 @@ class KLineChart:
                 window = PLINE(self.data, lines=['K', 'D', 'J'], x_splitline=True)
             elif w == 'MUL':
                 window = PLINE(self.data, lines=multiLines, x_splitline=True)
-            else:
-                window = Line().add_xaxis(self.dateindex)
-                if isinstance(w, list):
-                    ws = w
-                else:
-                    ws = [w]
-                for wi in ws:
-                    window.add_yaxis(
-                        series_name=wi,
-                        y_axis=round(self.data[w], precision).values.tolist(),
-                        is_smooth=True,
-                        is_symbol_show=False,
-                        is_hover_animation=False,
-                        label_opts=opts.LabelOpts(is_show=False),
-                        linestyle_opts=opts.LineStyleOpts(type_='solid', width=2)
-                    )
-                window.axislabel_opts = opts.LabelOpts(is_show=True),
-                window.set_global_opts(
-                    datazoom_opts=[opts.DataZoomOpts()],
-                    xaxis_opts=opts.AxisOpts(
-                        type_="category",
-                        axislabel_opts=opts.LabelOpts(is_show=False),
-
-                    ),
-                    legend_opts=opts.LegendOpts(orient='horizontal', pos_left=str(icount + 20) + "%"),
-
-                )
-                if '_' + w + '_flag' in self.data.columns:
-                    # print("find_flag")
-                    v1 = self.data[self.data['_' + w + '_flag'] == True].index.strftime("%Y-%m-%d").tolist()
-                    v2 = self.data[self.data['_' + w + '_flag'] == True][w]
-                    c_flag = (
-                        EffectScatter()
-                            .add_xaxis(v1)
-                            .add_yaxis("", v2)
-                    )
-                    window.overlap(c_flag)
-                # grid.add(vLine,grid_opts=opts.GridOpts(pos_top= str(iButton)+'%',height=str(iStep)+'%'))
             icount += 1
             # 横坐标最后一行加上x刻度
             if icount == iWindows:
                 window.options['xAxis'][0]['axisLabel'].opts['show'] = True
             grid.add(window, grid_opts=opts.GridOpts(pos_top=str(iButton) + '%', height=str(iStep) + '%'))
             iButton = iButton + iStep
-        # grid.grid_opts=opts.GridOpts(pos_left="8%", pos_right="8%", height="50%"),
         grid.options['dataZoom'][0].opts['xAxisIndex'] = list(range(0, iWindows + 1))
         if is_notebook:
             return grid.render_notebook()
         else:
             grid.render("./kline.html")
-            # return grid.render_notebook()
             return grid
 
     def web(self):
