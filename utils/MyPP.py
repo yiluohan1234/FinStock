@@ -14,7 +14,7 @@ from pyecharts.commons.utils import JsCode
 
 
 # 基本画图组建
-def PLINE(df, lines=[], precision=2, x_splitline=False):
+def PLINE(df, lines=[], precision=2, x_splitline=False) -> Line:
     '''
     利用pyecharts绘制折线图
     :param df: 数据
@@ -168,7 +168,7 @@ def PKLINE(df, title) -> Kline:
     return _kline
 
 
-def PBUY_SELL(df, col_name):
+def PBUY_SELL(df, col_name) -> (Scatter, Scatter):
     '''
     利用pyecharts绘制买卖散点图，叠加到col_name直线上
     :param df: 数据
@@ -200,7 +200,7 @@ def PBUY_SELL(df, col_name):
 
 
 ## 应用类
-def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2, x_splitline=False):
+def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2, x_splitline=False) -> Bar:
     '''
     利用pyecharts绘制MACD图
     :param df: 数据
@@ -282,7 +282,7 @@ def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2, x_splitline=False):
     return macd
 
 
-def PVOL(df, col_name='volume', precision=2):
+def PVOL(df, col_name='volume', precision=2) -> Bar:
     '''
     利用pyecharts绘制VOL图
     :param df: 数据

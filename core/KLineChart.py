@@ -113,21 +113,22 @@ class KLineChart:
             elif w == 'V':
                 window = V(self.dateindex, self.data, vlines)
             elif w == 'M':
-                window = MACD(self.dateindex, self.data)
+                window = PMACD(self.data, x_splitline=True)
             elif w == 'DKC':
-                window = DKC(self.dateindex, self.data, n)
+                window = PLINE(self.data, lines=["dkc{}".format(n)], x_splitline=True)
             elif w == 'BIAS':
-                window = BIAS(self.dateindex, self.data, n)
+                window = PLINE(self.data, lines=["bias{}".format(n)], x_splitline=True)
             elif w == 'KL':
-                window = KL(self.dateindex, self.data, n, KLlines)
+                window = PLINE(self.data, lines=KLlines, x_splitline=True)
             elif w == 'KPL':
-                window = KPL(self.dateindex, self.data, n, KPLlines)
+                window = PLINE(self.data, lines=KPLlines, x_splitline=True)
             elif w == 'DMA':
-                window = DMA(self.dateindex, self.data, dmalines)
+                self.data["DMA-({}-{})".format(dmalines[0], dmalines[1])] = round(self.data[dmalines[0]] - self.data[dmalines[1]], precision)
+                window = PLINE(self.data, lines=["DMA-({}-{})".format(dmalines[0], dmalines[1])], x_splitline=True)
             elif w == 'KDJ':
-                window = PKDJ(self.dateindex, self.data)
+                window = PLINE(self.data, lines=['K', 'D', 'J'], x_splitline=True)
             elif w == 'MUL':
-                window = MULTI_LINE(self.dateindex, self.data, multiLines)
+                window = PLINE(self.data, lines=multiLines, x_splitline=True)
             else:
                 window = Line().add_xaxis(self.dateindex)
                 if isinstance(w, list):
