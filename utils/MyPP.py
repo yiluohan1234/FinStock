@@ -13,6 +13,7 @@ from pyecharts import options as opts
 from pyecharts.commons.utils import JsCode
 
 
+# 基本画图组建
 def PLINE(df, lines=[], precision=2):
     '''
     利用pyecharts绘制折线图
@@ -47,6 +48,7 @@ def PLINE(df, lines=[], precision=2):
             axislabel_opts=opts.LabelOpts(is_show=False),
         ),
         yaxis_opts=opts.AxisOpts(
+            is_scale=True,
             axislabel_opts=opts.LabelOpts(is_show=False),
             # 坐标轴刻度
             axistick_opts=opts.AxisTickOpts(is_show=False),
@@ -78,6 +80,93 @@ def PLINE(df, lines=[], precision=2):
     return _line
 
 
+def PKLINE(df, title) -> Kline:
+    '''
+    利用pyecharts绘制折线图
+    :param df: 数据，需要包含['open', 'close', 'low', 'high']
+    :param title: kline标题
+    :return: Kline对象
+    '''
+    kind = "%Y-%m-%d" if df.index[0].hour == 0 else "%Y-%m-%d %H:%M"
+    x_index = df.index.strftime(kind).tolist()
+    _kline = (Kline()
+        .add_xaxis(x_index)
+        .add_yaxis(
+            series_name="k线",
+            y_axis=df[['open', 'close', 'low', 'high']].values.tolist(),
+            itemstyle_opts=opts.ItemStyleOpts(color="#ec0000", color0="#00da3c"),
+            markpoint_opts=opts.MarkPointOpts(
+                data=[
+                    opts.MarkPointItem(type_='max', name='最大值', value_dim='highest'),
+                    opts.MarkPointItem(type_='min', name='最小值', value_dim='lowest'), ],
+            ),
+        )
+        .set_global_opts(
+            # 标题设置
+            title_opts=opts.TitleOpts(title=title, pos_left='10%'),
+            # 图例配置项
+            legend_opts=opts.LegendOpts(is_show=True, pos_top=10, pos_left="center"),
+            # 区域缩放配置
+            datazoom_opts=[
+                opts.DataZoomOpts(is_show=False, type_="inside", range_start=0, range_end=100),
+                opts.DataZoomOpts(is_show=False, type_="slider", range_start=0, range_end=100),
+            ],
+            # x坐标轴配置项
+            xaxis_opts=opts.AxisOpts(
+                axislabel_opts=opts.LabelOpts(is_show=False),
+                # 坐标轴刻度
+                # axistick_opts=opts.AxisTickOpts(is_show=False),
+                # 分割线
+                # splitline_opts=opts.SplitLineOpts(is_show=False),
+            ),
+            # y坐标轴配置项
+            yaxis_opts=opts.AxisOpts(
+                # 自适应进行缩放
+                is_scale=True,
+                # axislabel_opts=opts.LabelOpts(is_show=False),
+                # 坐标轴刻度
+                # axistick_opts=opts.AxisTickOpts(is_show=False),
+                # 分割线
+                # splitline_opts=opts.SplitLineOpts(is_show=False),
+                # 直角坐标系分割区域配置
+                splitarea_opts=opts.SplitAreaOpts(is_show=True, areastyle_opts=opts.AreaStyleOpts(opacity=1)),
+            ),
+            # 提示框配置顶
+            tooltip_opts=opts.TooltipOpts(
+                trigger="axis",
+                axis_pointer_type="cross",
+                background_color="rgba(245, 245, 245, 0.8)",
+                border_width=2,
+                border_color="#ccc",
+                textstyle_opts=opts.TextStyleOpts(color="#000"),
+            ),
+            # 视觉映射配置项
+            visualmap_opts=opts.VisualMapOpts(
+                is_show=False, dimension=2,
+                series_index=5, is_piecewise=True,
+                pieces=[
+                    {"value": 1, "color": "#00da3c"},
+                    {"value": -1, "color": "#ec0000"},
+                ],
+            ),
+            # 坐标轴指示器配置项
+            axispointer_opts=opts.AxisPointerOpts(
+                is_show=True,
+                link=[{"xAxisIndex": "all"}],
+                label=opts.LabelOpts(background_color="#777"),
+            ),
+            # 区域选择组件配置项
+            # brush_opts=opts.BrushOpts(
+            #     x_axis_index="all",
+            #     brush_link="all",
+            #     out_of_brush={"colorAlpha": 0.1},
+            #     brush_type="lineX",
+            # ),
+        )
+    )
+    return _kline
+
+
 def PBUY_SELL(df, col_name):
     '''
     利用pyecharts绘制买卖散点图，叠加到col_name直线上
@@ -93,7 +182,7 @@ def PBUY_SELL(df, col_name):
     es_buy = (
         Scatter()
             .add_xaxis(x_buy)
-            .add_yaxis(series_name='', y_axis=y_buy, symbol='triangle', symbol_size=5, )
+            .add_yaxis(series_name='', y_axis=y_buy, symbol='triangle', symbol_size=10, )
             .set_series_opts(label_opts=opts.LabelOpts(is_show=False), itemstyle_opts=opts.ItemStyleOpts(color="red"))
             # 图例和视觉映射配置
             .set_global_opts(legend_opts=opts.LegendOpts(is_show=False), visualmap_opts=opts.VisualMapOpts(is_show=False))
@@ -101,7 +190,7 @@ def PBUY_SELL(df, col_name):
     es_sell = (
         Scatter()
             .add_xaxis(x_sell)
-            .add_yaxis(series_name='', y_axis=y_sell, symbol='triangle', symbol_size=5, symbol_rotate=180, )
+            .add_yaxis(series_name='', y_axis=y_sell, symbol='triangle', symbol_size=10, symbol_rotate=180, )
             .set_series_opts(label_opts=opts.LabelOpts(is_show=False), itemstyle_opts=opts.ItemStyleOpts(color="green"))
             # 图例和视觉映射配置
             .set_global_opts(legend_opts=opts.LegendOpts(is_show=False), visualmap_opts=opts.VisualMapOpts(is_show=False))
@@ -150,11 +239,12 @@ def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2):
             .set_global_opts(
                 xaxis_opts=opts.AxisOpts(
                     type_="category",
-                    # 分割线
+                    # 分割线横线
                     splitline_opts=opts.SplitLineOpts(is_show=False),
                     axislabel_opts=opts.LabelOpts(is_show=False),
                 ),
                 yaxis_opts=opts.AxisOpts(
+                    is_scale=True,
                     axislabel_opts=opts.LabelOpts(is_show=False),
                     # 坐标轴刻度
                     axistick_opts=opts.AxisTickOpts(is_show=False),
@@ -224,41 +314,41 @@ def PVOL(df, col_name='volume', precision=2):
                 ),
             )
             .set_global_opts(
-            xaxis_opts=opts.AxisOpts(
-                type_="category",
-                # 分割线
-                splitline_opts=opts.SplitLineOpts(is_show=False),
-                axislabel_opts=opts.LabelOpts(is_show=False),
-            ),
-            yaxis_opts=opts.AxisOpts(
-                axislabel_opts=opts.LabelOpts(is_show=False),
-                # 坐标轴刻度
-                axistick_opts=opts.AxisTickOpts(is_show=False),
-                # 分割线
-                splitline_opts=opts.SplitLineOpts(is_show=False),
-            ),
-            legend_opts=opts.LegendOpts(is_show=False),
-            # 区域缩放配置
-            datazoom_opts=[
-                opts.DataZoomOpts(is_show=False, type_="inside", range_start=0, range_end=100),
-                opts.DataZoomOpts(is_show=False, type_="slider", range_start=0, range_end=100),
-            ],
-            # 工具箱配置
-            tooltip_opts=opts.TooltipOpts(
-                trigger="axis",
-                axis_pointer_type="cross",
-                background_color="rgba(245, 245, 245, 0.8)",
-                border_width=2,
-                border_color="#ccc",
-                textstyle_opts=opts.TextStyleOpts(color="#000", font_size=10),
-            ),
-            # 坐标轴指示器配置
-            axispointer_opts=opts.AxisPointerOpts(
-                is_show=True,
-                link=[{"xAxisIndex": "all"}],
-                label=opts.LabelOpts(background_color="#777"),
-            ),
-        )
+                xaxis_opts=opts.AxisOpts(
+                    type_="category",
+                    # 分割线
+                    # splitline_opts=opts.SplitLineOpts(is_show=False),
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                ),
+                yaxis_opts=opts.AxisOpts(
+                    axislabel_opts=opts.LabelOpts(is_show=False),
+                    # 坐标轴刻度
+                    axistick_opts=opts.AxisTickOpts(is_show=False),
+                    # 分割线
+                    splitline_opts=opts.SplitLineOpts(is_show=False),
+                ),
+                legend_opts=opts.LegendOpts(is_show=False),
+                # 区域缩放配置
+                datazoom_opts=[
+                    opts.DataZoomOpts(is_show=False, type_="inside", range_start=0, range_end=100),
+                    opts.DataZoomOpts(is_show=False, type_="slider", range_start=0, range_end=100),
+                ],
+                # 工具箱配置
+                tooltip_opts=opts.TooltipOpts(
+                    trigger="axis",
+                    axis_pointer_type="cross",
+                    background_color="rgba(245, 245, 245, 0.8)",
+                    border_width=2,
+                    border_color="#ccc",
+                    textstyle_opts=opts.TextStyleOpts(color="#000", font_size=10),
+                ),
+                # 坐标轴指示器配置
+                axispointer_opts=opts.AxisPointerOpts(
+                    is_show=True,
+                    link=[{"xAxisIndex": "all"}],
+                    label=opts.LabelOpts(background_color="#777"),
+                ),
+            )
     )
     # 传递js函数所需的数据
     volume.add_js_funcs("var barData = {}".format(df[['open', 'close', 'low', 'high']].values.tolist()))
