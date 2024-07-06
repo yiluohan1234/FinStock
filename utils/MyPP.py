@@ -14,12 +14,13 @@ from pyecharts.commons.utils import JsCode
 
 
 # 基本画图组建
-def PLINE(df, lines=[], precision=2):
+def PLINE(df, lines=[], precision=2, x_splitline=False):
     '''
     利用pyecharts绘制折线图
     :param df: 数据
     :param lines: y坐标名称列表，列表最大为7
     :param precision: 数据小数位
+    :param x_splitline: 是否显示x轴splitline
     :return: Line对象
     '''
     kind = "%Y-%m-%d" if df.index[0].hour == 0 else "%Y-%m-%d %H:%M"
@@ -32,7 +33,7 @@ def PLINE(df, lines=[], precision=2):
             y_axis=round(df[line], precision).values.tolist(),
             is_smooth=True,
             label_opts=opts.LabelOpts(is_show=False),
-            linestyle_opts=opts.LineStyleOpts(type_='solid', width=1),
+            linestyle_opts=opts.LineStyleOpts(type_='solid', width=2),
             itemstyle_opts=opts.ItemStyleOpts(color=color[i]),
             markline_opts=opts.MarkLineOpts(
                 data=[opts.MarkLineItem(name='0', y=0, symbol='none', )],
@@ -44,7 +45,7 @@ def PLINE(df, lines=[], precision=2):
         xaxis_opts=opts.AxisOpts(
             type_="category",
             # 分割线
-            splitline_opts=opts.SplitLineOpts(is_show=False),
+            splitline_opts=opts.SplitLineOpts(is_show=x_splitline),
             axislabel_opts=opts.LabelOpts(is_show=False),
         ),
         yaxis_opts=opts.AxisOpts(
@@ -199,12 +200,13 @@ def PBUY_SELL(df, col_name):
 
 
 ## 应用类
-def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2):
+def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2, x_splitline=False):
     '''
     利用pyecharts绘制MACD图
     :param df: 数据
     :param col_name: 相关列名的列表
     :param precision: 数据小数位
+    :param x_splitline: 是否显示x轴splitline
     :return: Bar对象
     '''
     kind = "%Y-%m-%d" if df.index[0].hour == 0 else "%Y-%m-%d %H:%M"
@@ -240,7 +242,7 @@ def PMACD(df, col_name=['MACD', 'DIF', 'DEA'], precision=2):
                 xaxis_opts=opts.AxisOpts(
                     type_="category",
                     # 分割线横线
-                    splitline_opts=opts.SplitLineOpts(is_show=False),
+                    splitline_opts=opts.SplitLineOpts(is_show=x_splitline),
                     axislabel_opts=opts.LabelOpts(is_show=False),
                 ),
                 yaxis_opts=opts.AxisOpts(
@@ -290,19 +292,22 @@ def PVOL(df, col_name='volume', precision=2):
     '''
     kind = "%Y-%m-%d" if df.index[0].hour == 0 else "%Y-%m-%d %H:%M"
     x_index = df.index.strftime(kind).tolist()
+    db = df[['volume']].copy()
+    db['vol_flag'] = df.apply(lambda x: 1 if x.close >= x.open else -1, axis=1)
+    db['i'] = db.reset_index().index
     volume = (
         Bar()
             .add_xaxis(x_index)
             .add_yaxis(
                 series_name=col_name,
-                y_axis=round(df[col_name], precision).values.tolist(),
+                y_axis=round(db[['i', col_name, 'vol_flag']], precision).values.tolist(),
                 label_opts=opts.LabelOpts(is_show=False),
                 itemstyle_opts=opts.ItemStyleOpts(
                     color=JsCode(
                         """
                         function(params) {
                             var colorList;
-                            if (barData[params.dataIndex][1] > barData[params.dataIndex][0]) {
+                            if (params.data[2] > 0) {
                                 colorList = '#ef232a';
                             } else {
                                 colorList = '#14b143';
@@ -351,5 +356,5 @@ def PVOL(df, col_name='volume', precision=2):
             )
     )
     # 传递js函数所需的数据
-    volume.add_js_funcs("var barData = {}".format(df[['open', 'close', 'low', 'high']].values.tolist()))
+    # volume.add_js_funcs("var barData = {}".format(df[['open', 'close', 'low', 'high']].values.tolist()))
     return volume
