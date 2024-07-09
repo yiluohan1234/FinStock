@@ -1025,6 +1025,24 @@ def find_argrelextrema_point(df, k_name='k20'):
     return ret
 
 
+def bs_signals(df, col_name='kp10'):
+    def moving_average(ts, win):
+        return np.convolve(ts, np.ones(win) / win, mode='valid')
+    from scipy.signal import argrelextrema
+    ma = moving_average(df[col_name], 10)
+    peak_indexes = argrelextrema(ma, np.greater)
+    peaks = peak_indexes[0]
+    valley_indexes = argrelextrema(ma, np.less)
+    valleys = valley_indexes[0]
+
+    dt = {}
+    condition_buy = df[col_name].reset_index().index.isin(valleys.tolist())
+    condition_sell = df[col_name].reset_index().index.isin(peaks.tolist())
+
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
+
 def AMPD(data):
     """
     实现AMPD获取波峰算法
