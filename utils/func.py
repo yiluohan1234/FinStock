@@ -12,6 +12,11 @@ import re
 import akshare as ak
 import numpy as np
 import pandas as pd
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from scipy.signal import find_peaks
 import datetime
 from utils.cons import *
@@ -1100,6 +1105,46 @@ def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
     ret_df = pd.merge(df_current, df_pre, how='left', on='date', suffixes=('', '_pre'))
     ret_df['volume_yoy'] = ret_df['volume'] - ret_df['volume_pre']
     return ret_df[['date', 'open', 'close', 'high', 'low', 'volume', 'volume_yoy', 'change', 'change_pre']]
+
+
+def send_qq_mail(sender, password, subject, content, receiver, file_path=None):
+    try:
+        sender = sender
+        # 通过QQ邮箱设置获取的授权码，不是邮箱密码
+        password = password
+        # 设置服务器:这个是qq邮箱服务器
+        email_host = "smtp.qq.com"
+        # 通用发送邮件工具
+        # 你的收件邮箱地址列表
+        receivers = [receiver]
+        send_user = "<" + sender + ">"
+        # message = MIMEText(content, 'plain', 'utf-8')
+        message = MIMEMultipart()
+        message['Subject'] = subject
+        message['From'] = send_user
+        message['To'] = ";".join(receivers)
+        # 设置邮件内容和格式
+        message.attach(MIMEText(content, 'plain', 'utf-8'))
+        # 附件文件不为空时
+        if file_path:
+            # 添加附件文件内容
+            with open(file_path, "rb") as attachment:
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(attachment.read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', f"attachment; filename= {file_path}")
+                message.attach(part)
+
+        server = smtplib.SMTP_SSL(email_host, 465)
+        server.login(sender, password)
+        server.sendmail(sender, receivers, message.as_string())
+        server.quit()
+        print('邮件发送成功')
+        return [1, '000000', '邮件发送成功', [receivers[0]]]
+
+    except Exception as e:
+        print("邮件发送失败异常," + str(e))
+        return [0, 'FBE999', "邮件发送失败异常," + str(e), [None]]
 
 
 if __name__ == "__main__":
