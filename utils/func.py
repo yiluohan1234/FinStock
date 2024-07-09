@@ -996,6 +996,30 @@ def find_max_min_point(df, k_name='k20'):
     return ret
 
 
+def find_argrelextrema_point(df, k_name='k20'):
+    """
+    获取数据的局部最大值和最小值的索引
+    :param df: 数据
+    :type df: pandas.DataFrame
+    :param k_name: 斜率名字
+    :type k_name: str
+    :return: 索引值
+    :rtype: numpy.ndarray
+    """
+    from scipy import signal
+    series = np.array(df[k_name])
+    peaks = signal.argrelextrema(series, np.greater, order=1)[0]
+    mins = signal.argrelextrema(series, np.less, order=1)[0]
+
+    dt = {}
+    condition_buy = df[k_name].reset_index().index.isin(mins.tolist())
+    condition_sell = df[k_name].reset_index().index.isin(peaks.tolist())
+
+    dt['BUY'], dt['SELL'] = condition_buy, condition_sell
+    ret = pd.DataFrame(dt)
+    return ret
+
+
 def AMPD(data):
     """
     实现AMPD获取波峰算法
