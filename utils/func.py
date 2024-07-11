@@ -240,6 +240,43 @@ def EMA(df_close, n):
     return ema_n
 
 
+def repeated_median_regression(x, y):
+
+    n = len(x)
+    slopes = []
+
+    # 计算所有点对的斜率
+    for i in range(n):
+        for j in range(i + 1, n):
+            if x[j] != x[i]:
+                slopes.append((y[j] - y[i]) / (x[j] - x[i]))
+
+    # 计算所有斜率的中位数
+    median_slope = np.median(slopes)
+
+    # 计算所有截距的中位数
+    intercepts = y - median_slope * x
+    median_intercept = np.median(intercepts)
+
+    return median_slope, median_intercept
+
+
+def calculate_icu_ma(prices, window):
+
+    icu_ma = []
+
+    for i in range(len(prices)):
+        if i < window - 1:
+            icu_ma.append(np.nan)  # 前window-1个点无法计算均线
+        else:
+            x = np.arange(window)
+            y = prices[i - window + 1:i + 1].values
+            slope, intercept = repeated_median_regression(x, y)
+            icu_ma.append(intercept + slope * (window - 1))  # 计算窗口最后一个点的均线值
+
+    return pd.Series(icu_ma, index=prices.index)
+
+
 def MAIN_INDICATOR(df):
     """
     计算主要的指标数据，包括均线、volume均线、抵扣差、乖离率、k率
