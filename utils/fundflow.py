@@ -36,9 +36,20 @@ def get_individual_fund_flow(code, n, is_display=True):
         market = "sh"
     else:
         market = "sz"
-
+    now = datetime.now()
     # market="sh"; 上海证券交易所: sh, 深证证券交易所: sz, 北京证券交易所: bj
-    df = ak.stock_individual_fund_flow(stock=code, market=market)
+    df_his = ak.stock_individual_fund_flow(stock=code, market=market)
+    if now.hour >= 15:
+        df = df_his
+    else:
+        df_current = ak.stock_individual_fund_flow_rank(indicator='今日')
+        df_current = df_current[df_current['代码'] == "000977"]
+        for col in df_current.columns.tolist()[3:]:
+            df_current[col] = df_current[col].astype('float64')
+        df_current['日期'] = datetime.now().date().strftime('%Y-%m-%d')
+        df_cur = df_current[['日期']+df_current.columns.tolist()[3:-1]]
+        df_cur.columns = df_his.columns
+        df = pd.concat([df_his, df_cur])
     df = df.sort_values(by='日期', ascending=False)
     df = df.head(n)
     df_display = get_num2str_df(df.copy())
