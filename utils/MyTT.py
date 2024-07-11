@@ -289,6 +289,13 @@ def ANGLE(S, N):
     man = MA(S, N)
     angle = 57.3*np.tan(100*(man/REF(man, 1)-1))
     return angle
+
+def HMA(S, N):
+    wma_1 = WMA(S, N//2)
+    wma_2 = WMA(S, N)
+    diff = 2 * wma_1 - wma_2
+    hma = WMA(diff, int(np.sqrt(N)))
+    return hma
   #望大家能提交更多指标和函数  https://github.com/mpquant/MyTT
 
 
