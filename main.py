@@ -11,8 +11,8 @@ from core.KLineChart import KLineChart
 
 
 def main(code):
-    k = KLineChart(code, start_date="20240101", freq='min60')
-    k.plot(n=20, width=1600, height=800, area=['V', 'M', 'KPL', 'KDJ'], multiLines=['CCI'],
+    k = KLineChart(code, start_date="20240101", freq='min5')
+    k.plot(n=20, width=1600, height=800, area=['V', 'M', 'KPL', 'MUL'], multiLines=['bias10'],
            klines=['ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250'],
            is_notebook=False
            )
@@ -47,7 +47,7 @@ def main_a(code):
 
 
 if __name__ == "__main__":
-    main("000977")
+    main("600160")
     # main_concept("液冷服务器") # 人工智能
     # main_industry("房地产开发") # 有色金属、计算机设备
     # main_a("000001")
