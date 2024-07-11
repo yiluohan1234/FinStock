@@ -235,8 +235,7 @@ def get_stock(code, start_date, end_date, freq, count):
     peaks, _ = find_peaks(series, distance=10)
     mins, _ = find_peaks(series*-1, distance=10)
 
-    buy = (df['kp10'].reset_index().index.isin(mins.tolist())) & (df['kp10'] < 0) & (df['MACD'] < 0) & \
-          ~((df['DIF'] > 0) & (df['DEA'] > 0))
+    buy = (df['kp10'].reset_index().index.isin(mins.tolist())) & (df['kp10'] < 0) & (df['MACD'] < 0)
     sell = (df['kp10'].reset_index().index.isin(peaks.tolist())) & (df['kp10'] > 0) & (df['MACD'] > 0)
     df['BUY'], df['SELL'] = buy, sell
     # 过滤日期
