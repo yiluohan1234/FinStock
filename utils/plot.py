@@ -188,7 +188,10 @@ def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=Fals
             print("顶点到颈线的距离：{} - {} = {} 元。\n".format(max_y, min_y, h))
             print("第一跌幅满足位：{} - {} = {} 元。\n".format(jx, h, one_stage))
             print("第二跌幅满足位：{} - {} = {} 元。\n".format(one_stage, h, two_stage))
-            print("第三跌幅满足位：{} - {} = {} 元。".format(two_stage, h, three_stage))
+            print("第三跌幅满足位：{} - {} = {} 元。\n".format(two_stage, h, three_stage))
+            print("第一跌幅满足位收益：1 - {} ÷ {} = {}%。\n".format(one_stage, jx, round((1-one_stage*1.0/jx)*100, 2)))
+            print("第二跌幅满足位收益：1 - {} ÷ {} = {}%。\n".format(two_stage, jx, round((1-two_stage*1.0/jx)*100, 2)))
+            print("第三跌幅满足位收益：1 - {} ÷ {} = {}%。\n".format(three_stage, jx, round((1-three_stage*1.0/jx)*100, 2)))
     else:
         stop_line = round(jx * (1 - rate*1.0/100), 2)
         h = round(max_y - min_y, 2)
@@ -200,7 +203,10 @@ def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=Fals
             print("顶点到颈线的距离：{} - {} = {} 元。\n".format(jx, max_y, h))
             print("第一涨幅满足位：{} + {} = {} 元。\n".format(jx, h, one_stage))
             print("第二涨幅满足位：{} + {} = {} 元。\n".format(one_stage, h, two_stage))
-            print("第三涨幅满足位：{} + {} = {} 元。".format(two_stage, h, three_stage))
+            print("第三涨幅满足位：{} + {} = {} 元。\n".format(two_stage, h, three_stage))
+            print("第一涨幅满足位收益：{} ÷ {} - 1 = {}%。\n".format(one_stage, jx, round((one_stage*1.0/jx-1)*100, 2)))
+            print("第二涨幅满足位收益：{} ÷ {} - 1 = {}%。\n".format(two_stage, jx, round((one_stage*1.0/jx-1)*100, 2)))
+            print("第三涨幅满足位收益：{} ÷ {} - 1 = {}%。\n".format(three_stage, jx, round((one_stage*1.0/jx-1)*100, 2)))
     if stage == 3:
         return [stop_line, one_stage, two_stage, three_stage]
     elif stage == 2:
@@ -795,6 +801,4 @@ def plot_main_tx(df, is_notebook=True):
 
 
 if __name__ == "__main__":
-    df_main = get_main_indicators_sina("000977", 5, is_display=False)
-    plot_line(df_main, '报告期', '总资产周转率', '总资产周转率').render('visual.html')
-    webbrowser.open_new_tab('file://' + os.path.realpath('visual.html'))
+    print(get_three_stage(3.12, 3.12, 2.62, 5, True, 3, is_print=True))
