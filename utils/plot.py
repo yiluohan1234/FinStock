@@ -715,13 +715,13 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
 
 
 def plot_main_tx(df, is_notebook=True):
-    dateindex = df.index.strftime('%Y-%m-%d %H:%M').tolist()
+    kline = PKLINE(df, 'K线')
     macd = PMACD(df, ['MACD', 'DIF', 'DEA'])
     kpl = PLINE(df, ['kp10', 'kp20', 'kp60'])
     es_buy, es_sell = PBUY_SELL(df, 'kp10')
     kpl.overlap(es_buy)
     kpl.overlap(es_sell)
-    kdj = PLINE(df, ['BIAS1'])
+    kdj = PLINE(df, ['BIAS1', 'BIAS2', 'BIAS3'])
 
     grid_chart = Grid(init_opts=opts.InitOpts(width="1000px", height="300px",))
     grid_chart.add(
