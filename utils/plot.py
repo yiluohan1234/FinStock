@@ -29,19 +29,12 @@ def K(dateindex, data, title, klines, jxLines, threeLines) -> Kline:
     '''
     绘制k线图
     :param dateindex: x轴
-    :type dateindex: str
     :param data: 数据
-    :type data: pandas.DataFrame
     :param title: Kline的标题
-    :type title: str
     :param klines: 均线列表
-    :type klines: list
     :param jxLines: 颈线端点的列表，每段颈线一个列表
-    :type jxLines: list
     :param threeLines: 颈线上三个涨降幅满足位列表
-    :type threeLines: list
     :return: 返回Kline对象
-    :rtype: Kline
     '''
     c = PKLINE(data, title)
 
@@ -84,13 +77,9 @@ def V(dateindex, data, vlines) -> Bar:
     '''
     绘制成交量图
     :param dateindex: x轴
-    :type dateindex: str
     :param data: 数据
-    :type data: pandas.DataFrame
     :param vlines: 成交量均线列表
-    :type vlines: list
     :return: 返回成交量的Bar对象
-    :rtype: Bar
     '''
     v = PVOL(data)
 
@@ -116,9 +105,7 @@ def plot_multi_jx(jxLines) -> Line:
     '''
     绘制多个颈线，每个颈线由一个list组成
     :param jxLines: 颈线的开始和结束节点的元组列表
-    :type jxLines: list
     :return: 返回自定义颈线的Line对象
-    :rtype: Line
     '''
     x_data = []
 
@@ -161,21 +148,13 @@ def get_three_stage(jx, max_y, min_y, rate=3, is_up=True, stage=3, is_print=Fals
     '''
     获取三个涨跌幅满足位
     :param jx: 颈线数据值
-    :type jx: float
     :param max_y: 颈线下最低值或颈线上最高值
-    :type max_y: float
     :param min_y: 颈线下最低值或颈线上最高值
-    :type min_y: float
     :param rate: 止损幅度%
-    :type rate: int
     :param is_up: 是否向上
-    :type is_up: bool
     :param stage: 返回满足位阶数
-    :type stage: int
     :param is_print: 是否打印结果
-    :type is_print: bool
     :return: 返回三个满足位列表
-    :rtype: list
     '''
     if not is_up:
         stop_line = round(jx * (1 + rate*1.0/100), 2)
@@ -220,9 +199,7 @@ def plot_three_stage(jxLines) -> Line:
     @params:
     - jxLines : list   #jxLines, [jx, max_y, min_y, is_up, start_date, end_date]
     :param jxLines: jxLines, [jx, max_y, min_y, is_up, start_date, end_date]
-    :type jxLines: list
     :return: 返回三个满足位的Line对象
-    :rtype: Line
     '''
     jx = jxLines[0]
     max_y = jxLines[1]
@@ -279,15 +256,10 @@ def plot_bar(data, x, y, title) -> Bar:
     '''
     绘制直方图
     :param data: 数据
-    :type data: list
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y: 纵坐标轴列名称
-    :type y: str
     :param title: 图的标题
-    :type title: str
     :return: 返回单条颈线的Line对象
-    :rtype: Line
     '''
     bar = (Bar()
         .add_xaxis(xaxis_data=data[x].tolist())
@@ -323,15 +295,10 @@ def plot_line(data, x, y, title) -> Line:
     '''
     绘制折线图
     :param data: 数据
-    :type data: list
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y: 纵坐标轴列名称
-    :type y: str
     :param title: 图的标题
-    :type title: str
     :return: 返回折线图的Line对象
-    :rtype: Line
     '''
     line = (Line()
         .add_xaxis(xaxis_data=data[x].tolist())
@@ -377,15 +344,10 @@ def plot_bar_line(df, x, y_bar, y_line) -> Bar:
     '''
     绘制业务同比增长的直方折线图
     :param df: 数据
-    :type df: pandas.DataFrame
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y_bar: 纵坐标轴列名称(bar)
-    :type y_bar: str
     :param y_line: 纵坐标轴列名称(line)
-    :type y_line: str
     :return: 返回直方折线图的Bar对象
-    :rtype: Bar
     '''
     x_data = df[x].tolist()
     y_bar_data = df[y_bar].values.tolist()
@@ -510,17 +472,11 @@ def plot_pie(data, x, y, title, classify_type):
     '''
     绘制pie图
     :param data: 数据
-    :type data: list
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y: 纵坐标轴列名称
-    :type y: str
     :param title: 标题
-    :type title: str
     :param classify_type: 分类的字段
-    :type classify_type: str
     :return: 返回Pie对象
-    :rtype: Pie
     '''
     # bar = plot_pie(data, '主营构成', '主营收入', '按产品分类主营构成', '按产品分类')
     data = data[data['分类类型'] == classify_type]
@@ -543,15 +499,10 @@ def plot_multi_bar(x, y, df_list, names_list) -> Bar:
     '''
     绘制多个柱状图对比图
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y: 纵坐标轴列名称
-    :type y: str
     :param df_list: dataframe列表
-    :type df_list: list
     :param names_list: 公司名称列表
-    :type names_list: str
     :return: 返回Bar对象
-    :rtype: Bar
     '''
     x_data = df_list[0][x].tolist()
 
@@ -580,15 +531,10 @@ def plot_multi_line(x, y, df_list, names_list):
     '''
     绘制多个折线图对比图
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y: 纵坐标轴列名称
-    :type y: str
     :param df_list: dataframe列表
-    :type df_list: list
     :param names_list: 公司名称列表
-    :type names_list: str
     :return: 返回Line对象
-    :rtype: Line
     # line = plot_multi_line('报告日', '营业总收入', [df, df1], ['612', '977'])
     '''
     x_data = df_list[0][x].tolist()
@@ -618,13 +564,9 @@ def plot_df_line(df, x, y_list):
     '''
     一个df绘制多个折线图对比图
     :param df: dataframe列表
-    :type df: pandas.Dataframe
     :param x: 横坐标轴的列名称
-    :type x: str
     :param y_list: 纵坐标轴列名称
-    :type y_list: list
     :return: 返回Line对象
-    :rtype: Line
     # line = plot_multi_line('报告日', '营业总收入', [df, df1], ['612', '977'])
     '''
     x_data = df[x].tolist()

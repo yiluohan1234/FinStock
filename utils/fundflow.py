@@ -24,13 +24,9 @@ def get_individual_fund_flow(code, n, is_display=True):
     '''
     获取个股资金流向
     :param code: 股票代码
-    :type code: str
     :param n: 返回数据个数
-    :type n: int
     :param is_display: 是否返回展示数据
-    :type is_display: bool
     :return: 返回个股资金流动情况数据
-    :rtype: pandas.DataFrame
     '''
     if int(code) > 600000:
         market = "sh"
@@ -67,13 +63,9 @@ def get_individual_fund_flow_rank(code, indicator="今日", is_display=True):
     '''
     获取个股资金流动排名情况
     :param code: 股票代码
-    :type code: str
     :param indicator: indicator="今日"; choice {"今日", "3日", "5日", "10日"}
-    :type indicator: str
     :param is_display: 是否返回展示数据
-    :type is_display: bool
     :return: 返回个股资金流动排名数据
-    :rtype: pandas.DataFrame
     '''
     df = ak.stock_individual_fund_flow_rank(indicator=indicator)
     df = df[df['代码'] == code]
@@ -92,11 +84,8 @@ def get_market_fund_flow(n, is_display=True):
     '''
     获取上证和深证市场资金流向
     :param n: 最近天数
-    :type n: str
     :param is_display: 是否返回展示数据
-    :type is_display: bool
     :return: 返回个股资金流动排名数据
-    :rtype: pandas.DataFrame
     '''
     df = ak.stock_market_fund_flow()
     df = get_num2str_df(df)
@@ -185,11 +174,8 @@ def get_research_report(code, n=5):
     '''
     获取个股研报
     :param code: 股票代码
-    :type code: str
     :param n: 返回行数
-    :type n: int
     :return: 返回个股研报
-    :rtype: pandas.DataFrame
     '''
     df = ak.stock_research_report_em(symbol=code)
     df = df.head(n)
@@ -201,11 +187,8 @@ def get_free_top_10_em(code, date='20240331'):
     '''
     获取10大流通股
     :param code: 股票代码
-    :type code: str
     :param date: 日期
-    :type date: int
     :return: 返回10大流通股
-    :rtype: pandas.DataFrame
     '''
     df = ak.stock_gdfx_free_top_10_em(symbol=get_szsh_code(code), date=date)
 
@@ -216,9 +199,7 @@ def get_gdhs_detail(code):
     '''
     获取股东人数
     :param code: 股票代码
-    :type code: str
     :return: 返回股东人数
-    :rtype: pandas.DataFrame
     '''
     df = ak.stock_zh_a_gdhs_detail_em(symbol=code)
 

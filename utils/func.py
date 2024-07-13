@@ -26,9 +26,7 @@ def get_df_markdown_table(df):
     '''
     获取dataframe数据类型并生成markdown表格
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 无
-    :rtype: 无
     '''
     column_types = df.dtypes.to_dict()
     print("| 列名 | 数据类型 |")
@@ -41,9 +39,7 @@ def get_display_data(df):
     '''
     将数据进行转置
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 可以直接查看的列表数据
-    :rtype: pandas.DataFrame
     '''
     ret_columns = df.columns.tolist()
     df_T = df.copy().set_index(ret_columns[0])
@@ -56,9 +52,7 @@ def get_report_type(date_str):
     '''
     根据日期获取报告类别
     :param date_str: 报告日期，'20241231'
-    :type date_str: str
     :return: 获取报告类别
-    :rtype: str
     '''
     if "1231" in date_str:
         return "年报"
@@ -74,9 +68,7 @@ def str2value(valueStr):
     '''
     将带有亿、万和%的字符串转为数字
     :param valueStr: 数字字符串
-    :type valueStr: str
     :return: 转换后的数据
-    :rtype: float
     '''
     valueStr = str(valueStr)
     idxOfYi = valueStr.find('亿')
@@ -98,11 +90,8 @@ def cal_K(df, precision=2):
     '''
     对一段数据进行拟合求斜率
     :param df: 需要设置命名的数据框
-    :type df: pandas.DataFrame
     :param precision: 默认保留小数位
-    :type precision: int
     :return: 返回一段数据的斜率
-    :rtype: float
     '''
     y_arr = np.array(df).ravel()
     x_arr = list(range(1, len(y_arr) + 1))
@@ -114,11 +103,8 @@ def cal_K1(df, precision=2):
     '''
     对一段数据进行拟合求斜率
     :param df: 需要设置命名的数据框
-    :type df: pandas.DataFrame
     :param precision: 默认保留小数位
-    :type precision: int
     :return: 返回一段数据的斜率
-    :rtype: float
     '''
     from sklearn.linear_model import LinearRegression
     y = np.array(df).ravel()
@@ -132,11 +118,8 @@ def cal_K_predict(df, pencentage=0, precision=2):
     '''
     对一段数据进行拟合求斜率,将下一天收盘数据*（1+pencentage）作为新的数据进行预测
     :param df: 需要设置命名的数据框
-    :type df: pandas.DataFrame
     :param precision: 默认保留小数位
-    :type precision: int
     :return: 返回一段数据的斜率
-    :rtype: float
     '''
     from scipy.stats import linregress
     y = np.array(df).ravel()
@@ -151,9 +134,7 @@ def cal_trend(df):
     '''
     计算相邻两个数之间的差值的均值，并判断变化趋势。
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 返回一段数据的趋势，1上升，-1下降，0不明显
-    :rtype: float
     '''
     df_list = df.tolist()
     diff = [df_list[i+1] - df_list[i] for i in range(len(df_list)-1)]
@@ -170,9 +151,7 @@ def cal_trend1(df):
     '''
     对一段数据判断趋势
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 返回一段数据的趋势，1上升，-1下降，0不明显
-    :rtype: float
     '''
     from sklearn.linear_model import LinearRegression
     y = np.array(df).ravel()
@@ -192,11 +171,8 @@ def cal_trend2(df, p=0.05):
     通过统计检验法对数据集进行统计检验来判断数据的升降趋势，需要设定合适的阈值 p
     通常,如果 p 值小于显著性水平(如0.05),则拒绝零假设,认为两个变量之间存在显著的单调关系。
     :param df: 数据
-    :type df: pandas.DataFrame
-     :param p: 阈值
-    :type p: float
+    :param p: 阈值
     :return: 返回一段数据的趋势，1上升，-1下降，0不明显
-    :rtype: float
     '''
     from scipy.stats import spearmanr
     data = df.tolist()
@@ -215,11 +191,8 @@ def MA(df, n):
     计算简单移动平均值
     MA(X,N)，求X的N日移动平均值。算法：(X1+X2+X3+，，，+Xn)/N。例如：MA(CLOSE,10)表示求10日均价。
     :param df: 含有close列的dataframe
-    :type df: pandas.DataFrame
     :param n: 移动数
-    :type n: int
     :return: 返回简单移动平均值
-    :rtype: pandas.DataFrame
     """
     ma_n = df.close.rolling(n).mean()
     return ma_n
@@ -230,11 +203,8 @@ def EMA(df_close, n):
     计算指数移动平均值
     EMA(X,N)，求X的N日指数平滑移动平均。算法：若Y=EMA(X,N)则Y=[2*X+(N-1)*Y']/(N+1)，其中Y'表示上一周期Y值。例如：EMA(CLOSE,30)表示求30日指数平滑均价。
     :param df_close: 含有close列的dataframe
-    :type df_close: pandas.DataFrame
     :param n: 移动数
-    :type n: int
     :return: 返回移动平均值
-    :rtype: pandas.DataFrame
     """
     ema_n = df_close.ewm(span=n, min_periods=n, adjust=False).mean()
     return ema_n
@@ -281,9 +251,7 @@ def MAIN_INDICATOR(df):
     """
     计算主要的指标数据，包括均线、volume均线、抵扣差、乖离率、k率
     :param df: 基础数据
-    :type df: pandas.DataFrame
     :return: 返回指标数据
-    :rtype: pandas.DataFrame
     """
     df = basic_indicator(df)
 
@@ -324,9 +292,7 @@ def basic_indicator(df):
     """
     计算基本的指标数据，包括均线、volume均线、抵扣差、乖离率、k率
     :param df: 基础数据
-    :type df: pandas.DataFrame
     :return: 返回指标数据
-    :rtype: pandas.DataFrame
     """
     # 计算均线、volume均线、抵扣差、乖离率、k率
     for i in ema_list:
@@ -365,15 +331,10 @@ def MACD(df, short=12, long=26, mid=9):
         3.DEA线与K线发生背离，行情可能出现反转信号。
         4.分析MACD柱状线，由红变绿(正变负)，卖出信号参考；由绿变红，买入信号参考。
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param short: short值
-    :type short: int
     :param long: long值
-    :type long: int
     :param mid: mid值
-    :type mid: int
     :return: 返回MACD指标dif、dea和macd
-    :rtype: pandas.DataFrame
     """
     dt = {}
     dif = EMA(df.close, short) - EMA(df.close, long)
@@ -404,15 +365,10 @@ def KDJ(df, N=9, M1=3, M2=3):
         5 投机性太强的个股不适用。
         6 可观察KD值同股价的背离，以确认高低点。
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N: N值
-    :type N: int
     :param M1: M1值
-    :type M1: int
     :param M2: M2值
-    :type M2: int
     :return: 返回KDJ指标k、d和j
-    :rtype: pandas.DataFrame
     """
     dt = {}
     llv = df.low.rolling(N).min() # 假设你的low是一个pandas.series的对象
@@ -442,15 +398,10 @@ def RSI(df, N1=6, N2=12, N3=24):
         1 RSI值于0-100之间呈常态分配，当6日RSI值为80‰以上时，股市呈超买现象，若出现M头，市场风险较大；当6日RSI值在20‰以下时，股市呈超卖现象，若出现W头，市场机会增大。
         2 RSI一般选用6日、12日、24日作为参考基期，基期越长越有趋势性(慢速RSI)，基期越短越有敏感性，(快速RSI)。当快速RSI由下往上突破慢速RSI时，机会增大；当快速RSI由上而下跌破慢速RSI时，风险增大。
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N1: N1值
-    :type N1: int
     :param N2: N2值
-    :type N2: int
     :param N3: N3值
-    :type N3: int
     :return: 返回KDJ指标k、d和j
-    :rtype: pandas.DataFrame
     """
     dt = {}
     lc = df.close.shift(1)
@@ -471,13 +422,9 @@ def BOLL(df, N=20, M=2):
     """
     计算BOLL指标
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N: N值
-    :type N: int
     :param M: M值
-    :type M: int
     :return: 返回BOLL指标boll、up、down
-    :rtype: pandas.DataFrame
     """
     dt = {}
     boll = df.close.rolling(20).mean()
@@ -497,13 +444,9 @@ def ENE(df, N=10, M=9.0):
     UPPER:(1+M1/100)*MA(CLOSE,N)的意思是，上轨距离N日均价的涨幅为M1%；
     LOWER:(1-M2/100)*MA(CLOSE,N) 的意思是，下轨距离 N 日均价的跌幅为 M2%;
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N: N值
-    :type N: int
     :param M: M值
-    :type M: int
     :return: 返回BOLL指标boll、up、down
-    :rtype: pandas.DataFrame
     """
     dt = {}
     ene = df.close.rolling(N).mean()
@@ -520,11 +463,8 @@ def ATR(df, N=14):
     TR:MAX(MAX((HIGH-LOW),ABS(REF(CLOSE,1)-HIGH)),ABS(REF(CLOSE,1)-LOW));
     ATR:MA(TR,N);
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N: N值
-    :type N: int
     :return: 返回ATR
-    :rtype: pandas.DataFrame
     """
     dt = {}
     maxx = df['high'] - df['low']
@@ -550,11 +490,8 @@ def CCI(df, n=14):
     3.CCI>100 时，买进，直到CCI<100 时，卖出；
     4.CCI<-100 时，放空，直到CCI>-100 时，回补。
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param n: N值
-    :type n: int
     :return: 返回CCI
-    :rtype: pandas.DataFrame
     """
     dt = {}
     typ = (df['high'] + df['low'] + df['close']) / 3
@@ -572,13 +509,9 @@ def ADTM(df, N=23, M=8):
     1、该指标在+1到-1之间波动；
     2、低于-0.5时为很好的买入点，高于+0.5时需注意风险。
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N: DTM和DBM的窗口大小
-    :type N: int
     :param M: MAADTM的窗口大小
-    :type M: int
     :return: 返回ADTM
-    :rtype: pandas.DataFrame
     """
     dt = {}
     DTM = np.where(df['open'] <= df['open'].shift(1), 0,
@@ -599,15 +532,10 @@ def CHO(df, N1=10, N2=20, M=6):
     """
     计算CHO指标
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param N1: N1窗口大小
-    :type N1: int
     :param N2: N2的窗口大小
-    :type N2: int
     :param M: MACHO的窗口大小
-    :type M: int
     :return: 返回CHO
-    :rtype: pandas.DataFrame
     """
     dt = {}
     # 计算 MID
@@ -627,15 +555,10 @@ def get_macd_data(df, fastperiod=12, slowperiod=26, signalperiod=9):
     """
     计算MACD指标
     :param df: datframe数据
-    :type df: pandas.DataFrame
     :param fastperiod: 短期天数
-    :type fastperiod: int
     :param slowperiod: 长期天数
-    :type slowperiod: int
     :param signalperiod: 天数
-    :type signalperiod: int
     :return: 返回MACD指标dif、dea和macd
-    :rtype: pandas.DataFrame
     # https://cloud.tencent.com/developer/article/1794902
     """
     import talib
@@ -650,11 +573,8 @@ def get_name(code, zh_index):
     '''
     获取股票名称
     :param code: 股票代码
-    :type code: str
     :param zh_index: 类型，stock：股票，index：指数，industry：行业，concept：概念
-    :type zh_index: str
     :return: 股票名称
-    :rtype: str
     '''
     if zh_index == 'stock':
         name_code = ak.stock_zh_a_spot_em()
@@ -685,11 +605,8 @@ def frb(open_value, close_value):
     '''
     获取volume的标识符
     :param open_value: 开盘数值
-    :type open_value: float
     :param close_value: 开盘数值
-    :type close_value: float
     :return: 返回标识
-    :rtype: int
     '''
     if (close_value - open_value) >= 0:
         return 1
@@ -701,9 +618,7 @@ def get_szsh_code(code):
     '''
     获取上证指数的字母前缀
     :param code: 股票代码
-    :type code: str
     :return: 返回带前缀的编码
-    :rtype: str
     '''
     # https://blog.csdn.net/viki_2/article/details/123775244
     gp_type = ''
@@ -740,9 +655,7 @@ def num2str(num):
     '''
     实现数值转换为万，亿单位，保留2位小数
     :param num: 数字
-    :type num: float
     :return: 转换数字位亿万单位的字符串
-    :rtype: str
     '''
     if num > 0:
         flag = 1
@@ -764,9 +677,7 @@ def get_num2str_df(df):
     '''
     实现将dataframe转换为万，亿单位，保留2位小数
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 转换数字位亿万单位的数据
-    :rtype: pandas.DataFrame
     '''
     for col in df.columns.tolist():
         if str(df[col].dtype) == 'float64':
@@ -778,9 +689,7 @@ def get_date_week(current_date):
     '''
     获取当前日期的周数
     :param current_date: 日期字符串，'20240521'
-    :type current_date: str
     :return: 返回第n个周
-    :rtype: str
     '''
     week = datetime.datetime.strptime(current_date, '%Y%m%d').strftime('%W')
     return week
@@ -790,9 +699,7 @@ def get_date_month(current_date):
     '''
     获取当前日期的月份
     :param current_date: 日期字符串，'20240521'
-    :type current_date: str
     :return: 返回第n个月
-    :rtype: str
     '''
     month = datetime.datetime.strptime(current_date, '%Y%m%d').month
     return str(month)
@@ -802,11 +709,8 @@ def transfer_price_freq(df, freq):
     """
     将数据转化为指定周期：开盘价(周期第一天)、收盘价(周期最后一天)、最高价(周期)、最低价(周期)
     :param df: 日数据，包含每天开盘价、收盘价、最高价、最低价
-    :type df: pandas.DataFrame
     :param freq: 转换周期，周：'W'，月:'M'，季度:'Q'
-    :type freq: str
     :return: 转换后的数据
-    :rtype: pandas.DataFrame
     """
     if freq == 'M':
         freq = 'ME'
@@ -836,9 +740,7 @@ def k_cross_multi_line_strategy(df):
     """
     策略：k10、k20和k60为多头，k10上穿k20买入；k10、k20和k60为空头，k10下穿k20卖出；
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 标记后的数据
-    :rtype: pandas.DataFrame
     """
     dt = {}
     condition_buy = (df['k10'] > df['k20']) & (df['k10'].shift() < df['k20'].shift()) & \
@@ -855,9 +757,7 @@ def sma_boll_strategy(df):
     """
     收盘小于ma10买入，高于boll的up卖出
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 索引值
-    :rtype: pandas.DataFrame
     """
     dt = {}
     condition_buy = (df['close'] < df['ma10'])
@@ -871,11 +771,8 @@ def k_max_min_strategy(df, k_name='k20'):
     """
     策略：k_name最小值买入；k_name最大值卖出；
     :param df: 数据
-    :type df: pandas.DataFrame
     :param k_name: 斜率名字
-    :type k_name: str
     :return: 标记后的数据
-    :rtype: pandas.DataFrame
     """
     dt = {}
     condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2))
@@ -890,11 +787,8 @@ def k20_max_min_low_high_strategy(df):
     """
     策略：k10、k20和k60为负，k_name最小值买入；k10、k20和k60为正，k_name最大值卖出；
     :param df: 数据
-    :type df: pandas.DataFrame
     :param k_name: 斜率名字
-    :type k_name: str
     :return: 标记后的数据
-    :rtype: pandas.DataFrame
     """
     dt = {}
     condition_buy = (df['k20'] > df['k20'].shift()) & (df['k20'].shift() <= df['k20'].shift(2)) & \
@@ -913,11 +807,8 @@ def kp_max_min_multi_line_strategy(df, k_name='kp10'):
     """
     策略：kp10、kp20和kp60为多头，k_name最小值买入；kp10、kp20和kp60为空头，k_name最大值卖出；
     :param df: 数据
-    :type df: pandas.DataFrame
     :param k_name: 斜率名字
-    :type k_name: str
     :return: 标记后的数据
-    :rtype: pandas.DataFrame
     """
     dt = {}
     condition_buy = (df[k_name] > df[k_name].shift()) & (df[k_name].shift() <= df[k_name].shift(2)) & \
@@ -934,9 +825,7 @@ def ma_bias_condition(df):
     """
     均线和BIAS指标信号
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 是否满足条件
-    :rtype: pandas.DataFrame
     """
     condition = (df['ma5'] > df['ma10']) & (df['ma5'] > df['ma20']) & (df['bias5'] > df['bias10']) & (df['bias5'] > df['bias20'])
     return condition
@@ -946,9 +835,7 @@ def boll_condition(df, name):
     """
     股价低于BOLL线底
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 是否满足条件
-    :rtype: pandas.DataFrame
     """
     condition = (df['close'] < df['down'])
     return condition
@@ -958,9 +845,7 @@ def kdj_condition(df):
     """
     K线上穿D线
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 是否满足条件
-    :rtype: pandas.DataFrame
     """
     condition = (df['K'] > df['D']) & (df['K'].shift() < df['D'].shift())
     return condition
@@ -970,9 +855,7 @@ def rsi_condition(df):
     """
     RSI指标信号
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 是否满足条件
-    :rtype: pandas.DataFrame
     """
     condition = (df['RSI24'] > 80) | (df['RSI24'] < 20)
     return condition
@@ -982,9 +865,7 @@ def not_down_trend_condition(df):
     """
     kp20、kp60、DIF和DEA指标信号不能处于下降趋势
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 是否满足条件
-    :rtype: pandas.DataFrame
     """
     condition = ~((df['kp20'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
                   (df['kp60'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
@@ -997,9 +878,7 @@ def kdj_not_down_trend_condition(df):
     """
     K、D、J指标信号不能处于下降趋势
     :param df: 数据
-    :type df: pandas.DataFrame
     :return: 是否满足条件
-    :rtype: pandas.DataFrame
     """
     condition = ~((df['K'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
                   (df['D'].rolling(5).apply(lambda x: cal_trend2(x)) < 0) &
@@ -1017,11 +896,8 @@ def find_max_min_point(df, k_name='k20'):
     """
     获取数据的局部最大值和最小值的索引
     :param df: 数据
-    :type df: pandas.DataFrame
     :param k_name: 斜率名字
-    :type k_name: str
     :return: 索引值
-    :rtype: numpy.ndarray
     """
     mindis = int((''.join(re.findall('\d+', k_name))))
     series = np.array(df[k_name])
@@ -1041,11 +917,8 @@ def find_argrelextrema_point(df, k_name='k20'):
     """
     获取数据的局部最大值和最小值的索引
     :param df: 数据
-    :type df: pandas.DataFrame
     :param k_name: 斜率名字
-    :type k_name: str
     :return: 索引值
-    :rtype: numpy.ndarray
     """
     from scipy import signal
     series = np.array(df[k_name])
@@ -1083,9 +956,7 @@ def AMPD(data):
     """
     实现AMPD获取波峰算法
     :param data: 数据
-    :type data: numpy.ndarray
     :return: 波峰所在索引值的列表
-    :rtype: list
     """
     p_data = np.zeros_like(data, dtype=np.int32)
     count = data.shape[0]
@@ -1128,17 +999,11 @@ def get_diff_data(code, current_date=datetime.datetime.now().strftime('%Y%m%d'),
     """
     获取实时分钟级数据
     :param code: 编码
-    :type code: str
     :param current_date: 当前日期
-    :type current_date: str
     :param pre_date: 历史日期
-    :type pre_date: str
     :param period: 周期，{'1', '5', '15', '30', '60'}
-    :type period: str
     :param zh_index: 是否是指数
-    :type zh_index: bool
     :return: 返回分钟级数据
-    :rtype: pandas.DataFrame
     """
     if not zh_index:
         df_pre = ak.stock_zh_a_hist_min_em(symbol=code, start_date=pre_date, end_date=pre_date, period=period, adjust="qfq").iloc[:, [0, 1, 2, 3, 4, 7, 10]]
