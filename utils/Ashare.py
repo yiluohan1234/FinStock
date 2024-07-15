@@ -79,7 +79,7 @@ def get_stock(code):
     import numpy as np
     now = datetime.now()
     date = now.strftime('%Y%m%d')
-    df = get_price(code2symbol(code),frequency='5m',count=600)
+    df = get_price(code2symbol(code),frequency='15m',count=600)
     for i in [10, 20, 60]:
         df['kp{}'.format(i)] = SLOPE_PRE(df['close'], i)
     df['K'], df['D'], df['J'] = KDJ(df['close'], df['high'], df['low'])
