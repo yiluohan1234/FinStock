@@ -204,7 +204,7 @@ def get_stock(code, start_date, end_date, freq, count):
     start_date = pd.to_datetime(start_date)+datetime.timedelta(days=-1)
     end_date = pd.to_datetime(end_date)+datetime.timedelta(days=+1)
 
-    df = get_price(code,frequency=freq,count=count)
+    df = get_price(code2symbol(code),frequency=freq,count=count)
     df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
     for i in [10, 20, 60]:
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
