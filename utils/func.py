@@ -1095,5 +1095,20 @@ def tradedays(start, end):
     return counts
 
 
+def get_last_trading_day(current_date):
+    # 获取国内上一个交易日
+    #依赖库 chinese_calendar, datetime
+    import chinese_calendar
+    current_date = pd.to_datetime(current_date)
+    dayStep = 1
+    lastTradingday = current_date - datetime.timedelta(days=dayStep)
+    while True:
+        if lastTradingday.isoweekday() >= 6 or chinese_calendar.is_workday(lastTradingday) == False:
+            dayStep += 1
+            lastTradingday = datetime.datetime.now() - datetime.timedelta(days=dayStep)
+        else:
+            #自定义输出格式化
+            return lastTradingday
+
 if __name__ == "__main__":
     print(get_date_month("20240521"))
