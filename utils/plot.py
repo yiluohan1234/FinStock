@@ -721,7 +721,7 @@ def plot_main_tx(df, is_notebook=True):
     es_buy, es_sell = PBUY_SELL(df, 'kp10')
     kpl.overlap(es_buy)
     kpl.overlap(es_sell)
-    kdj = PLINE(df, ['BIAS1', 'BIAS2', 'BIAS3'])
+    kdj = PLINE(df, ['bias10', 'bias20', 'bias60'])
 
     grid_chart = Grid(init_opts=opts.InitOpts(width="1000px", height="300px",))
     grid_chart.add(

@@ -210,7 +210,7 @@ def get_stock(code, start_date, end_date, freq, count):
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
     df['K'], df['D'], df['J'] = KDJ(df['close'], df['high'], df['low'])
     df['DIF'], df['DEA'], df['MACD'] = MACD(df['close'])
-    df['BIAS1'], df['BIAS2'], df['BIAS3'] = BIAS(df['close'], 10, 20, 60)
+    df['bias10'], df['bias20'], df['bias60'] = BIAS(df['close'], 10, 20, 60)
     # 获取最高最低点
     series = np.array(df['kp10'])
     peaks, _ = find_peaks(series, distance=10)
