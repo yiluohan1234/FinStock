@@ -47,10 +47,11 @@ def main_a(code):
 
 
 if __name__ == "__main__":
-    main("000977")
+    # main("000977")
     # main_concept("液冷服务器") # 人工智能
     # main_industry("房地产开发") # 有色金属、计算机设备
-    # main_a("000001")
-    # code_list = ["000737", "000977", "002948", "601877", "600595", "000612"]
-    # for code in code_list:
-    #     main(code)
+    main_a("sh000852")
+    main_a("000001")
+    code_list = ["000977", "000737", "603993", "002460", "601877", "002948", "600595", "000612"]
+    for code in code_list:
+        main(code)
