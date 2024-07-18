@@ -35,7 +35,7 @@ def get_individual_fund_flow(code, n, is_display=True):
     now = datetime.now()
     # market="sh"; 上海证券交易所: sh, 深证证券交易所: sz, 北京证券交易所: bj
     df_his = ak.stock_individual_fund_flow(stock=code, market=market)
-    if now.hour >= 15 and now.hour <= 9:
+    if now.hour >= 15 or now.hour <= 9:
         df = df_his
     else:
         df_current = ak.stock_individual_fund_flow_rank(indicator='今日')
