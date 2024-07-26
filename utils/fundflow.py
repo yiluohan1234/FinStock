@@ -42,7 +42,7 @@ def get_individual_fund_flow(code, n, is_display=True):
         df_current = df_current[df_current['代码'] == code]
         for col in df_current.columns.tolist()[3:]:
             df_current[col] = df_current[col].astype('float64')
-        df_current['日期'] = datetime.now().date().strftime('%Y-%m-%d')
+        df_current['日期'] = datetime.now().date()#.strftime('%Y-%m-%d')
         df_cur = df_current[['日期']+df_current.columns.tolist()[3:-1]]
         df_cur.columns = df_his.columns
         df = pd.concat([df_his, df_cur])
