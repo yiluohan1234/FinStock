@@ -28,8 +28,9 @@ def get_data(code, start_date, end_date, freq):
     :return: 返回股票综合数据
     '''
     if freq == 'D' or freq == 'W' or freq == 'M':
-        df = ak.stock_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date, adjust="qfq").iloc[:, :6]
+        df = ak.stock_zh_a_hist(symbol=code, period=transfer_date_dic[freq], start_date=start_date, end_date=end_date, adjust="qfq")#.iloc[:, :6]
         # df = ak.stock_zh_a_daily(symbol=self.get_szsh_code(code), start_date=start,end_date=end_date, adjust="qfq")
+        df = df[['日期', '开盘', '收盘', '最高', '最低', '成交量']]
         df.columns = ['date', 'open', 'close', 'high', 'low', 'volume', ]
         df["date"] = pd.to_datetime(df["date"])
     else:
