@@ -18,18 +18,18 @@ def get_basic_info(code, indicator='2023-12-31'):
     @params:
     - code: str      # 股票代码
     '''
-    # cninfo_df = ak.stock_profile_cninfo(symbol=code)
-    # print("----------------------------- 简介 -----------------------------\n")
-    # print("公司名称:", cninfo_df.iloc[0][0])
-    # print("A股简称:", cninfo_df.iloc[0][4])
-    # print("成立时间:", cninfo_df.iloc[0][14])
-    # print("上市时间:", cninfo_df.iloc[0][15])
-    name_code = ak.stock_zh_a_spot_em()
-    name = name_code[name_code['代码'] == code]['名称'].values[0]
+    cninfo_df = ak.stock_profile_cninfo(symbol=code)
     print("----------------------------- 简介 -----------------------------\n")
-    print("公司名称:", name)
-    stock_ipo_summary_cninfo_df = ak.stock_ipo_summary_cninfo(symbol=code)
-    print("上市时间:", stock_ipo_summary_cninfo_df.iloc[0][9])
+    print("公司名称:", cninfo_df.iloc[0][0])
+    print("A股简称:", cninfo_df.iloc[0][4])
+    print("成立时间:", cninfo_df.iloc[0][14])
+    print("上市时间:", cninfo_df.iloc[0][15])
+    # name_code = ak.stock_zh_a_spot_em()
+    # name = name_code[name_code['代码'] == code]['名称'].values[0]
+    # print("----------------------------- 简介 -----------------------------\n")
+    # print("公司名称:", name)
+    # stock_ipo_summary_cninfo_df = ak.stock_ipo_summary_cninfo(symbol=code)
+    # print("上市时间:", stock_ipo_summary_cninfo_df.iloc[0][9])
     zyjs_ths_df = ak.stock_zyjs_ths(symbol=code)
     print("主营业务:", zyjs_ths_df.iloc[0][1])  # '主营业务'
     print("产品类型:", zyjs_ths_df.iloc[0][2])  # '产品类型'
