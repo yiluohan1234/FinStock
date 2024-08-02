@@ -714,32 +714,39 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
         return grid_chart
 
 
-def plot_main_tx(df, is_notebook=True):
+def plot_main_tx(df, width=1000, height=300, is_kline=False, is_notebook=True):
     kline = PKLINE(df, 'K线')
     macd = PMACD(df, ['MACD', 'DIF', 'DEA'])
     kpl = PLINE(df, ['kp10', 'kp20', 'kp60'])
     es_buy, es_sell = PBUY_SELL(df, 'kp10')
     kpl.overlap(es_buy)
     kpl.overlap(es_sell)
-    kdj = PLINE(df, ['bias10', 'bias20', 'bias60'])
+    bias = PLINE(df, ['bias10', 'bias20', 'bias60'])
 
-    grid_chart = Grid(init_opts=opts.InitOpts(width="1000px", height="300px",))
-    grid_chart.add(
-        macd,
-        grid_opts=opts.GridOpts(pos_top="0%", height="30%"),
-    )
-    grid_chart.add(
-        kpl, grid_opts=opts.GridOpts(pos_top="30%", height="30%"),
-    )
-    grid_chart.add(
-        kdj, grid_opts=opts.GridOpts(pos_top="60%", height="30%"),
-    )
-    # 多个子图同时区域缩放功能
-    grid_chart.options['dataZoom'][0].opts['xAxisIndex'] = list(range(0, 3))
-    if is_notebook:
-        return grid_chart.render_notebook()
+    grid = Grid(init_opts=opts.InitOpts(width=str(width) + "px", height=str(height) + "px",))
+    area = [kline, macd, kpl, bias] if is_kline else [macd, kpl, bias]
+    # area = [kline, macd, kpl, bias]
+    iWindows = len(area)
+    if kline in area:
+        iButton = 45
+        iStep = 15
     else:
-        return grid_chart
+        iButton = 0
+        iStep = 30
+
+    for window in area:
+        if window == kline:
+            grid.add(window, grid_opts=opts.GridOpts(pos_top='8%', pos_bottom='55%')) # 100 - iButton
+        else:
+            grid.add(window, grid_opts=opts.GridOpts(pos_top=str(iButton) + '%', height=str(iStep) + '%'))
+            iButton = iButton + iStep
+
+    # 多个子图同时区域缩放功能
+    grid.options['dataZoom'][0].opts['xAxisIndex'] = list(range(0, iWindows))
+    if is_notebook:
+        return grid.render_notebook()
+    else:
+        return grid
 
 
 if __name__ == "__main__":
