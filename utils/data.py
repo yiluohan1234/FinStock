@@ -209,6 +209,8 @@ def get_stock(code, start_date, end_date, freq, count):
     df['f'] = df.apply(lambda x: frb(x.open, x.close), axis=1)
     for i in [10, 20, 60]:
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
+    for i in ema_list:
+        df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), 2)
     df['K'], df['D'], df['J'] = KDJ(df['close'], df['high'], df['low'])
     df['DIF'], df['DEA'], df['MACD'] = MACD(df['close'])
     df['bias10'], df['bias20'], df['bias60'] = BIAS(df['close'], 10, 20, 60)

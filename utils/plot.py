@@ -716,6 +716,8 @@ def plot_main(symbol, start_date='20240501', end_date="20240202", freq='min60', 
 
 def plot_main_tx(df, width=1000, height=300, is_kline=False, is_notebook=True):
     kline = PKLINE(df, 'K线')
+    maline = PLINE(df, ['ma5', 'ma10', 'ma20', 'ma60', 'ma120'])
+    kline.overlap(maline)
     macd = PMACD(df, ['MACD', 'DIF', 'DEA'])
     kpl = PLINE(df, ['kp10', 'kp20', 'kp60'])
     es_buy, es_sell = PBUY_SELL(df, 'kp10')
