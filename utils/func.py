@@ -304,7 +304,7 @@ def basic_indicator(df):
             precision)
         df['k{}'.format(i)] = df.close.rolling(i).apply(cal_K)
         df['kp{}'.format(i)] = df.close.rolling(i).apply(cal_K_predict)
-
+    df['bias60-10'] = df['bias60'] - df['bias10']
     for i in fib_list:
         df['ma{}'.format(i)] = round(df.close.rolling(i).mean(), precision)
         df['vma{}'.format(i)] = round(df.volume.rolling(i).mean(), precision)
